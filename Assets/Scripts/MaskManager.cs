@@ -70,7 +70,7 @@ public class MaskManager : MonoBehaviour
         if (playerCol == null) return false;
 
         Bounds pBounds = playerCol.bounds;
-        pBounds.Expand(3.6f); // Kenar kaçaklarını engellemek için genişletme
+        pBounds.Expand(0.6f); // Kenar kaçaklarını engellemek için genişletme
 
         foreach (var obj in allMaskObjects)
         {
