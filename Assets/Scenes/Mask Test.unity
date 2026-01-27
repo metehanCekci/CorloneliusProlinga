@@ -352,7 +352,8 @@ GameObject:
   - component: {fileID: 999976772}
   - component: {fileID: 999976771}
   - component: {fileID: 999976774}
-  m_Layer: 6
+  - component: {fileID: 999976775}
+  m_Layer: 7
   m_Name: Maskobject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -473,8 +474,8 @@ Transform:
   m_GameObject: {fileID: 999976769}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.0292, y: -2.03, z: 0}
-  m_LocalScale: {x: 5.486128, y: 1.8738, z: 1}
+  m_LocalPosition: {x: 5.0675, y: -1.83, z: 0}
+  m_LocalScale: {x: 3.5692935, y: 2.477892, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -492,6 +493,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaskObject
   worldType: 0
+  fadedAlpha: 0.3
+  fadedColor: {r: 0, g: 0, b: 1, a: 1}
+--- !u!114 &999976775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999976769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eacb59498b67e5479cc130ef7d60661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gravity
+  gravityStrength: 0
+  groundRayDistance: 0.1
+  jumpForce: 10
+  maxJumpHeight: 5
+  wallRayDistance: 0.1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1001 &1284516053
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -503,6 +529,10 @@ PrefabInstance:
     - target: {fileID: 1462767395608077529, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 1462767395608077529, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 3097071277166387370, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_LocalPosition.x
@@ -549,6 +579,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+--- !u!1 &1357150811 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1462767395608077529, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+  m_PrefabInstance: {fileID: 1284516053}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1581428407
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,6 +614,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   isMaskOn: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  player: {fileID: 1357150811}
 --- !u!4 &1581428409
 Transform:
   m_ObjectHideFlags: 0
@@ -744,7 +783,8 @@ GameObject:
   - component: {fileID: 1886526617}
   - component: {fileID: 1886526616}
   - component: {fileID: 1886526615}
-  m_Layer: 6
+  - component: {fileID: 1886526619}
+  m_Layer: 7
   m_Name: Maskobject2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -764,6 +804,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaskObject
   worldType: 0
+  fadedAlpha: 0.3
+  fadedColor: {r: 0, g: 0, b: 1, a: 1}
 --- !u!61 &1886526616
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -878,12 +920,35 @@ Transform:
   m_GameObject: {fileID: 1886526614}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.02, y: 0.95, z: 0}
-  m_LocalScale: {x: 5.4861283, y: 4.0777636, z: 1}
+  m_LocalPosition: {x: 5.0615, y: 2.1108, z: 0}
+  m_LocalScale: {x: 3.569294, y: 5.392388, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1886526619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886526614}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eacb59498b67e5479cc130ef7d60661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Gravity
+  gravityStrength: 0
+  groundRayDistance: 0.1
+  jumpForce: 10
+  maxJumpHeight: 5
+  wallRayDistance: 0.1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

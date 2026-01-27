@@ -1,29 +1,43 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
-public partial class MaskManager : MonoBehaviour
+public class MaskManager : MonoBehaviour
 {
-    public static MaskManager Instance; // Diğer objelerin kolayca erişmesi için
+    public static MaskManager Instance;
 
+    [Header("Mask Ayarları")]
     [SerializeField] private bool isMaskOn = false;
+    
+    [Header("Sıkışma Engelleme Ayarları")]
+    [SerializeField] private GameObject player; 
+
     private InputActions inputActions;
     private InputAction maskAction;
+    private List<MaskObject> allMaskObjects = new List<MaskObject>();
 
-    // Görsel efektler veya sesler için event (Opsiyonel ama GameJam'de puan kazandırır)
     public delegate void OnMaskChanged(bool isOn);
     public event OnMaskChanged onMaskChanged;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        RefreshObjectList();
+    }
+
+    public void RefreshObjectList()
+    {
+        allMaskObjects.Clear();
+        allMaskObjects.AddRange(Object.FindObjectsByType<MaskObject>(FindObjectsSortMode.None));
+        Debug.Log("Sistem: " + allMaskObjects.Count + " adet obje takip listesine alındı.");
     }
 
     private void OnEnable()
     {
         inputActions = new InputActions();
         inputActions.Enable();
-        
-        // Input Actions'ta "Mask" adında bir Action oluşturduğunu varsayıyorum (Örn: 'E' tuşu veya 'R1')
         maskAction = inputActions.Player.Mask; 
         maskAction.performed += ToggleMask;
     }
@@ -32,15 +46,47 @@ public partial class MaskManager : MonoBehaviour
     {
         maskAction.performed -= ToggleMask;
         inputActions.Disable();
+        inputActions.Dispose();
     }
 
     private void ToggleMask(InputAction.CallbackContext context)
     {
-        isMaskOn = !isMaskOn;
-        Debug.Log("Maske Durumu: " + (isMaskOn ? "Takılı" : "Çıkarıldı"));
+        if (isMaskOn && IsInsideAnyWall())
+        {
+            Debug.LogError("!!! MASKMGR: DUVARIN İÇİNDESİN, KAPATMA ENGELLENDİ !!!");
+            return; 
+        }
 
-        // Etraftaki tüm 'Maske Objeleri'ne haber ver
+        isMaskOn = !isMaskOn;
+        Debug.Log("MASKMGR: Maske durumu değiştirildi -> " + (isMaskOn ? "Açık" : "Kapalı"));
         onMaskChanged?.Invoke(isMaskOn);
+    }
+
+    private bool IsInsideAnyWall()
+    {
+        if (player == null) return false;
+
+        Collider2D playerCol = player.GetComponent<Collider2D>();
+        if (playerCol == null) return false;
+
+        Bounds pBounds = playerCol.bounds;
+        pBounds.Expand(3.6f); // Kenar kaçaklarını engellemek için genişletme
+
+        foreach (var obj in allMaskObjects)
+        {
+            if (obj.GetWorldType() == MaskObject.ObjectWorldType.Natural)
+            {
+                Collider2D wallCol = obj.GetComponent<Collider2D>();
+                if (wallCol != null)
+                {
+                    if (pBounds.Intersects(wallCol.bounds))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public bool IsMaskActive() => isMaskOn;
