@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8b2d1cd5f38a8d84eb9832d77eccf69b
+guid: 940ad83eb9130144eb928595d06be60d
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -127,9 +127,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: background1
+  - name: car
     originalName: 
-    pivot: {x: 0.44526902, y: 0}
+    pivot: {x: 0.5683453, y: -0.3114754}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 2156
-      height: 360
-    spriteID: c2f10c20e49c26046834d3e9b296f240
+      width: 139
+      height: 61
+    spriteID: 06054f8ce3a80f34196acb6c92503bde
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -153,25 +153,25 @@ ScriptedImporter:
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 1617577775
+      value0: 696029512
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: background1
+    name: car
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: background1
+    - name: car
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 0
-        y: 0
-        width: 2156
-        height: 360
-      spriteId: c2f10c20e49c26046834d3e9b296f240
+        x: -15
+        y: 19
+        width: 139
+        height: 61
+      spriteId: 06054f8ce3a80f34196acb6c92503bde
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -181,5 +181,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 1920, y: 360}
-  previousTextureSize: {x: 4096, y: 512}
+  canvasSize: {x: 128, y: 128}
+  previousTextureSize: {x: 256, y: 128}
