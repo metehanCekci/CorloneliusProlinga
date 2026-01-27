@@ -81,12 +81,12 @@ public class ControllerScript : MonoBehaviour
         else if (HasSecondJump)
         {
             Vector3 tempVel = gravity.GetVelocity();
-        tempVel.y = 0;
-        gravity.SetVelocity(tempVel);
+            tempVel.y = 0;
+            gravity.SetVelocity(tempVel);
 
-        gravity.StartJump();
-        HasSecondJump = false;
-        }   
+            gravity.StartJump();
+            HasSecondJump = false;
+        }
     }
 
     private void OnJumpEnd(InputAction.CallbackContext context)
@@ -120,6 +120,10 @@ public class ControllerScript : MonoBehaviour
         else
         {
             currentSpeed = Mathf.MoveTowards(currentSpeed, 0, acceleration * Time.deltaTime);
+        }
+        if (gravity.IsTouchingWall())
+        {
+            currentSpeed = 0;
         }
 
         // Yürüme hızını KENDİ İÇİNDE sınırla (Dash'i etkilemez)
