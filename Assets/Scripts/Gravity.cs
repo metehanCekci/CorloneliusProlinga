@@ -2,11 +2,16 @@ using UnityEngine;
 
 public class Gravity : MonoBehaviour
 {
-    [SerializeField] private float gravityStrength = 5f; // Düşüş hızı
-    [SerializeField] private float groundRayDistance = 0.1f; // Yer kontrolü mesafesi
-    [SerializeField] private float jumpForce = 10f; // Zıplama kuvveti
-    [SerializeField] private float maxJumpHeight = 5f; // Maksimum zıplama yüksekliği
+    [SerializeField] private float gravityStrength = 5f;
+    [SerializeField] private float groundRayDistance = 0.1f;
+    [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float maxJumpHeight = 5f;
     
+    [SerializeField] private float wallRayDistance = 0.1f; 
+    [SerializeField] private LayerMask groundLayer; 
+    // --- YENİ: DUVARLAR İÇİN AYRI KATMAN ---
+    [SerializeField] private LayerMask wallLayer; 
+
     private Vector3 velocity = Vector3.zero;
     private bool isGrounded = false;
     private bool isJumping = false;
@@ -16,20 +21,19 @@ public class Gravity : MonoBehaviour
     void Start()
     {
         col = GetComponent<Collider2D>();
+        
+        // Default atamalar (Inspector'dan seçmeyi unutma!)
+        if (groundLayer == 0) groundLayer = LayerMask.GetMask("Ground");
+        if (wallLayer == 0) wallLayer = LayerMask.GetMask("Wall");
     }
 
     void Update()
     {
-        // Yeri kontrol et
         CheckGround();
 
-        // Jump mekanikler
         if (isJumping)
         {
-            // Space basılı → yukarı git
             velocity.y = jumpForce;
-            
-            // Max yüksekliğe ulaştıysa jump'ı bitir
             float currentHeight = transform.position.y - jumpStartHeight;
             if (currentHeight >= maxJumpHeight)
             {
@@ -38,7 +42,6 @@ public class Gravity : MonoBehaviour
         }
         else
         {
-            // Space bırakıldı → gravity uygulanıyor
             if (isGrounded && velocity.y <= 0)
             {
                 velocity.y = 0;
@@ -49,48 +52,39 @@ public class Gravity : MonoBehaviour
             }
         }
 
-        // Pozisyon güncelleniyor
+        CheckWalls();
+
         transform.position += velocity * Time.deltaTime;
     }
 
-    // Yeri kontrol et (Raycast)
     private void CheckGround()
     {
-        int groundLayer = LayerMask.GetMask("Ground");
         Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayDistance, groundLayer);
-        
         isGrounded = hit.collider != null;
     }
 
-    // Jump başlat
-    public void StartJump()
+    private void CheckWalls()
     {
-        isJumping = true;
-    jumpStartHeight = transform.position.y;
+        if (velocity.x != 0)
+        {
+            float directionX = Mathf.Sign(velocity.x);
+            // Raycast başlangıç noktasını karakterin yan sınırlarına alıyoruz
+            Vector2 rayOrigin = new Vector2(directionX > 0 ? col.bounds.max.x : col.bounds.min.x, transform.position.y);
+            
+            // --- GÜNCELLEME: Sadece wallLayer'a çarpıp çarpmadığını kontrol et ---
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, wallRayDistance, wallLayer);
+
+            if (hit.collider != null)
+            {
+                velocity.x = 0;
+            }
+        }
     }
 
-    // Jump sonlandır
-    public void EndJump()
-    {
-        isJumping = false;
-    }
-
-    // Hız değerini alma
-    public Vector3 GetVelocity()
-    {
-        return velocity;
-    }
-
-    // Hız değerini ayarlama
-    public void SetVelocity(Vector3 newVelocity)
-    {
-        velocity = newVelocity;
-    }
-
-    // Yer kontrolü sorgusu
-    public bool IsGrounded()
-    {
-        return isGrounded;
-    }
+    public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
+    public void EndJump() { isJumping = false; }
+    public Vector3 GetVelocity() { return velocity; }
+    public void SetVelocity(Vector3 newVelocity) { velocity = newVelocity; }
+    public bool IsGrounded() { return isGrounded; }
 }

@@ -2,52 +2,59 @@ using UnityEngine;
 
 public class MaskObject : MonoBehaviour
 {
-    // Radio button mantığı için enum kullanıyoruz
-    public enum ObjectWorldType
-    {
-        Natural, // Maske yokken var olanlar
-        MaskOnly // Maske takılıyken var olanlar
-    }
+    public enum ObjectWorldType { Natural, MaskOnly }
 
     [Header("Dünya Ayarı")]
-    [SerializeField] private ObjectWorldType worldType = ObjectWorldType.Natural; // Default olarak Natural
+    [SerializeField] private ObjectWorldType worldType = ObjectWorldType.Natural;
+    
+    [Header("Görsel Ayarlar (Yok Olduğunda)")]
+    [Range(0, 1)]
+    [SerializeField] private float fadedAlpha = 0.3f; 
+    [SerializeField] private Color fadedColor = Color.blue; 
 
     private SpriteRenderer spriteRenderer;
     private Collider2D col;
+    private Color originalColor;
 
     private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
+        if (spriteRenderer != null) originalColor = spriteRenderer.color;
 
-        // MaskManager'a abone ol
         if (MaskManager.Instance != null)
         {
             MaskManager.Instance.onMaskChanged += UpdateObjectStatus;
-            // Başlangıç durumunu ayarla
             UpdateObjectStatus(MaskManager.Instance.IsMaskActive());
         }
+        else
+        {
+            Debug.LogError(gameObject.name + ": MaskManager bulunamadı!");
+        }
     }
 
-    private void UpdateObjectStatus(bool isMaskOn)
+    public void UpdateObjectStatus(bool isMaskOn)
     {
-        bool shouldBeActive = false;
+        bool shouldBeSolid = (worldType == ObjectWorldType.Natural) ? !isMaskOn : isMaskOn;
 
-        // Seçime göre mantığı kur
-        if (worldType == ObjectWorldType.Natural)
+        if (shouldBeSolid)
         {
-            // Eğer natural seçildiyse, maske kapalıyken aktif olmalı
-            shouldBeActive = !isMaskOn;
+            if (spriteRenderer != null) spriteRenderer.color = originalColor;
+            if (col != null) col.enabled = true;
         }
-        else if (worldType == ObjectWorldType.MaskOnly)
+        else
         {
-            // Eğer maske dünyası seçildiyse, maske açıkken aktif olmalı
-            shouldBeActive = isMaskOn;
+            if (spriteRenderer != null)
+            {
+                Color tempColor = fadedColor;
+                tempColor.a = fadedAlpha;
+                spriteRenderer.color = tempColor;
+            }
+            if (col != null) col.enabled = false;
         }
-
-        if (spriteRenderer != null) spriteRenderer.enabled = shouldBeActive;
-        if (col != null) col.enabled = shouldBeActive;
     }
+
+    public ObjectWorldType GetWorldType() => worldType;
 
     private void OnDestroy()
     {
