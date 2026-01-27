@@ -351,6 +351,7 @@ GameObject:
   - component: {fileID: 999976773}
   - component: {fileID: 999976772}
   - component: {fileID: 999976771}
+  - component: {fileID: 999976774}
   m_Layer: 6
   m_Name: Maskobject
   m_TagString: Untagged
@@ -472,12 +473,25 @@ Transform:
   m_GameObject: {fileID: 999976769}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.02, y: -2.03, z: 0}
-  m_LocalScale: {x: 5.516166, y: 1.8738, z: 1}
+  m_LocalPosition: {x: 6.0292, y: -2.03, z: 0}
+  m_LocalScale: {x: 5.486128, y: 1.8738, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &999976774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 999976769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5785095893a2db41ba21c22fe398dd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaskObject
+  worldType: 0
 --- !u!1001 &1284516053
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -749,7 +763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5785095893a2db41ba21c22fe398dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MaskObject
-  showWhenMaskIsOn: 1
+  worldType: 0
 --- !u!61 &1886526616
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -864,8 +878,8 @@ Transform:
   m_GameObject: {fileID: 1886526614}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.02, y: 0.08, z: 0}
-  m_LocalScale: {x: 5.4861283, y: 1.8738, z: 1}
+  m_LocalPosition: {x: 6.02, y: 0.95, z: 0}
+  m_LocalScale: {x: 5.4861283, y: 4.0777636, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
