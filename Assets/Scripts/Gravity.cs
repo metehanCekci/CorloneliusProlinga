@@ -66,11 +66,8 @@ public class Gravity : MonoBehaviour
     // Jump başlat
     public void StartJump()
     {
-        if (isGrounded)
-        {
-            isJumping = true;
-            jumpStartHeight = transform.position.y;
-        }
+        isJumping = true;
+    jumpStartHeight = transform.position.y;
     }
 
     // Jump sonlandır
