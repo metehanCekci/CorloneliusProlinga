@@ -271,7 +271,7 @@ GameObject:
   - component: {fileID: 1018124083}
   m_Layer: 0
   m_Name: Capsule
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -304,8 +304,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6211d7b647bde6f41abda63ba6bd0d72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
   maxSpeed: 8
   acceleration: 10
+  dashDecay: 10
+  DashPower: 10
+  HasDash: 1
 --- !u!212 &1018124085
 SpriteRenderer:
   serializedVersion: 2
@@ -430,7 +436,7 @@ GameObject:
   - component: {fileID: 1729501854}
   m_Layer: 6
   m_Name: Square
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
