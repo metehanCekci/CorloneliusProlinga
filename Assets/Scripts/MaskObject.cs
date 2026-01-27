@@ -2,9 +2,16 @@ using UnityEngine;
 
 public class MaskObject : MonoBehaviour
 {
-    [Header("Ayarlar")]
-    [SerializeField] private bool showWhenMaskIsOn; // İşaretliyse maske takınca görünür, değilse maske çıkınca görünür.
-    
+    // Radio button mantığı için enum kullanıyoruz
+    public enum ObjectWorldType
+    {
+        Natural, // Maske yokken var olanlar
+        MaskOnly // Maske takılıyken var olanlar
+    }
+
+    [Header("Dünya Ayarı")]
+    [SerializeField] private ObjectWorldType worldType = ObjectWorldType.Natural; // Default olarak Natural
+
     private SpriteRenderer spriteRenderer;
     private Collider2D col;
 
@@ -13,26 +20,37 @@ public class MaskObject : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         col = GetComponent<Collider2D>();
 
-        // MaskManager'daki event'e abone ol
-        MaskManager.Instance.onMaskChanged += UpdateObjectStatus;
-
-        // Başlangıç durumunu ayarla
-        UpdateObjectStatus(MaskManager.Instance.IsMaskActive());
+        // MaskManager'a abone ol
+        if (MaskManager.Instance != null)
+        {
+            MaskManager.Instance.onMaskChanged += UpdateObjectStatus;
+            // Başlangıç durumunu ayarla
+            UpdateObjectStatus(MaskManager.Instance.IsMaskActive());
+        }
     }
 
     private void UpdateObjectStatus(bool isMaskOn)
     {
-        // Eğer objenin ayarı maske açıkken görünmekse ve maske açıksa: AKTİF
-        // Diğer durumlarda objeyi kapat veya aç
-        bool shouldBeActive = (isMaskOn == showWhenMaskIsOn);
+        bool shouldBeActive = false;
 
-        spriteRenderer.enabled = shouldBeActive; // Görseli kapat/aç
-        if (col != null) col.enabled = shouldBeActive; // Çarpışmayı kapat/aç
+        // Seçime göre mantığı kur
+        if (worldType == ObjectWorldType.Natural)
+        {
+            // Eğer natural seçildiyse, maske kapalıyken aktif olmalı
+            shouldBeActive = !isMaskOn;
+        }
+        else if (worldType == ObjectWorldType.MaskOnly)
+        {
+            // Eğer maske dünyası seçildiyse, maske açıkken aktif olmalı
+            shouldBeActive = isMaskOn;
+        }
+
+        if (spriteRenderer != null) spriteRenderer.enabled = shouldBeActive;
+        if (col != null) col.enabled = shouldBeActive;
     }
 
     private void OnDestroy()
     {
-        // Bellek sızıntısını önlemek için event aboneliğinden çık
         if (MaskManager.Instance != null)
             MaskManager.Instance.onMaskChanged -= UpdateObjectStatus;
     }
