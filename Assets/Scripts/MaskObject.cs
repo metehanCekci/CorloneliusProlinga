@@ -6,6 +6,7 @@ public class MaskObject : MonoBehaviour
 
     [Header("Dünya Ayarı")]
     [SerializeField] private ObjectWorldType worldType = ObjectWorldType.Natural;
+    [SerializeField] private bool alwaysShow = false; // Her zaman görünür (solmaz)
     
     [Header("Görsel Ayarlar (Yok Olduğunda)")]
     [Range(0, 1)]
@@ -44,7 +45,8 @@ public class MaskObject : MonoBehaviour
         }
         else
         {
-            if (spriteRenderer != null)
+            // alwaysShow açıksa görsel solmaz, sadece collider kapanır
+            if (spriteRenderer != null && !alwaysShow)
             {
                 Color tempColor = fadedColor;
                 tempColor.a = fadedAlpha;
