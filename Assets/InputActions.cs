@@ -127,6 +127,24 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Push"",
+                    ""type"": ""Button"",
+                    ""id"": ""cb2b9de8-21bd-431c-ab10-0c87422fde86"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Brake"",
+                    ""type"": ""Button"",
+                    ""id"": ""23b02221-996d-4aec-bf37-4270526d7129"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -228,6 +246,28 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""action"": ""Mask"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f9959428-374f-4633-8314-9b72c3d3d24e"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Push"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""70165206-5211-4f6c-bd91-c9c6b81cd855"",
+                    ""path"": ""<Keyboard>/z"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Brake"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -240,6 +280,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Dash = m_Player.FindAction("Dash", throwIfNotFound: true);
         m_Player_Mask = m_Player.FindAction("Mask", throwIfNotFound: true);
+        m_Player_Push = m_Player.FindAction("Push", throwIfNotFound: true);
+        m_Player_Brake = m_Player.FindAction("Brake", throwIfNotFound: true);
     }
 
     ~@InputActions()
@@ -324,6 +366,8 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Dash;
     private readonly InputAction m_Player_Mask;
+    private readonly InputAction m_Player_Push;
+    private readonly InputAction m_Player_Brake;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -351,6 +395,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Mask".
         /// </summary>
         public InputAction @Mask => m_Wrapper.m_Player_Mask;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Push".
+        /// </summary>
+        public InputAction @Push => m_Wrapper.m_Player_Push;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Brake".
+        /// </summary>
+        public InputAction @Brake => m_Wrapper.m_Player_Brake;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -389,6 +441,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Mask.started += instance.OnMask;
             @Mask.performed += instance.OnMask;
             @Mask.canceled += instance.OnMask;
+            @Push.started += instance.OnPush;
+            @Push.performed += instance.OnPush;
+            @Push.canceled += instance.OnPush;
+            @Brake.started += instance.OnBrake;
+            @Brake.performed += instance.OnBrake;
+            @Brake.canceled += instance.OnBrake;
         }
 
         /// <summary>
@@ -412,6 +470,12 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @Mask.started -= instance.OnMask;
             @Mask.performed -= instance.OnMask;
             @Mask.canceled -= instance.OnMask;
+            @Push.started -= instance.OnPush;
+            @Push.performed -= instance.OnPush;
+            @Push.canceled -= instance.OnPush;
+            @Brake.started -= instance.OnBrake;
+            @Brake.performed -= instance.OnBrake;
+            @Brake.canceled -= instance.OnBrake;
         }
 
         /// <summary>
@@ -480,5 +544,19 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMask(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Push" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPush(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Brake" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBrake(InputAction.CallbackContext context);
     }
 }

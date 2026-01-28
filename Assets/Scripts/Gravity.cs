@@ -2,60 +2,76 @@ using UnityEngine;
 
 public class Gravity : MonoBehaviour
 {
-    [SerializeField] private float gravityStrength = 5f;
+    [SerializeField] private float gravityStrength = 30f;
     [SerializeField] private float groundRayDistance = 0.1f;
-    [SerializeField] private float jumpForce = 10f;
-    [SerializeField] private float maxJumpHeight = 5f;
-
-    [SerializeField] private float wallRayDistance = 0.1f;
+    [SerializeField] private float jumpForce = 8f;
+    [SerializeField] private float maxJumpHeight = 2.5f;
     [SerializeField] private LayerMask groundLayer;
-    // --- YENİ: DUVARLAR İÇİN AYRI KATMAN ---
-    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private LayerMask railLayer;
 
     private Vector3 velocity = Vector3.zero;
     private bool isGrounded = false;
     private bool isJumping = false;
-    private bool isTouchingWall = false;
     private float jumpStartHeight = 0f;
+    private float groundCheckCooldown = 0f; // Rail'den çıktıktan sonra kısa süre ground check yapılmaz
     private Collider2D col;
+    private ControllerScript controller;
 
     void Start()
     {
         col = GetComponent<Collider2D>();
-
-        // Default atamalar (Inspector'dan seçmeyi unutma!)
+        controller = GetComponent<ControllerScript>();
         if (groundLayer == 0) groundLayer = LayerMask.GetMask("Ground");
-        if (wallLayer == 0) wallLayer = LayerMask.GetMask("Wall");
+        if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
     }
 
     void Update()
     {
-        CheckGround();
+        if (controller != null && controller.isGrinding) return;
+
+        // Ground check cooldown
+        if (groundCheckCooldown > 0)
+        {
+            groundCheckCooldown -= Time.deltaTime;
+            isGrounded = false; // Cooldown süresince yerde değiliz
+        }
+        else
+        {
+            CheckGround();
+        }
+        
+        CheckRailCollision();
 
         if (isJumping)
         {
             velocity.y = jumpForce;
-            float currentHeight = transform.position.y - jumpStartHeight;
-            if (currentHeight >= maxJumpHeight)
-            {
-                isJumping = false;
-            }
+            if (transform.position.y - jumpStartHeight >= maxJumpHeight) isJumping = false;
         }
         else
         {
-            if (isGrounded && velocity.y <= 0)
-            {
-                velocity.y = 0;
-            }
-            else
-            {
-                velocity.y -= gravityStrength * Time.deltaTime;
-            }
+            if (isGrounded && velocity.y <= 0) velocity.y = 0;
+            else velocity.y -= gravityStrength * Time.deltaTime;
         }
 
-        CheckWalls();
-
         transform.position += velocity * Time.deltaTime;
+    }
+
+    private void CheckRailCollision()
+    {
+        if (controller == null || !controller.CanEnterRail()) return;
+        
+        Collider2D hitRail = Physics2D.OverlapBox(col.bounds.center, col.bounds.size, 0f, railLayer);
+        if (hitRail != null)
+        {
+            RailSystem rail = hitRail.GetComponent<RailSystem>();
+            if (rail != null)
+            {
+                // Karakterin mevcut hızını ve yönünü raya aktar
+                float entrySpeed = Mathf.Abs(velocity.x);
+                float entryDirection = velocity.x; // Pozitif = sağ, negatif = sol
+                rail.StartGrindFromManual(controller, entrySpeed, entryDirection);
+            }
+        }
     }
 
     private void CheckGround()
@@ -65,28 +81,13 @@ public class Gravity : MonoBehaviour
         isGrounded = hit.collider != null;
     }
 
-    private void CheckWalls()
-    {
-        isTouchingWall = false; // Her karede önce sıfırla
-
-        if (velocity.x != 0)
-        {
-            float directionX = Mathf.Sign(velocity.x);
-            Vector2 rayOrigin = new Vector2(directionX > 0 ? col.bounds.max.x : col.bounds.min.x, transform.position.y);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, wallRayDistance, wallLayer);
-
-            if (hit.collider != null)
-            {
-                velocity.x = 0;
-                isTouchingWall = true; // Duvara değdiğimizi kaydet
-            }
-        }
-    }
-
     public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
-    public void EndJump() { isJumping = false; }
-    public Vector3 GetVelocity() { return velocity; }
-    public void SetVelocity(Vector3 newVelocity) { velocity = newVelocity; }
-    public bool IsGrounded() { return isGrounded; }
-    public bool IsTouchingWall() { return isTouchingWall; }
+    public void SetVelocity(Vector3 newVel) 
+    { 
+        velocity = newVel;
+        // Yukarı hız verildiyse kısa süre ground check'i devre dışı bırak
+        if (newVel.y > 0) groundCheckCooldown = 0.15f;
+    }
+    public Vector3 GetVelocity() => velocity;
+    public bool IsGrounded() => isGrounded;
 }

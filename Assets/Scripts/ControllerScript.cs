@@ -1,151 +1,184 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
 
 public class ControllerScript : MonoBehaviour
 {
-    [SerializeField] private LayerMask groundLayer; // Müfettişten (Inspector) "Ground" katmanını seç!
-    [SerializeField] private float maxSpeed = 5f; // Maksimum hız
-    [SerializeField] private float acceleration = 8f; // İvme (hızlanma/yavaşlama)
-    [SerializeField] private float dashDecay = 10f;
-    private float currentDashSpeed = 0f; // O anki dash kuvveti
-
-    [SerializeField] public int DashPower;
+    [Header("Hız Ayarları")]
+    public float walkSpeed = 1f, midSpeed = 3f, maxSpeed = 5f, currentMoveSpeed = 1f;
+    [SerializeField] private float accelerationTime = 2f; // Max hıza ulaşma süresi
+    [SerializeField] private float decelerationRate = 3f; // Durunca yavaşlama hızı
+    
+    public bool isGrinding = false, HasDash = true, HasSecondJump = true;
+    public int railPushCount = 0; // Ray için push sayacı
+    private float moveTime = 0f; // Yürüyüş süresi (otomatik hızlanma için)
+    
+    [HideInInspector] public float railCooldown = 0f;
+    private const float RAIL_COOLDOWN_TIME = 0.5f;
+    private float momentumTime = 0f; // Fırlatma sonrası momentum koruma süresi
 
     private Gravity gravity;
-    private float currentSpeed = 0f;
-    private float moveDirection = 0f;
-    private float previousDirection = 0f;
-
     private InputActions inputActions;
-    private InputAction moveAction;
-    private InputAction jumpAction;
-    private InputAction DashAction;
-    public bool HasDash;
-    public bool HasSecondJump;
+    private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction;
+    
+    [Header("Dash Ayarları")]
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+    private bool isDashing = false;
+    private float dashTimer = 0f;
+    private float dashDirection = 0f;
 
     void OnEnable()
     {
-        // Input Actions'u al
         inputActions = new InputActions();
         inputActions.Enable();
         moveAction = inputActions.Player.Move;
         jumpAction = inputActions.Player.Jump;
-        DashAction = inputActions.Player.Dash;
+        pushAction = inputActions.Player.Push; 
+        brakeAction = inputActions.Player.Brake;
+        dashAction = inputActions.Player.Dash;
 
+        pushAction.performed += OnPush;
+        brakeAction.performed += OnBrake;
         jumpAction.performed += OnJumpStart;
-        jumpAction.canceled += OnJumpEnd;
-        DashAction.performed += OnDashStart;
+        dashAction.performed += OnDash;
     }
 
-    void OnDisable()
-    {
-        jumpAction.performed -= OnJumpStart;
-        jumpAction.canceled -= OnJumpEnd;
-        DashAction.performed -= OnDashStart;
-        inputActions.Disable();
-        inputActions.Dispose();
-    }
-
-    void Start()
-    {
-        gravity = GetComponent<Gravity>();
-    }
+    void Start() => gravity = GetComponent<Gravity>();
 
     void Update()
     {
-        moveDirection = moveAction.ReadValue<float>();
-        // --- 1. YER KONTROLÜ VE RESET ---
-        if (IsGrounded())
+        if (railCooldown > 0) railCooldown -= Time.deltaTime;
+        if (momentumTime > 0) momentumTime -= Time.deltaTime;
+        
+        // Dash timer
+        if (isDashing)
         {
-            HasDash = true;
+            dashTimer -= Time.deltaTime;
+            if (dashTimer <= 0) isDashing = false;
         }
+        
+        if (isGrinding) return; // Raydayken hiçbir fizik veya hareket çalışmaz
+        if (IsGrounded()) { HasDash = true; HasSecondJump = true; }
         ApplyMovement();
     }
-    private void OnDashStart(InputAction.CallbackContext context)
-    {
-        // Eğer dash hakkımız varsa (yere değince HasDash true olmuştu)
-        if (moveDirection != 0 && HasDash)
-        {
-            currentDashSpeed = moveDirection * DashPower;
-            HasDash = false; // Hakkı bitir
-        }
-    }
+
+    public bool IsGrounded() => gravity != null && gravity.IsGrounded();
 
     private void OnJumpStart(InputAction.CallbackContext context)
     {
-        if (IsGrounded())
+        if (isGrinding) 
+        { 
+            // Raydayken zıplarsan rayı hemen bitir (teleport yok, olduğun yerden zıpla)
+            RailSystem activeRail = GetComponentInParent<RailSystem>();
+            if (activeRail != null) activeRail.FinishGrind(false);
+            
+            // Yerçekimini uyandır ve fırlat
+            gravity.StartJump(); 
+            return; 
+        }
+        
+        // Yerdeysen normal zıpla
+        if (IsGrounded()) 
         {
             gravity.StartJump();
         }
+        // Havadaysan ve double jump hakkın varsa
         else if (HasSecondJump)
         {
-            Vector3 tempVel = gravity.GetVelocity();
-            tempVel.y = 0;
-            gravity.SetVelocity(tempVel);
-
-            gravity.StartJump();
             HasSecondJump = false;
+            gravity.StartJump();
         }
     }
 
-    private void OnJumpEnd(InputAction.CallbackContext context)
+    private void OnPush(InputAction.CallbackContext context)
     {
-        gravity.EndJump();
+        // Push sadece raydayken çalışır
+        if (!isGrinding) return;
+        
+        railPushCount++;
+        // RailSystem'e hız güncellemesi gönder
+        RailSystem activeRail = GetComponentInParent<RailSystem>();
+        if (activeRail != null)
+        {
+            activeRail.UpdateGrindSpeed(railPushCount);
+        }
     }
 
-    private bool IsGrounded()
+    private void OnBrake(InputAction.CallbackContext context) => ResetSpeed();
+    
+    private void OnDash(InputAction.CallbackContext context)
     {
-        // Karakterin merkezinden aşağıya doğru ışın fırlatıyoruz
-        // 1.1f değeri karakterin boyuna göre ayarlanmalı (yarı boyundan biraz fazla)
-        float rayDistance = 1.2f;
-        // Sadece "Ground" katmanındaki objeleri algılaması için LayerMask kullanmak en iyisidir
-        // Şimdilik basitçe herhangi bir şeye çarpıp çarpmadığına bakalım:
-        return Physics2D.Raycast(transform.position, Vector3.down, rayDistance, groundLayer);
+        if (!HasDash) return;
+        if (isGrinding) return; // Raydayken dash yapamaz (isteğe bağlı değiştirilebilir)
+        
+        HasDash = false;
+        isDashing = true;
+        dashTimer = dashDuration;
+        
+        // Dash yönünü belirle (input varsa o yöne, yoksa baktığı yöne)
+        float input = moveAction.ReadValue<float>();
+        dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
     }
+
+    public void ResetSpeed() { moveTime = 0f; currentMoveSpeed = walkSpeed; }
+    public bool CanEnterRail() => railCooldown <= 0 && !isGrinding;
+    public void EnterRail(float entrySpeed) 
+    { 
+        isGrinding = true;
+        railPushCount = 0;
+        // Rail'e binince dash ve double jump yenilenir (Celeste tarzı)
+        HasDash = true;
+        HasSecondJump = true;
+    }
+    
+    public void ExitRail(Vector3 vel) 
+    { 
+        isGrinding = false;
+        railCooldown = RAIL_COOLDOWN_TIME;
+        momentumTime = 0.3f; // 0.3 saniye momentum koru
+        if(gravity != null) gravity.SetVelocity(vel); 
+    }
+
+    public float GetCurrentMoveSpeed() => currentMoveSpeed;
 
     private void ApplyMovement()
     {
-        if (IsGrounded())
+        float dir = moveAction.ReadValue<float>();
+        Vector3 v = gravity.GetVelocity();
+        
+        if (isDashing)
         {
-            HasDash = true; // Yere değdiğimiz anda dash hakkımız geri gelir
-            HasSecondJump = true;
+            v.x = dashDirection * dashSpeed;
+            v.y = 0; // Dash sırasında düşme yok
         }
-        // Tuş basılıysa hızlanma, bırakıldıysa yavaşlama
-        if (moveDirection != 0)
+        else if (momentumTime > 0)
         {
-            // Tuş basılı - ivme ile hızlanır
-            currentSpeed += acceleration * moveDirection * Time.deltaTime;
+            // Momentum süresinde sadece input varsa biraz etki et, yoksa dokunma
+            if (dir != 0) v.x = Mathf.Lerp(v.x, dir * currentMoveSpeed, 0.1f);
         }
         else
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0, acceleration * Time.deltaTime);
+            // Otomatik hızlanma sistemi
+            if (dir != 0 && IsGrounded())
+            {
+                // Yürüyorsan zamanla hızlan
+                moveTime += Time.deltaTime;
+                float t = Mathf.Clamp01(moveTime / accelerationTime);
+                currentMoveSpeed = Mathf.Lerp(walkSpeed, maxSpeed, t);
+            }
+            else if (dir == 0)
+            {
+                // Duruyorsan yavaşça yavaşla
+                moveTime = Mathf.Max(0, moveTime - Time.deltaTime * decelerationRate);
+                float t = Mathf.Clamp01(moveTime / accelerationTime);
+                currentMoveSpeed = Mathf.Lerp(walkSpeed, maxSpeed, t);
+            }
+            
+            v.x = dir * currentMoveSpeed;
         }
-        if (gravity.IsTouchingWall())
-        {
-            currentSpeed = 0;
-        }
-
-        // Yürüme hızını KENDİ İÇİNDE sınırla (Dash'i etkilemez)
-        currentSpeed = Mathf.Clamp(currentSpeed, -maxSpeed, maxSpeed);
-
-        // --- 2. DASH SÖNÜMLEME MANTIĞI ---
-        // Dash hızını her karede sıfıra yaklaştırıyoruz
-        currentDashSpeed = Mathf.MoveTowards(currentDashSpeed, 0, dashDecay * Time.deltaTime);
-
-        // --- 3. BİRLEŞTİRME ---
-        Vector3 velocity = gravity.GetVelocity();
-
-        // Yürüme hızı ve Dash hızını topluyoruz!
-        // Böylece yürüme hızı 5 olsa bile dash 10 ise toplam 15 olur.
-        velocity.x = currentSpeed + currentDashSpeed;
-
-        UpdateGravityVelocity(velocity);
+        
+        gravity.SetVelocity(v);
     }
 
-    // Gravity scriptinin velocity'sini güncelle
-    private void UpdateGravityVelocity(Vector3 newVelocity)
-    {
-        gravity.SetVelocity(newVelocity);
-    }
+    void OnDisable() => inputActions.Disable();
 }
