@@ -12,12 +12,18 @@ public class RailSystem : MonoBehaviour
     public float midGrindSpeed = 5f;  // Orta ray hızı
     public float railAcceleration = 3f; // İleri tuşuyla hızlanma oranı
     public float reverseDeceleration = 8f; // Ters yöne basarken yavaşlama hızı
+    public float railDashSpeed = 15f; // Rail'de dash hızı
+    public float railDashDuration = 0.3f; // Rail dash süresi
     private float currentGrindSpeed;  // Aktif ray hızı
     private bool isReversing = false; // Yön değiştirme sürecinde mi?
+    private bool isRailDashing = false; // Rail dash aktif mi?
+    private float railDashTimer = 0f;
     
     [Header("Çıkış Ayarları")]
     public float exitBoost = 2f;
     public float exitLaunchAngle = 30f;
+    [SerializeField] private LayerMask railLayer; // Diğer railleri tespit için
+    [SerializeField] private float chainCheckRadius = 0.5f; // Zincir ray tespiti yarıçapı
     
     private bool isActive = false;
     private ControllerScript player;
@@ -69,8 +75,22 @@ public class RailSystem : MonoBehaviour
     {
         if (!isActive || player == null || targetPoint == null) return;
 
+        // Rail dash timer
+        if (isRailDashing)
+        {
+            railDashTimer -= Time.deltaTime;
+            if (railDashTimer <= 0)
+            {
+                isRailDashing = false;
+                currentGrindSpeed = maxGrindSpeed; // Dash bitince max hıza düş
+            }
+        }
+
         // Karakteri hedef noktaya doğru sürükle
         Vector3 direction = (targetPoint.position - player.transform.position).normalized;
+        
+        // Aktif hız (dash varsa dash hızı, yoksa normal)
+        float activeSpeed = isRailDashing ? railDashSpeed : currentGrindSpeed;
         
         // Ray eğimini hesapla (sadece Z rotasyonu)
         float angle = Mathf.Atan2(direction.y, Mathf.Abs(direction.x)) * Mathf.Rad2Deg;
@@ -117,13 +137,22 @@ public class RailSystem : MonoBehaviour
             }
         }
         
-        player.transform.position += direction * currentGrindSpeed * Time.deltaTime;
+        player.transform.position += direction * activeSpeed * Time.deltaTime;
 
         // Hedef noktaya vardığında
         if (Vector3.Distance(player.transform.position, targetPoint.position) < 0.2f)
         {
             FinishGrind();
         }
+    }
+    
+    /// <summary>
+    /// Rail'de dash - geçici yüksek hız
+    /// </summary>
+    public void ApplyRailDash()
+    {
+        isRailDashing = true;
+        railDashTimer = railDashDuration;
     }
 
     public void StartGrindFromManual(ControllerScript targetPlayer, float entrySpeed, float entryDirection)
@@ -174,6 +203,51 @@ public class RailSystem : MonoBehaviour
         player.EnterRail(currentGrindSpeed, this);
     }
     
+    /// <summary>
+    /// Zincir geçişi için - pozisyon değiştirmeden direkt rail'e al
+    /// </summary>
+    public void StartChainGrind(ControllerScript targetPlayer, float speed, float direction, Quaternion origRotation, Vector3 origScale)
+    {
+        if (isActive || targetPlayer == null || startPoint == null || endPoint == null) return;
+        
+        player = targetPlayer;
+        isActive = true;
+        
+        // Yönü belirle
+        Vector3 railDir = (endPoint.position - startPoint.position).normalized;
+        if ((direction < 0 && railDir.x > 0) || (direction > 0 && railDir.x < 0))
+        {
+            targetPoint = startPoint;
+            originPoint = endPoint;
+        }
+        else
+        {
+            targetPoint = endPoint;
+            originPoint = startPoint;
+        }
+        
+        // Hızı koru (clamp yok - mevcut hızla devam)
+        currentGrindSpeed = speed;
+        
+        // Orijinal değerleri aktar (yeni kaydetme)
+        originalPlayerRotation = origRotation;
+        originalPlayerScale = origScale;
+        
+        // Input aksiyonunu al
+        if (railInputActions == null)
+        {
+            railInputActions = new InputActions();
+        }
+        railInputActions.Enable();
+        playerMoveAction = railInputActions.Player.Move;
+        
+        // POZİSYON DEĞİŞTİRMEDEN devam et - bu zincir geçişi için kritik
+        // Karakter olduğu yerde kalır, sadece rail sistemi değişir
+        
+        this.enabled = true;
+        player.activeRail = this; // Sadece referansı güncelle, EnterRail çağırma
+    }
+    
     // Push ile ray hızını artır
     public void UpdateGrindSpeed(int pushCount)
     {
@@ -208,9 +282,32 @@ public class RailSystem : MonoBehaviour
             // Çıkış yönü: origin'den target'a doğru
             Vector3 exitDir = (targetPoint.position - originPoint.position).normalized;
             
-            // Sadece ray doğal olarak bittiyse target noktasına taşı
+            // Sadece ray doğal olarak bittiyse (zıplamadıysa) zincir ray kontrolü yap
             if (teleportToEnd)
             {
+                // Bitiş noktasında başka rail var mı kontrol et
+                RailSystem nextRail = FindNextRail(targetPoint.position, exitDir);
+                if (nextRail != null)
+                {
+                    // Zincir geçiş - fırlatma yok, direkt diğer raile geç
+                    float savedSpeed = currentGrindSpeed;
+                    ControllerScript savedPlayer = player;
+                    float direction = exitDir.x;
+                    
+                    // Bu rail'i temizle
+                    player = null;
+                    targetPoint = null;
+                    originPoint = null;
+                    playerMoveAction = null;
+                    if (railInputActions != null) railInputActions.Disable();
+                    this.enabled = false;
+                    
+                    // Diğer rail'e geç (zincir geçişi - pozisyon değişmez)
+                    nextRail.StartChainGrind(savedPlayer, savedSpeed, direction, originalPlayerRotation, originalPlayerScale);
+                    return;
+                }
+                
+                // Zincir rail yoksa normal fırlatma
                 player.transform.position = targetPoint.position + exitDir * 0.5f;
             }
             
@@ -232,5 +329,22 @@ public class RailSystem : MonoBehaviour
         playerMoveAction = null;
         if (railInputActions != null) railInputActions.Disable();
         this.enabled = false;
+    }
+    
+    private RailSystem FindNextRail(Vector3 position, Vector3 direction)
+    {
+        // Bitiş noktası + biraz ileri yönde ray ara
+        Vector3 checkPos = position + direction * chainCheckRadius;
+        
+        Collider2D[] hits = Physics2D.OverlapCircleAll(checkPos, chainCheckRadius, railLayer);
+        foreach (var hit in hits)
+        {
+            RailSystem rail = hit.GetComponent<RailSystem>();
+            if (rail != null && rail != this && !rail.isActive)
+            {
+                return rail;
+            }
+        }
+        return null;
     }
 }

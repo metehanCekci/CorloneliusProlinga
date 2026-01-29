@@ -133,8 +133,18 @@ public class ControllerScript : MonoBehaviour
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!HasDash || isGrinding || isDashing) return;
-
+        if (!HasDash || isDashing) return;
+        
+        // Raildeyken dash
+        if (isGrinding && activeRail != null)
+        {
+            HasDash = false;
+            activeRail.ApplyRailDash();
+            juice?.ApplyDashStretch();
+            return;
+        }
+        
+        // Normal dash
         HasDash = false;
         isDashing = true;
         dashTimer = dashDuration;
@@ -154,6 +164,7 @@ public class ControllerScript : MonoBehaviour
         activeRail = rail;
         HasDash = true;
         HasSecondJump = true;
+        juice?.ApplySquish(); // Rail'e iniş efekti
     }
 
     public void ExitRail(Vector3 vel)
