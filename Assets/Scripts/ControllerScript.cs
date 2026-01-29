@@ -30,6 +30,9 @@ public class ControllerScript : MonoBehaviour
     private float dashTimer = 0f;
     private float dashDirection = 0f;
 
+    [Header("Objeler")]
+    [SerializeField] private GameObject DustEffectPrefab;
+
     private Gravity gravity;
     private JuiceEffect juice; // Görsel efektleri tetiklemek için referans
     private InputActions inputActions;
@@ -102,6 +105,10 @@ public class ControllerScript : MonoBehaviour
             if (activeRail != null) activeRail.FinishGrind(false);
             gravity.StartJump();
             juice?.ApplyStretch(); // Zıplama efekti gönder
+            GameObject clone = Instantiate(DustEffectPrefab);
+            clone.transform.position = DustEffectPrefab.transform.position;
+            clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
+            clone.SetActive(true);
             return;
         }
 
@@ -110,6 +117,10 @@ public class ControllerScript : MonoBehaviour
             if (!IsGrounded()) HasSecondJump = false;
             gravity.StartJump();
             juice?.ApplyStretch(); // Zıplama efekti gönder
+            GameObject clone = Instantiate(DustEffectPrefab);
+            clone.transform.position = DustEffectPrefab.transform.position;
+            clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
+            clone.SetActive(true);
         }
     }
 
