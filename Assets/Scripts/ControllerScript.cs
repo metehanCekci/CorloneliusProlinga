@@ -44,7 +44,7 @@ public class ControllerScript : MonoBehaviour
     [SerializeField] private float wallCheckDistance = 0.1f;
     
     // Celeste modu için: true = tuşa basılı tutmak gerekir, false = otomatik tutunma
-    [SerializeField] private bool requireGrabButton = true;
+    [SerializeField] private bool requireGrabButton = true; //aynen
     
     private float currentStamina;
     private bool isOnWall = false;
