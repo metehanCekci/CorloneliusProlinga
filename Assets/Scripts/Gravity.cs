@@ -10,14 +10,10 @@ public class Gravity : MonoBehaviour
     [SerializeField] private LayerMask railLayer;
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float wallCheckDistance = 0.05f;
-    [SerializeField] private float slopeSnapForce = 50f; // Slope'a yapışma gücü
-    [SerializeField] private float maxSlopeAngle = 60f; // Maksimum tırmanılabilir eğim
 
     private Vector3 velocity = Vector3.zero;
     private bool isGrounded = false;
     private bool isJumping = false;
-    private bool isOnSlope = false;
-    private Vector2 groundNormal = Vector2.up;
     private float jumpStartHeight = 0f;
     private float groundCheckCooldown = 0f; // Rail'den çıktıktan sonra kısa süre ground check yapılmaz
     private Collider2D col;
@@ -57,19 +53,7 @@ public class Gravity : MonoBehaviour
         }
         else
         {
-            if (isGrounded && velocity.y <= 0)
-            {
-                // Slope üzerindeyken gravity yerine zemine yapıştır
-                if (isOnSlope && !isJumping)
-                {
-                    // Slope'a doğru hafif bir kuvvet uygula (zemine yapışsın)
-                    velocity.y = -slopeSnapForce * Time.deltaTime;
-                }
-                else
-                {
-                    velocity.y = 0;
-                }
-            }
+            if (isGrounded && velocity.y <= 0) velocity.y = 0;
             else velocity.y -= gravityStrength * Time.deltaTime;
         }
 
@@ -125,28 +109,15 @@ public class Gravity : MonoBehaviour
             return;
         }
         
-        // Daha uzun ray kullan - slope için daha iyi algılama
-        float slopeRayDistance = groundRayDistance + 0.2f;
         Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y);
-        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, slopeRayDistance, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayDistance, groundLayer);
         
         // Debug ray çiz
-        Debug.DrawRay(rayOrigin, Vector2.down * slopeRayDistance, hit.collider != null ? Color.green : Color.red);
+        Debug.DrawRay(rayOrigin, Vector2.down * groundRayDistance, hit.collider != null ? Color.green : Color.red);
         
-        if (hit.collider != null && hit.distance <= groundRayDistance + 0.05f)
+        if (hit.collider != null)
         {
             isGrounded = true;
-            groundNormal = hit.normal;
-            
-            // Slope algılama - normal vektörü yukarı değilse slope üzerindeyiz
-            float slopeAngle = Vector2.Angle(Vector2.up, groundNormal);
-            isOnSlope = slopeAngle > 1f && slopeAngle <= maxSlopeAngle;
-            
-            // Debug - slope göster
-            if (isOnSlope)
-            {
-                Debug.DrawRay(hit.point, groundNormal * 0.5f, Color.yellow);
-            }
             
             // Zemine gömülmeyi önle - karakteri zeminin üstüne oturt
             if (velocity.y <= 0)
@@ -155,29 +126,19 @@ public class Gravity : MonoBehaviour
                 float feetOffset = col.bounds.min.y - transform.position.y;
                 float targetY = groundY - feetOffset + 0.01f; // Küçük offset
                 
-                // Slope üzerindeyken sürekli zemine snap yap
-                if (isOnSlope || transform.position.y < targetY)
+                if (transform.position.y < targetY)
                 {
                     transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
                 }
             }
         }
-        else if (hit.collider != null && hit.distance <= slopeRayDistance)
-        {
-            // Zemine yakınız ama tam değmiyoruz - slope'tan aşağı kayarken
-            isOnSlope = true;
-            isGrounded = false;
-            groundNormal = hit.normal;
-        }
         else
         {
             isGrounded = false;
-            isOnSlope = false;
-            groundNormal = Vector2.up;
         }
     }
 
-    public void StartJump() { isJumping = true; isOnSlope = false; jumpStartHeight = transform.position.y; }
+    public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
     // Call when jump button is released to stop upward hold
     public void EndJump() { isJumping = false; }
     public void SetVelocity(Vector3 newVel) 
@@ -188,8 +149,6 @@ public class Gravity : MonoBehaviour
     }
     public Vector3 GetVelocity() => velocity;
     public bool IsGrounded() => isGrounded;
-    public bool IsOnSlope() => isOnSlope;
-    public Vector2 GetGroundNormal() => groundNormal;
     
     // Wall climb için - duvardayken pozisyon güncellemesi
     public void ApplyWallMovement()
