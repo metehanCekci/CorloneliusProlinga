@@ -28,7 +28,7 @@ public class ControllerScript : MonoBehaviour
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float groundDashCooldown = 1f; // Yerde dash cooldown
-    private bool isDashing = false;
+    public bool IsDashing { get; private set; } = false;
     private float dashTimer = 0f;
     private float dashDirection = 0f;
     private float dashCooldownTimer = 0f;
@@ -136,12 +136,12 @@ public class ControllerScript : MonoBehaviour
         // Wall Check
         CheckWallState();
 
-        if (isDashing)
+        if (IsDashing)
         {
             dashTimer -= Time.deltaTime;
             if (dashTimer <= 0)
             {
-                isDashing = false;
+                IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
                 Vector3 post = gravity.GetVelocity();
                 float dir = moveAction.ReadValue<float>();
@@ -171,7 +171,7 @@ public class ControllerScript : MonoBehaviour
     private void CheckWallState()
     {
         // Rail veya dash sırasında wall climb yok
-        if (isGrinding || isDashing)
+        if (isGrinding || IsDashing)
         {
             if (isOnWall) ExitWall();
             return;
@@ -474,7 +474,7 @@ public class ControllerScript : MonoBehaviour
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!HasDash || isDashing || dashCooldownTimer > 0) return;
+        if (!HasDash || IsDashing || dashCooldownTimer > 0) return;
         
         // Raildeyken dash
         if (isGrinding && activeRail != null)
@@ -490,7 +490,7 @@ public class ControllerScript : MonoBehaviour
         
         // Normal dash
         HasDash = false;
-        isDashing = true;
+        IsDashing = true;
         dashTimer = dashDuration;
         storedMoveSpeed = currentMoveSpeed;
         
@@ -528,7 +528,7 @@ public class ControllerScript : MonoBehaviour
 
     private void ApplyMovement()
     {
-        if (isDashing)
+        if (IsDashing)
         {
             Vector3 dashVel = gravity.GetVelocity();
             dashVel.x = dashDirection * dashSpeed;
