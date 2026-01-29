@@ -301,7 +301,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2714161747077474119, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: groundRayDistance
-      value: 0.05
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 2714161747077474119, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: wallCheckDistance
@@ -317,7 +317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3072996483824212939, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_Size.y
-      value: 0.28795582
+      value: 0.29597247
       objectReference: {fileID: 0}
     - target: {fileID: 3072996483824212939, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_Offset.x
@@ -325,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3072996483824212939, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_Offset.y
-      value: -0.004288703
+      value: -0.008297026
       objectReference: {fileID: 0}
     - target: {fileID: 3097071277166387370, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: m_LocalPosition.x
