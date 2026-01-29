@@ -4,22 +4,26 @@ using UnityEngine.InputSystem;
 public class ControllerScript : MonoBehaviour
 {
     [Header("Hız Ayarları")]
-    public float walkSpeed = 1f, midSpeed = 3f, maxSpeed = 5f, currentMoveSpeed = 1f;
-    [SerializeField] private float accelerationTime = 2f; // Max hıza ulaşma süresi
-    [SerializeField] private float decelerationRate = 3f; // Durunca yavaşlama hızı
-    
-    public bool isGrinding = false, HasDash = true, HasSecondJump = true;
-    public int railPushCount = 0; // Ray için push sayacı
-    private float moveTime = 0f; // Yürüyüş süresi (otomatik hızlanma için)
-    
-    [HideInInspector] public float railCooldown = 0f;
-    private const float RAIL_COOLDOWN_TIME = 0.5f;
-    private float momentumTime = 0f; // Fırlatma sonrası momentum koruma süresi
+    public float walkSpeed = 1f;
+    public float midSpeed = 3f;
+    public float maxSpeed = 5f;
+    public float currentMoveSpeed = 1f;
+    [SerializeField] private float accelerationTime = 2f; 
+    [SerializeField] private float decelerationTime = 0.5f; 
 
-    private Gravity gravity;
-    private InputActions inputActions;
-    private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction;
-    
+    [Header("Durumlar")]
+    public bool isGrinding = false;
+    public bool HasDash = true;
+    public bool HasSecondJump = true;
+    private bool wasGrounded;
+
+    [Header("Ray & Momentum")]
+    [HideInInspector] public float railCooldown = 0f;
+    [HideInInspector] public RailSystem activeRail = null;
+    private const float RAIL_COOLDOWN_TIME = 0.5f;
+    private float momentumTime = 0f; 
+    private float storedMoveSpeed;
+
     [Header("Dash Ayarları")]
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -27,38 +31,66 @@ public class ControllerScript : MonoBehaviour
     private float dashTimer = 0f;
     private float dashDirection = 0f;
 
+    [Header("Görsel Efektler (Juice & Dust)")]
+    [SerializeField] private GameObject DustEffectPrefab;
+    private JuiceEffect juice;
+
+    private Gravity gravity;
+    private InputActions inputActions;
+    private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction;
+
     void OnEnable()
     {
         inputActions = new InputActions();
         inputActions.Enable();
         moveAction = inputActions.Player.Move;
         jumpAction = inputActions.Player.Jump;
-        pushAction = inputActions.Player.Push; 
+        pushAction = inputActions.Player.Push;
         brakeAction = inputActions.Player.Brake;
         dashAction = inputActions.Player.Dash;
 
-        pushAction.performed += OnPush;
         brakeAction.performed += OnBrake;
         jumpAction.performed += OnJumpStart;
+        jumpAction.canceled += OnJumpCancel;
         dashAction.performed += OnDash;
     }
 
-    void Start() => gravity = GetComponent<Gravity>();
+    void Start()
+    {
+        gravity = GetComponent<Gravity>();
+        juice = GetComponentInChildren<JuiceEffect>(); // Child'daki scripti bul
+    }
 
     void Update()
     {
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
-        
-        // Dash timer
+
+        // Yer Kontrolü ve Yere İnme (Squish) Tetikleyici
+        bool grounded = IsGrounded();
+        if (grounded && !wasGrounded)
+        {
+            HasDash = true; 
+            HasSecondJump = true;
+            juice?.ApplySquish(); // Yere iniş efekti
+        }
+        wasGrounded = grounded;
+
         if (isDashing)
         {
             dashTimer -= Time.deltaTime;
-            if (dashTimer <= 0) isDashing = false;
+            if (dashTimer <= 0)
+            {
+                isDashing = false;
+                currentMoveSpeed = storedMoveSpeed;
+                Vector3 post = gravity.GetVelocity();
+                float dir = moveAction.ReadValue<float>();
+                post.x = (dir != 0) ? dir * currentMoveSpeed : 0f;
+                gravity.SetVelocity(post);
+            }
         }
-        
-        if (isGrinding) return; // Raydayken hiçbir fizik veya hareket çalışmaz
-        if (IsGrounded()) { HasDash = true; HasSecondJump = true; }
+
+        if (isGrinding) return;
         ApplyMovement();
     }
 
@@ -66,117 +98,114 @@ public class ControllerScript : MonoBehaviour
 
     private void OnJumpStart(InputAction.CallbackContext context)
     {
-        if (isGrinding) 
-        { 
-            // Raydayken zıplarsan rayı hemen bitir (teleport yok, olduğun yerden zıpla)
-            RailSystem activeRail = GetComponentInParent<RailSystem>();
+        if (isGrinding)
+        {
             if (activeRail != null) activeRail.FinishGrind(false);
-            
-            // Yerçekimini uyandır ve fırlat
             gravity.StartJump(); 
-            return; 
+            juice?.ApplyStretch(); // Zıplama efekti
+            SpawnDust();
+            return;
         }
-        
-        // Yerdeysen normal zıpla
-        if (IsGrounded()) 
+
+        if (IsGrounded() || HasSecondJump)
         {
+            if (!IsGrounded()) HasSecondJump = false;
             gravity.StartJump();
-        }
-        // Havadaysan ve double jump hakkın varsa
-        else if (HasSecondJump)
-        {
-            HasSecondJump = false;
-            gravity.StartJump();
+            juice?.ApplyStretch(); // Zıplama efekti
+            SpawnDust();
         }
     }
 
-    private void OnPush(InputAction.CallbackContext context)
+    private void SpawnDust()
     {
-        // Push sadece raydayken çalışır
-        if (!isGrinding) return;
-        
-        railPushCount++;
-        // RailSystem'e hız güncellemesi gönder
-        RailSystem activeRail = GetComponentInParent<RailSystem>();
-        if (activeRail != null)
+        if (DustEffectPrefab != null)
         {
-            activeRail.UpdateGrindSpeed(railPushCount);
+            GameObject clone = Instantiate(DustEffectPrefab);
+            clone.transform.position = DustEffectPrefab.transform.position;
+            clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
+            clone.SetActive(true);
+            Destroy(clone, 2f); // Belleği temizle
         }
     }
 
+    private void OnJumpCancel(InputAction.CallbackContext context) => gravity?.EndJump();
     private void OnBrake(InputAction.CallbackContext context) => ResetSpeed();
-    
+
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!HasDash) return;
-        if (isGrinding) return; // Raydayken dash yapamaz (isteğe bağlı değiştirilebilir)
-        
+        if (!HasDash || isGrinding || isDashing) return;
+
         HasDash = false;
         isDashing = true;
         dashTimer = dashDuration;
-        
-        // Dash yönünü belirle (input varsa o yöne, yoksa baktığı yöne)
+        storedMoveSpeed = currentMoveSpeed;
+
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
+        
+        juice?.ApplyDashStretch(); // Dash efekti
     }
 
-    public void ResetSpeed() { moveTime = 0f; currentMoveSpeed = walkSpeed; }
+    public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
     public bool CanEnterRail() => railCooldown <= 0 && !isGrinding;
-    public void EnterRail(float entrySpeed) 
-    { 
+
+    public void EnterRail(float entrySpeed, RailSystem rail)
+    {
         isGrinding = true;
-        railPushCount = 0;
-        // Rail'e binince dash ve double jump yenilenir (Celeste tarzı)
+        activeRail = rail;
         HasDash = true;
         HasSecondJump = true;
     }
-    
-    public void ExitRail(Vector3 vel) 
-    { 
-        isGrinding = false;
-        railCooldown = RAIL_COOLDOWN_TIME;
-        momentumTime = 0.3f; // 0.3 saniye momentum koru
-        if(gravity != null) gravity.SetVelocity(vel); 
-    }
 
-    public float GetCurrentMoveSpeed() => currentMoveSpeed;
+    public void ExitRail(Vector3 vel)
+    {
+        isGrinding = false;
+        activeRail = null;
+        railCooldown = RAIL_COOLDOWN_TIME;
+        momentumTime = 0.3f;
+        if (gravity != null) gravity.SetVelocity(vel);
+    }
 
     private void ApplyMovement()
     {
-        float dir = moveAction.ReadValue<float>();
-        Vector3 v = gravity.GetVelocity();
-        
         if (isDashing)
         {
-            v.x = dashDirection * dashSpeed;
-            v.y = 0; // Dash sırasında düşme yok
+            Vector3 dashVel = gravity.GetVelocity();
+            dashVel.x = dashDirection * dashSpeed;
+            dashVel.y = 0; 
+            gravity.SetVelocity(dashVel);
+            return; 
         }
-        else if (momentumTime > 0)
+
+        float dir = moveAction.ReadValue<float>();
+        Vector3 v = gravity.GetVelocity();
+
+        if (dir != 0) transform.localScale = new Vector3(Mathf.Sign(dir), 1, 1);
+
+        if (momentumTime > 0)
         {
-            // Momentum süresinde sadece input varsa biraz etki et, yoksa dokunma
             if (dir != 0) v.x = Mathf.Lerp(v.x, dir * currentMoveSpeed, 0.1f);
         }
         else
         {
-            // Otomatik hızlanma sistemi
-            if (dir != 0 && IsGrounded())
+            float accelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, accelerationTime);
+            float decelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, decelerationTime);
+
+            currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed, 
+                (dir != 0 ? accelRate : decelRate) * Time.deltaTime);
+
+            float targetVelX = dir * currentMoveSpeed;
+
+            if (Mathf.Approximately(dir, 0f))
             {
-                // Yürüyorsan zamanla hızlan
-                moveTime += Time.deltaTime;
-                float t = Mathf.Clamp01(moveTime / accelerationTime);
-                currentMoveSpeed = Mathf.Lerp(walkSpeed, maxSpeed, t);
+                v.x = Mathf.MoveTowards(v.x, 0f, decelRate * Time.deltaTime);
             }
-            else if (dir == 0)
+            else
             {
-                // Duruyorsan yavaşça yavaşla
-                moveTime = Mathf.Max(0, moveTime - Time.deltaTime * decelerationRate);
-                float t = Mathf.Clamp01(moveTime / accelerationTime);
-                currentMoveSpeed = Mathf.Lerp(walkSpeed, maxSpeed, t);
+                float rate = (Mathf.Sign(v.x) != Mathf.Sign(dir) && v.x != 0) ? decelRate * 2f : accelRate;
+                v.x = Mathf.MoveTowards(v.x, targetVelX, rate * Time.deltaTime);
             }
-            
-            v.x = dir * currentMoveSpeed;
         }
-        
         gravity.SetVelocity(v);
     }
 

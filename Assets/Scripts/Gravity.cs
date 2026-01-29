@@ -82,6 +82,8 @@ public class Gravity : MonoBehaviour
     }
 
     public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
+    // Call when jump button is released to stop upward hold
+    public void EndJump() { isJumping = false; }
     public void SetVelocity(Vector3 newVel) 
     { 
         velocity = newVel;
