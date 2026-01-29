@@ -40,16 +40,21 @@ public class ControllerScript : MonoBehaviour
     [SerializeField] private float staminaRecoveryRate = 1f; // Yerde iken saniyede dolum
     [SerializeField] private float wallJumpForceX = 8f;
     [SerializeField] private float wallJumpForceY = 10f;
+    [SerializeField] private float wallClimbJumpBoost = 3f; // Duvarda W basılıyken zıplayınca ekstra yukarı itme
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float wallCheckDistance = 0.1f;
+    [SerializeField] private float staminaWarningThreshold = 0.3f; // Stamina bu yüzdenin altına düşünce uyarı
     
     // Celeste modu için: true = tuşa basılı tutmak gerekir, false = otomatik tutunma
-    [SerializeField] private bool requireGrabButton = true; //aynen
+    [SerializeField] private bool requireGrabButton = true;
     
     private float currentStamina;
     private bool isOnWall = false;
     private int wallDirection = 0; // -1 = sol duvar, 1 = sağ duvar
     private bool isGrabbing = false;
+    private SpriteRenderer playerSprite;
+    private Color originalColor;
+    private float staminaFlashTimer = 0f;
 
     [Header("Görsel Efektler (Juice & Dust)")]
     [SerializeField] private GameObject DustEffectPrefab;
@@ -92,6 +97,10 @@ public class ControllerScript : MonoBehaviour
         col = GetComponent<Collider2D>(); // Her türlü 2D collider çalışır
         currentStamina = maxStamina;
         
+        // Sprite referansı al
+        playerSprite = GetComponentInChildren<SpriteRenderer>();
+        if (playerSprite != null) originalColor = playerSprite.color;
+        
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Ground");
     }
 
@@ -118,7 +127,11 @@ public class ControllerScript : MonoBehaviour
         if (grounded && !isOnWall)
         {
             currentStamina = Mathf.MoveTowards(currentStamina, maxStamina, staminaRecoveryRate * Time.deltaTime);
+            ResetStaminaWarning();
         }
+        
+        // Stamina uyarısı (düşükken kırmızı yanıp sönme)
+        UpdateStaminaWarning();
 
         // Wall Check
         CheckWallState();
@@ -292,6 +305,34 @@ public class ControllerScript : MonoBehaviour
     public bool IsOnWall() => isOnWall;
     public int GetWallDirection() => wallDirection;
     public float GetStaminaPercent() => currentStamina / maxStamina;
+    
+    private void UpdateStaminaWarning()
+    {
+        if (playerSprite == null) return;
+        
+        float staminaPercent = currentStamina / maxStamina;
+        
+        if (isOnWall && staminaPercent < staminaWarningThreshold)
+        {
+            // Kırmızı yanıp sönme
+            staminaFlashTimer += Time.deltaTime * 10f;
+            float flash = (Mathf.Sin(staminaFlashTimer) + 1f) / 2f;
+            playerSprite.color = Color.Lerp(Color.red, originalColor, flash);
+        }
+        else
+        {
+            ResetStaminaWarning();
+        }
+    }
+    
+    private void ResetStaminaWarning()
+    {
+        if (playerSprite != null)
+        {
+            playerSprite.color = originalColor;
+        }
+        staminaFlashTimer = 0f;
+    }
 
     public bool IsGrounded() => gravity != null && gravity.IsGrounded();
 
@@ -324,18 +365,56 @@ public class ControllerScript : MonoBehaviour
 
     private void PerformWallJump()
     {
+        // W tuşuna basılıyken zıplayınca ekstra yukarı boost
+        float extraYBoost = 0f;
+        if (Keyboard.current != null && Keyboard.current.wKey.isPressed)
+        {
+            extraYBoost = wallClimbJumpBoost;
+        }
+        
+        // Yatay input kontrolü - zıt yöne basılıysa daha güçlü fırlat
+        float horizontalInput = moveAction.ReadValue<float>();
+        float jumpXForce = wallJumpForceX;
+        float jumpYForce = wallJumpForceY + extraYBoost;
+        
+        // Zıt yöne basılıysa (sol duvarda D, sağ duvarda A) = güçlü fırlatma
+        // Aynı yöne basılıysa veya input yoksa = normal/hafif fırlatma
+        int inputDir = horizontalInput > 0.1f ? 1 : (horizontalInput < -0.1f ? -1 : 0);
+        
+        if (inputDir != 0 && inputDir != wallDirection)
+        {
+            // Zıt yöne basılı - güçlü fırlatma (Celeste "wall kick")
+            jumpXForce = wallJumpForceX * 1.5f;
+            jumpYForce = wallJumpForceY * 0.9f + extraYBoost; // Biraz daha yatay, biraz daha az dikey
+        }
+        else if (inputDir == wallDirection)
+        {
+            // Aynı yöne basılı - sadece yukarı zıpla, az yatay (Celeste "wall climb jump")
+            jumpXForce = wallJumpForceX * 0.3f;
+            jumpYForce = wallJumpForceY * 1.2f + extraYBoost;
+        }
+        // inputDir == 0 ise normal wall jump
+        
+        int savedWallDir = wallDirection;
         ExitWall();
         
         // Duvardan zıt yöne fırlat
         Vector3 jumpVel = new Vector3(
-            -wallDirection * wallJumpForceX,
-            wallJumpForceY,
+            -savedWallDir * jumpXForce,
+            jumpYForce,
             0
         );
         gravity.SetVelocity(jumpVel);
         
-        // Sprite yönünü değiştir
-        transform.localScale = new Vector3(wallDirection, 1, 1);
+        // Sprite yönünü değiştir (fırlatma yönüne bak)
+        if (inputDir != 0)
+        {
+            transform.localScale = new Vector3(inputDir, 1, 1);
+        }
+        else
+        {
+            transform.localScale = new Vector3(savedWallDir, 1, 1);
+        }
         
         juice?.ApplyStretch();
         SpawnDust();
