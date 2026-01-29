@@ -19,7 +19,7 @@ public class ControllerScript : MonoBehaviour
 
     [Header("Ray & Momentum")]
     [HideInInspector] public float railCooldown = 0f;
-    [HideInInspector] public RailSystem activeRail = null; // Aktif ray referansı
+    [HideInInspector] public RailSystem activeRail = null;
     private const float RAIL_COOLDOWN_TIME = 0.5f;
     private float momentumTime = 0f; 
     private float storedMoveSpeed;
@@ -31,8 +31,9 @@ public class ControllerScript : MonoBehaviour
     private float dashTimer = 0f;
     private float dashDirection = 0f;
 
-    [Header("Objeler")]
+    [Header("Görsel Efektler (Juice & Dust)")]
     [SerializeField] private GameObject DustEffectPrefab;
+    private JuiceEffect juice;
 
     private Gravity gravity;
     private InputActions inputActions;
@@ -57,6 +58,7 @@ public class ControllerScript : MonoBehaviour
     void Start()
     {
         gravity = GetComponent<Gravity>();
+        juice = GetComponentInChildren<JuiceEffect>(); // Child'daki scripti bul
     }
 
     void Update()
@@ -64,12 +66,13 @@ public class ControllerScript : MonoBehaviour
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
 
-        // Yer Kontrolü ve Görsel Tetikleme
+        // Yer Kontrolü ve Yere İnme (Squish) Tetikleyici
         bool grounded = IsGrounded();
         if (grounded && !wasGrounded)
         {
             HasDash = true; 
             HasSecondJump = true;
+            juice?.ApplySquish(); // Yere iniş efekti
         }
         wasGrounded = grounded;
 
@@ -79,8 +82,7 @@ public class ControllerScript : MonoBehaviour
             if (dashTimer <= 0)
             {
                 isDashing = false;
-                currentMoveSpeed = storedMoveSpeed; // Dash bittiğinde eski hıza dön
-                
+                currentMoveSpeed = storedMoveSpeed;
                 Vector3 post = gravity.GetVelocity();
                 float dir = moveAction.ReadValue<float>();
                 post.x = (dir != 0) ? dir * currentMoveSpeed : 0f;
@@ -99,11 +101,9 @@ public class ControllerScript : MonoBehaviour
         if (isGrinding)
         {
             if (activeRail != null) activeRail.FinishGrind(false);
-            gravity.StartJump();
-            GameObject clone = Instantiate(DustEffectPrefab);
-            clone.transform.position = DustEffectPrefab.transform.position;
-            clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
-            clone.SetActive(true);
+            gravity.StartJump(); 
+            juice?.ApplyStretch(); // Zıplama efekti
+            SpawnDust();
             return;
         }
 
@@ -111,10 +111,20 @@ public class ControllerScript : MonoBehaviour
         {
             if (!IsGrounded()) HasSecondJump = false;
             gravity.StartJump();
+            juice?.ApplyStretch(); // Zıplama efekti
+            SpawnDust();
+        }
+    }
+
+    private void SpawnDust()
+    {
+        if (DustEffectPrefab != null)
+        {
             GameObject clone = Instantiate(DustEffectPrefab);
             clone.transform.position = DustEffectPrefab.transform.position;
             clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
             clone.SetActive(true);
+            Destroy(clone, 2f); // Belleği temizle
         }
     }
 
@@ -128,10 +138,12 @@ public class ControllerScript : MonoBehaviour
         HasDash = false;
         isDashing = true;
         dashTimer = dashDuration;
-        storedMoveSpeed = currentMoveSpeed; // Mevcut hızı sakla
+        storedMoveSpeed = currentMoveSpeed;
 
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
+        
+        juice?.ApplyDashStretch(); // Dash efekti
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
@@ -168,7 +180,6 @@ public class ControllerScript : MonoBehaviour
         float dir = moveAction.ReadValue<float>();
         Vector3 v = gravity.GetVelocity();
 
-        // Karakter Yönünü Çevirme
         if (dir != 0) transform.localScale = new Vector3(Mathf.Sign(dir), 1, 1);
 
         if (momentumTime > 0)
