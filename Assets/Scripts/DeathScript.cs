@@ -5,14 +5,18 @@ using System.Collections;
 public class DeathScript : MonoBehaviour
 {
     [Header("Referanslar")]
-    [SerializeField] private Image fadeImage;      
-    [SerializeField] private Transform initialRespawnPoint; // İlk doğuş yeri
+    [SerializeField] private Image fadeImage;
+    [SerializeField] private Transform initialRespawnPoint;
 
     [Header("Ayarlar")]
-    [SerializeField] private float fadeSpeed = 2f;    
-    [SerializeField] private float waitAtBlack = 0.5f; 
+    [SerializeField] private float fadeSpeed = 2f;
+    [SerializeField] private float waitAtBlack = 0.5f;
 
-    private Vector3 currentRespawnPosition; // Aktif checkpoint konumu
+    [Header("Death Detection")]
+    [SerializeField] private LayerMask deathLayer;
+    [SerializeField] private Vector2 deathCheckSize = new Vector2(0.4f, 0.8f);
+
+    private Vector3 currentRespawnPosition;
     private ControllerScript controller;
     private Gravity gravity;
     private bool isDead = false;
@@ -22,11 +26,10 @@ public class DeathScript : MonoBehaviour
         controller = GetComponent<ControllerScript>();
         gravity = GetComponent<Gravity>();
 
-        // Başlangıç checkpoint'ini belirle
         if (initialRespawnPoint != null)
             currentRespawnPosition = initialRespawnPoint.position;
         else
-            currentRespawnPosition = transform.position; // Atanmamışsa başladığı yer
+            currentRespawnPosition = transform.position;
 
         if (fadeImage != null)
         {
@@ -36,54 +39,57 @@ public class DeathScript : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        CheckDeathCollision();
+    }
+
+    private void CheckDeathCollision()
+    {
+        if (isDead) return;
+
+        Collider2D deathHit = Physics2D.OverlapBox(
+            transform.position,
+            deathCheckSize,
+            0f,
+            deathLayer
+        );
+
+        if (deathHit != null)
+        {
+            StartCoroutine(DeathSequence());
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // ÖLÜM KONTROLÜ
         if (other.CompareTag("Death") && !isDead)
         {
             StartCoroutine(DeathSequence());
         }
-        
-        // CHECKPOINT KONTROLÜ
+
         if (other.CompareTag("Checkpoint"))
         {
             UpdateCheckpoint(other.transform.position);
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Death") && !isDead)
-        {
-            StartCoroutine(DeathSequence());
-        }
-
-        if (collision.gameObject.CompareTag("Checkpoint"))
-        {
-            UpdateCheckpoint(collision.transform.position);
-        }
-    }
-
     private void UpdateCheckpoint(Vector3 newPos)
     {
-        // Eğer yeni checkpoint konumu eskisinden farklıysa güncelle
         if (currentRespawnPosition != newPos)
         {
             currentRespawnPosition = newPos;
-            Debug.Log("Checkpoint Alındı! Konum: " + newPos);
-            // İstersen buraya küçük bir "Checkpoint!" yazısı veya partikül ekleyebilirsin
+            Debug.Log("Checkpoint Alindi! Konum: " + newPos);
         }
     }
 
     private IEnumerator DeathSequence()
     {
         isDead = true;
-        
-        // 1. Kontrolü Kapat
+
         controller.enabled = false;
         gravity.SetVelocity(Vector2.zero);
 
-        // 2. Ekranı Karart
         while (fadeImage.color.a < 1)
         {
             Color c = fadeImage.color;
@@ -92,13 +98,10 @@ public class DeathScript : MonoBehaviour
             yield return null;
         }
 
-        // 3. Siyah Ekranda Bekle ve Kayıtlı Checkpoint'e Işınlan
         yield return new WaitForSeconds(waitAtBlack);
         transform.position = currentRespawnPosition;
-        
         gravity.SetVelocity(Vector2.zero);
 
-        // 4. Ekranı Aç
         while (fadeImage.color.a > 0)
         {
             Color c = fadeImage.color;
@@ -107,7 +110,6 @@ public class DeathScript : MonoBehaviour
             yield return null;
         }
 
-        // 5. Kontrolü Geri Ver
         controller.enabled = true;
         isDead = false;
     }
