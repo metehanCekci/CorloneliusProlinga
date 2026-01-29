@@ -1159,7 +1159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   fadeImage: {fileID: 69748997}
-  respawnPoint: {fileID: 1433311011}
+  initialRespawnPoint: {fileID: 0}
   fadeSpeed: 2
   waitAtBlack: 0.5
 --- !u!50 &1357150821
