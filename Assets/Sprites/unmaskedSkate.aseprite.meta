@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< Updated upstream
 guid: 36ee6a441ee00424faa7552618529bcd
+=======
+guid: 00a36ddd52b319e4e9526c5436c1a00c
+>>>>>>> Stashed changes
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -127,7 +131,11 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
+<<<<<<< Updated upstream
   - name: Frame_0
+=======
+  - name: unmaskedSkate
+>>>>>>> Stashed changes
     originalName: 
     pivot: {x: 0.6315789, y: -0.05}
     alignment: 9
@@ -139,7 +147,11 @@ ScriptedImporter:
       y: 4
       width: 38
       height: 40
+<<<<<<< Updated upstream
     spriteID: 5b765fdb75620b544baa8b175a2e1061
+=======
+    spriteID: a0306b83944b9d941a932be6262fb6c4
+>>>>>>> Stashed changes
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -160,7 +172,11 @@ ScriptedImporter:
       y: 4
       width: 38
       height: 40
+<<<<<<< Updated upstream
     spriteID: 18354136128ef104a9a41d2df2af8a13
+=======
+    spriteID: eb89064d66598214181f30c3c97a7d63
+>>>>>>> Stashed changes
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -181,7 +197,11 @@ ScriptedImporter:
       y: 52
       width: 38
       height: 40
+<<<<<<< Updated upstream
     spriteID: 3d23b12d82751f847a93375877c5e9c0
+=======
+    spriteID: 46c3f150c9b881d40bd8ab2d2fcfb860
+>>>>>>> Stashed changes
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -213,7 +233,11 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 40
+<<<<<<< Updated upstream
       spriteId: 5b765fdb75620b544baa8b175a2e1061
+=======
+      spriteId: a0306b83944b9d941a932be6262fb6c4
+>>>>>>> Stashed changes
     - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
@@ -222,7 +246,11 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 40
+<<<<<<< Updated upstream
       spriteId: 18354136128ef104a9a41d2df2af8a13
+=======
+      spriteId: eb89064d66598214181f30c3c97a7d63
+>>>>>>> Stashed changes
     - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
@@ -231,7 +259,11 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 40
+<<<<<<< Updated upstream
       spriteId: 3d23b12d82751f847a93375877c5e9c0
+=======
+      spriteId: 46c3f150c9b881d40bd8ab2d2fcfb860
+>>>>>>> Stashed changes
     linkedCells: []
     tileCells: []
     tileSetIndex: 0

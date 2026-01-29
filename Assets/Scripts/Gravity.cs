@@ -109,6 +109,7 @@ public class Gravity : MonoBehaviour
         if (hit.collider != null)
         {
             isGrounded = true;
+            Debug.Log("pornoo");
             
             // Zemine gömülmeyi önle - karakteri zeminin üstüne oturt
             if (velocity.y <= 0)
