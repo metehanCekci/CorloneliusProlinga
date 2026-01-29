@@ -11,7 +11,9 @@ public class RailSystem : MonoBehaviour
     public float maxGrindSpeed = 8f;  // Maximum ray hızı
     public float midGrindSpeed = 5f;  // Orta ray hızı
     public float railAcceleration = 3f; // İleri tuşuyla hızlanma oranı
+    public float reverseDeceleration = 8f; // Ters yöne basarken yavaşlama hızı
     private float currentGrindSpeed;  // Aktif ray hızı
+    private bool isReversing = false; // Yön değiştirme sürecinde mi?
     
     [Header("Çıkış Ayarları")]
     public float exitBoost = 2f;
@@ -82,26 +84,36 @@ public class RailSystem : MonoBehaviour
         {
             float moveInput = playerMoveAction.ReadValue<float>();
             
-            // Ters yöne basıyorsa yön değiştir
+            // Ters yöne basıyorsa yavaşça dur ve yön değiştir
             bool pushingReverse = (moveInput > 0 && direction.x < 0) || (moveInput < 0 && direction.x > 0);
             if (pushingReverse)
             {
-                // Target ve origin'i swap et
-                Transform temp = targetPoint;
-                targetPoint = originPoint;
-                originPoint = temp;
+                isReversing = true;
+                // Yavaşça yavaşla
+                currentGrindSpeed -= reverseDeceleration * Time.deltaTime;
                 
-                // Hızı biraz düşür (yön değiştirme maliyeti)
-                currentGrindSpeed = Mathf.Max(currentGrindSpeed * 0.7f, minGrindSpeed);
-                return; // Bu frame'de hareket etme, yön değişti
+                // Tamamen durduğunda yön değiştir
+                if (currentGrindSpeed <= 0.1f)
+                {
+                    currentGrindSpeed = 0.1f;
+                    // Target ve origin'i swap et
+                    Transform temp = targetPoint;
+                    targetPoint = originPoint;
+                    originPoint = temp;
+                    isReversing = false;
+                }
             }
-            
-            // İleri yöne basıyorsa hızlan (max hıza kadar)
-            bool pushingForward = (moveInput > 0 && direction.x > 0) || (moveInput < 0 && direction.x < 0);
-            if (pushingForward && currentGrindSpeed < maxGrindSpeed)
+            else
             {
-                currentGrindSpeed += railAcceleration * Time.deltaTime;
-                currentGrindSpeed = Mathf.Min(currentGrindSpeed, maxGrindSpeed);
+                isReversing = false;
+                
+                // İleri yöne basıyorsa hızlan (max hıza kadar)
+                bool pushingForward = (moveInput > 0 && direction.x > 0) || (moveInput < 0 && direction.x < 0);
+                if (pushingForward && currentGrindSpeed < maxGrindSpeed)
+                {
+                    currentGrindSpeed += railAcceleration * Time.deltaTime;
+                    currentGrindSpeed = Mathf.Min(currentGrindSpeed, maxGrindSpeed);
+                }
             }
         }
         

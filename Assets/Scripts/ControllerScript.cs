@@ -58,7 +58,7 @@ public class ControllerScript : MonoBehaviour
     void Start()
     {
         gravity = GetComponent<Gravity>();
-        juice = GetComponentInChildren<JuiceEffect>(); // Child'daki scripti bul
+        juice = GetComponentInChildren<JuiceEffect>();
     }
 
     void Update()
@@ -72,7 +72,7 @@ public class ControllerScript : MonoBehaviour
         {
             HasDash = true; 
             HasSecondJump = true;
-            juice?.ApplySquish(); // Yere iniş efekti
+            juice?.ApplySquish();
         }
         wasGrounded = grounded;
 
@@ -101,8 +101,8 @@ public class ControllerScript : MonoBehaviour
         if (isGrinding)
         {
             if (activeRail != null) activeRail.FinishGrind(false);
-            gravity.StartJump(); 
-            juice?.ApplyStretch(); // Zıplama efekti
+            gravity.StartJump();
+            juice?.ApplyStretch();
             SpawnDust();
             return;
         }
@@ -111,7 +111,7 @@ public class ControllerScript : MonoBehaviour
         {
             if (!IsGrounded()) HasSecondJump = false;
             gravity.StartJump();
-            juice?.ApplyStretch(); // Zıplama efekti
+            juice?.ApplyStretch();
             SpawnDust();
         }
     }
@@ -142,8 +142,7 @@ public class ControllerScript : MonoBehaviour
 
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
-        
-        juice?.ApplyDashStretch(); // Dash efekti
+        juice?.ApplyDashStretch();
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
