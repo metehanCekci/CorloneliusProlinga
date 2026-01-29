@@ -19,6 +19,7 @@ public class ControllerScript : MonoBehaviour
 
     [Header("Ray & Momentum")]
     [HideInInspector] public float railCooldown = 0f;
+    [HideInInspector] public RailSystem activeRail = null; // Aktif ray referansı
     private const float RAIL_COOLDOWN_TIME = 0.5f;
     private float momentumTime = 0f; 
     private float storedMoveSpeed;
@@ -34,7 +35,6 @@ public class ControllerScript : MonoBehaviour
     [SerializeField] private GameObject DustEffectPrefab;
 
     private Gravity gravity;
-    private JuiceEffect juice; // Görsel efektleri tetiklemek için referans
     private InputActions inputActions;
     private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction;
 
@@ -57,8 +57,6 @@ public class ControllerScript : MonoBehaviour
     void Start()
     {
         gravity = GetComponent<Gravity>();
-        // Child objelerdeki JuiceEffect scriptini bulur
-        juice = GetComponentInChildren<JuiceEffect>();
     }
 
     void Update()
@@ -72,7 +70,6 @@ public class ControllerScript : MonoBehaviour
         {
             HasDash = true; 
             HasSecondJump = true;
-            juice?.ApplySquish(); // Yere indiğinde ezilme efekti gönder
         }
         wasGrounded = grounded;
 
@@ -101,10 +98,8 @@ public class ControllerScript : MonoBehaviour
     {
         if (isGrinding)
         {
-            RailSystem activeRail = GetComponentInParent<RailSystem>();
             if (activeRail != null) activeRail.FinishGrind(false);
             gravity.StartJump();
-            juice?.ApplyStretch(); // Zıplama efekti gönder
             GameObject clone = Instantiate(DustEffectPrefab);
             clone.transform.position = DustEffectPrefab.transform.position;
             clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
@@ -116,7 +111,6 @@ public class ControllerScript : MonoBehaviour
         {
             if (!IsGrounded()) HasSecondJump = false;
             gravity.StartJump();
-            juice?.ApplyStretch(); // Zıplama efekti gönder
             GameObject clone = Instantiate(DustEffectPrefab);
             clone.transform.position = DustEffectPrefab.transform.position;
             clone.transform.localScale = DustEffectPrefab.transform.lossyScale;
@@ -138,16 +132,15 @@ public class ControllerScript : MonoBehaviour
 
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
-        
-        juice?.ApplyDashStretch(); // Dash efekti gönder
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
     public bool CanEnterRail() => railCooldown <= 0 && !isGrinding;
 
-    public void EnterRail(float entrySpeed)
+    public void EnterRail(float entrySpeed, RailSystem rail)
     {
         isGrinding = true;
+        activeRail = rail;
         HasDash = true;
         HasSecondJump = true;
     }
@@ -155,6 +148,7 @@ public class ControllerScript : MonoBehaviour
     public void ExitRail(Vector3 vel)
     {
         isGrinding = false;
+        activeRail = null;
         railCooldown = RAIL_COOLDOWN_TIME;
         momentumTime = 0.3f;
         if (gravity != null) gravity.SetVelocity(vel);

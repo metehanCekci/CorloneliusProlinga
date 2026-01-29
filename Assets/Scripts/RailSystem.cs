@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class RailSystem : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class RailSystem : MonoBehaviour
     public float minGrindSpeed = 2f;  // Minimum ray hızı
     public float maxGrindSpeed = 8f;  // Maximum ray hızı
     public float midGrindSpeed = 5f;  // Orta ray hızı
+    public float railAcceleration = 3f; // İleri tuşuyla hızlanma oranı
     private float currentGrindSpeed;  // Aktif ray hızı
     
     [Header("Çıkış Ayarları")]
@@ -19,6 +21,10 @@ public class RailSystem : MonoBehaviour
     private ControllerScript player;
     private Transform targetPoint; // Hedef nokta (yöne göre start veya end)
     private Transform originPoint; // Başlangıç nokta
+    private Quaternion originalPlayerRotation; // Karakterin orijinal rotasyonu
+    private Vector3 originalPlayerScale; // Karakterin orijinal scale'i
+    private InputActions railInputActions; // Input referansı
+    private InputAction playerMoveAction; // Oyuncunun hareket inputu
 
     private void Awake() => this.enabled = false;
 
@@ -28,6 +34,42 @@ public class RailSystem : MonoBehaviour
 
         // Karakteri hedef noktaya doğru sürükle
         Vector3 direction = (targetPoint.position - player.transform.position).normalized;
+        
+        // Ray eğimini hesapla (sadece Z rotasyonu)
+        float angle = Mathf.Atan2(direction.y, Mathf.Abs(direction.x)) * Mathf.Rad2Deg;
+        
+        // Yön için sadece X scale'i değiştir, diğerlerini koru
+        float scaleX = direction.x >= 0 ? Mathf.Abs(originalPlayerScale.x) : -Mathf.Abs(originalPlayerScale.x);
+        player.transform.localScale = new Vector3(scaleX, originalPlayerScale.y, originalPlayerScale.z);
+        player.transform.rotation = Quaternion.Euler(0, 0, angle * Mathf.Sign(scaleX));
+        
+        if (playerMoveAction != null)
+        {
+            float moveInput = playerMoveAction.ReadValue<float>();
+            
+            // Ters yöne basıyorsa yön değiştir
+            bool pushingReverse = (moveInput > 0 && direction.x < 0) || (moveInput < 0 && direction.x > 0);
+            if (pushingReverse)
+            {
+                // Target ve origin'i swap et
+                Transform temp = targetPoint;
+                targetPoint = originPoint;
+                originPoint = temp;
+                
+                // Hızı biraz düşür (yön değiştirme maliyeti)
+                currentGrindSpeed = Mathf.Max(currentGrindSpeed * 0.7f, minGrindSpeed);
+                return; // Bu frame'de hareket etme, yön değişti
+            }
+            
+            // İleri yöne basıyorsa hızlan (max hıza kadar)
+            bool pushingForward = (moveInput > 0 && direction.x > 0) || (moveInput < 0 && direction.x < 0);
+            if (pushingForward && currentGrindSpeed < maxGrindSpeed)
+            {
+                currentGrindSpeed += railAcceleration * Time.deltaTime;
+                currentGrindSpeed = Mathf.Min(currentGrindSpeed, maxGrindSpeed);
+            }
+        }
+        
         player.transform.position += direction * currentGrindSpeed * Time.deltaTime;
 
         // Hedef noktaya vardığında
@@ -64,8 +106,17 @@ public class RailSystem : MonoBehaviour
         // Giriş hızına göre ray hızını belirle
         currentGrindSpeed = Mathf.Clamp(entrySpeed, minGrindSpeed, maxGrindSpeed);
         
-        // Karakteri rayın çocuğu yap (fizik müdahalelerini engelle)
-        player.transform.SetParent(this.transform);
+        // Karakterin orijinal rotasyonunu ve scale'ini kaydet
+        originalPlayerRotation = player.transform.rotation;
+        originalPlayerScale = player.transform.localScale;
+        
+        // Oyuncunun input aksiyonunu al (hızlanma için)
+        if (railInputActions == null)
+        {
+            railInputActions = new InputActions();
+        }
+        railInputActions.Enable();
+        playerMoveAction = railInputActions.Player.Move;
         
         // Karakterin mevcut pozisyonuna göre en yakın noktayı bul
         Vector3 playerPos = player.transform.position;
@@ -73,7 +124,7 @@ public class RailSystem : MonoBehaviour
         player.transform.position = closestPoint;
         
         this.enabled = true; 
-        player.EnterRail(currentGrindSpeed);
+        player.EnterRail(currentGrindSpeed, this);
     }
     
     // Push ile ray hızını artır
@@ -103,8 +154,9 @@ public class RailSystem : MonoBehaviour
 
         if (player != null)
         {
-            // Karakteri raydan ayır
-            player.transform.SetParent(null);
+            // Karakterin rotasyonunu ve scale'ini eski haline getir
+            player.transform.rotation = originalPlayerRotation;
+            player.transform.localScale = originalPlayerScale;
             
             // Çıkış yönü: origin'den target'a doğru
             Vector3 exitDir = (targetPoint.position - originPoint.position).normalized;
@@ -130,6 +182,8 @@ public class RailSystem : MonoBehaviour
         player = null;
         targetPoint = null;
         originPoint = null;
+        playerMoveAction = null;
+        if (railInputActions != null) railInputActions.Disable();
         this.enabled = false;
     }
 }
