@@ -27,9 +27,29 @@ public class ControllerScript : MonoBehaviour
     [Header("Dash Ayarları")]
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float groundDashCooldown = 1f; // Yerde dash cooldown
     private bool isDashing = false;
     private float dashTimer = 0f;
     private float dashDirection = 0f;
+    private float dashCooldownTimer = 0f;
+
+    [Header("Wall Climb Ayarları")]
+    [SerializeField] private float wallClimbSpeed = 4f;
+    [SerializeField] private float wallSlideSpeed = 2f;
+    [SerializeField] private float maxStamina = 3f; // Tırmanma süresi (saniye)
+    [SerializeField] private float staminaRecoveryRate = 1f; // Yerde iken saniyede dolum
+    [SerializeField] private float wallJumpForceX = 8f;
+    [SerializeField] private float wallJumpForceY = 10f;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private float wallCheckDistance = 0.1f;
+    
+    // Celeste modu için: true = tuşa basılı tutmak gerekir, false = otomatik tutunma
+    [SerializeField] private bool requireGrabButton = true;
+    
+    private float currentStamina;
+    private bool isOnWall = false;
+    private int wallDirection = 0; // -1 = sol duvar, 1 = sağ duvar
+    private bool isGrabbing = false;
 
     [Header("Görsel Efektler (Juice & Dust)")]
     [SerializeField] private GameObject DustEffectPrefab;
@@ -37,7 +57,9 @@ public class ControllerScript : MonoBehaviour
 
     private Gravity gravity;
     private InputActions inputActions;
-    private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction;
+    private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction, grabAction;
+    private Collider2D col; // BoxCollider2D veya CapsuleCollider2D
+    private bool hasGrabAction = false;
 
     void OnEnable()
     {
@@ -48,6 +70,14 @@ public class ControllerScript : MonoBehaviour
         pushAction = inputActions.Player.Push;
         brakeAction = inputActions.Player.Brake;
         dashAction = inputActions.Player.Dash;
+        
+        // Grab action opsiyonel - InputActions'da varsa kullan
+        try 
+        { 
+            grabAction = inputActions.Player.Grab; 
+            hasGrabAction = true;
+        } 
+        catch { hasGrabAction = false; }
 
         brakeAction.performed += OnBrake;
         jumpAction.performed += OnJumpStart;
@@ -59,12 +89,20 @@ public class ControllerScript : MonoBehaviour
     {
         gravity = GetComponent<Gravity>();
         juice = GetComponentInChildren<JuiceEffect>();
+        col = GetComponent<Collider2D>(); // Her türlü 2D collider çalışır
+        currentStamina = maxStamina;
+        
+        if (wallLayer == 0) wallLayer = LayerMask.GetMask("Ground");
     }
 
     void Update()
     {
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
+        if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
+
+        // Grab input kontrolü (Celeste modu için)
+        isGrabbing = hasGrabAction && grabAction.ReadValue<float>() > 0.5f;
 
         // Yer Kontrolü ve Yere İnme (Squish) Tetikleyici
         bool grounded = IsGrounded();
@@ -75,6 +113,15 @@ public class ControllerScript : MonoBehaviour
             juice?.ApplySquish();
         }
         wasGrounded = grounded;
+
+        // Stamina Recovery (yerdeyken)
+        if (grounded && !isOnWall)
+        {
+            currentStamina = Mathf.MoveTowards(currentStamina, maxStamina, staminaRecoveryRate * Time.deltaTime);
+        }
+
+        // Wall Check
+        CheckWallState();
 
         if (isDashing)
         {
@@ -87,17 +134,176 @@ public class ControllerScript : MonoBehaviour
                 float dir = moveAction.ReadValue<float>();
                 post.x = (dir != 0) ? dir * currentMoveSpeed : 0f;
                 gravity.SetVelocity(post);
+                
+                // Dash bitti ve yerdeysen dash'i geri ver
+                if (IsGrounded())
+                {
+                    HasDash = true;
+                }
             }
         }
 
         if (isGrinding) return;
+        
+        // Wall climb kontrolü (yerdeyken de çalışır)
+        if (isOnWall)
+        {
+            HandleWallClimb();
+            return;
+        }
+        
         ApplyMovement();
     }
+
+    private void CheckWallState()
+    {
+        // Rail veya dash sırasında wall climb yok
+        if (isGrinding || isDashing)
+        {
+            if (isOnWall) ExitWall();
+            return;
+        }
+
+        // Celeste modu: grab tuşuna basılı tutmak gerekiyor
+        if (requireGrabButton)
+        {
+            if (!isGrabbing)
+            {
+                if (isOnWall) ExitWall();
+                return;
+            }
+        }
+
+        // Stamina kontrolü
+        if (currentStamina <= 0)
+        {
+            if (isOnWall) ExitWall();
+            return;
+        }
+
+        int detectedWall = DetectWall();
+        
+        if (detectedWall != 0)
+        {
+            if (!isOnWall)
+            {
+                EnterWall(detectedWall);
+            }
+        }
+        else
+        {
+            if (isOnWall) ExitWall();
+        }
+    }
+
+    private int DetectWall()
+    {
+        if (col == null) return 0;
+        
+        Vector2 rightOrigin = new Vector2(col.bounds.max.x, col.bounds.center.y);
+        Vector2 leftOrigin = new Vector2(col.bounds.min.x, col.bounds.center.y);
+        
+        RaycastHit2D rightHit = Physics2D.Raycast(rightOrigin, Vector2.right, wallCheckDistance, wallLayer);
+        RaycastHit2D leftHit = Physics2D.Raycast(leftOrigin, Vector2.left, wallCheckDistance, wallLayer);
+        
+        // Celeste modu: grab tuşuna basıldıysa yöne bakmadan duvara tutun
+        if (requireGrabButton && isGrabbing)
+        {
+            if (rightHit.collider != null) return 1;
+            if (leftHit.collider != null) return -1;
+            return 0;
+        }
+        
+        float moveDir = moveAction.ReadValue<float>();
+        
+        // Normal mod: Hareket yönündeki duvara öncelik ver
+        if (rightHit.collider != null && moveDir > 0) return 1;
+        if (leftHit.collider != null && moveDir < 0) return -1;
+        
+        // Hareket input yoksa her iki duvara da tutunabilir
+        if (moveDir == 0)
+        {
+            if (rightHit.collider != null) return 1;
+            if (leftHit.collider != null) return -1;
+        }
+        
+        return 0;
+    }
+
+    private void EnterWall(int direction)
+    {
+        isOnWall = true;
+        wallDirection = direction;
+        HasDash = true;
+        HasSecondJump = true;
+        
+        // Duvara tutunduğunda Y hızını sıfırla/yavaşlat
+        Vector3 v = gravity.GetVelocity();
+        v.y = 0;
+        v.x = 0;
+        gravity.SetVelocity(v);
+    }
+
+    private void ExitWall()
+    {
+        isOnWall = false;
+        wallDirection = 0;
+    }
+
+    private void HandleWallClimb()
+    {
+        float verticalInput = 0f;
+        
+        // W/S veya Gamepad ile yukarı/aşağı
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.isPressed) verticalInput = 1f;
+            else if (Keyboard.current.sKey.isPressed) verticalInput = -1f;
+        }
+        
+        Vector3 v = gravity.GetVelocity();
+        v.x = 0; // Duvardayken X hareketi yok
+        
+        if (verticalInput > 0 && currentStamina > 0)
+        {
+            // Yukarı tırmanma
+            v.y = wallClimbSpeed;
+            currentStamina -= Time.deltaTime;
+        }
+        else if (verticalInput < 0)
+        {
+            // Aşağı kayma (stamina harcamaz)
+            v.y = -wallClimbSpeed;
+        }
+        else
+        {
+            // Duvarda tutunma - yavaş kayma
+            v.y = -wallSlideSpeed;
+            currentStamina -= Time.deltaTime * 0.5f; // Tutunma yarı stamina harcar
+        }
+        
+        gravity.SetVelocity(v);
+        gravity.ApplyWallMovement(); // Pozisyonu güncelle
+        
+        // Sprite yönü
+        transform.localScale = new Vector3(-wallDirection, 1, 1);
+    }
+
+    public bool IsOnWall() => isOnWall;
+    public int GetWallDirection() => wallDirection;
+    public float GetStaminaPercent() => currentStamina / maxStamina;
 
     public bool IsGrounded() => gravity != null && gravity.IsGrounded();
 
     private void OnJumpStart(InputAction.CallbackContext context)
     {
+        // Wall Jump
+        if (isOnWall)
+        {
+            PerformWallJump();
+            return;
+        }
+        
         if (isGrinding)
         {
             if (activeRail != null) activeRail.FinishGrind(false);
@@ -114,6 +320,36 @@ public class ControllerScript : MonoBehaviour
             juice?.ApplyStretch();
             SpawnDust();
         }
+    }
+
+    private void PerformWallJump()
+    {
+        ExitWall();
+        
+        // Duvardan zıt yöne fırlat
+        Vector3 jumpVel = new Vector3(
+            -wallDirection * wallJumpForceX,
+            wallJumpForceY,
+            0
+        );
+        gravity.SetVelocity(jumpVel);
+        
+        // Sprite yönünü değiştir
+        transform.localScale = new Vector3(wallDirection, 1, 1);
+        
+        juice?.ApplyStretch();
+        SpawnDust();
+        
+        // Wall jump sonrası kısa süre duvar kontrolü yapma
+        StartCoroutine(WallJumpCooldown());
+    }
+
+    private System.Collections.IEnumerator WallJumpCooldown()
+    {
+        float originalWallCheckDist = wallCheckDistance;
+        wallCheckDistance = 0f; // Geçici olarak duvar algılamayı kapat
+        yield return new WaitForSeconds(0.15f);
+        wallCheckDistance = originalWallCheckDist;
     }
 
     private void SpawnDust()
@@ -133,7 +369,7 @@ public class ControllerScript : MonoBehaviour
 
     private void OnDash(InputAction.CallbackContext context)
     {
-        if (!HasDash || isDashing) return;
+        if (!HasDash || isDashing || dashCooldownTimer > 0) return;
         
         // Raildeyken dash
         if (isGrinding && activeRail != null)
@@ -144,11 +380,20 @@ public class ControllerScript : MonoBehaviour
             return;
         }
         
+        // Yerde dash atıyorsan cooldown başlat
+        bool wasGrounded = IsGrounded();
+        
         // Normal dash
         HasDash = false;
         isDashing = true;
         dashTimer = dashDuration;
         storedMoveSpeed = currentMoveSpeed;
+        
+        // Yerde dash attıysan cooldown koy
+        if (wasGrounded)
+        {
+            dashCooldownTimer = groundDashCooldown;
+        }
 
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);

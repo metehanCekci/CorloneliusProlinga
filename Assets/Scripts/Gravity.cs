@@ -8,6 +8,8 @@ public class Gravity : MonoBehaviour
     [SerializeField] private float maxJumpHeight = 2.5f;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private LayerMask railLayer;
+    [SerializeField] private LayerMask wallLayer;
+    [SerializeField] private float wallCheckDistance = 0.05f;
 
     private Vector3 velocity = Vector3.zero;
     private bool isGrounded = false;
@@ -23,11 +25,13 @@ public class Gravity : MonoBehaviour
         controller = GetComponent<ControllerScript>();
         if (groundLayer == 0) groundLayer = LayerMask.GetMask("Ground");
         if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
+        if (wallLayer == 0) wallLayer = LayerMask.GetMask("Wall", "Ground");
     }
 
     void Update()
     {
         if (controller != null && controller.isGrinding) return;
+        if (controller != null && controller.IsOnWall()) return; // Duvardayken gravity işleme
 
         // Ground check cooldown
         if (groundCheckCooldown > 0)
@@ -53,7 +57,30 @@ public class Gravity : MonoBehaviour
             else velocity.y -= gravityStrength * Time.deltaTime;
         }
 
+        // Wall collision check - yatay hareket için
+        CheckWallCollision();
+
         transform.position += velocity * Time.deltaTime;
+    }
+
+    private void CheckWallCollision()
+    {
+        if (col == null || Mathf.Approximately(velocity.x, 0f)) return;
+
+        float dir = Mathf.Sign(velocity.x);
+        Vector2 origin = new Vector2(
+            dir > 0 ? col.bounds.max.x : col.bounds.min.x,
+            col.bounds.center.y
+        );
+        
+        float checkDist = Mathf.Abs(velocity.x * Time.deltaTime) + wallCheckDistance;
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * dir, checkDist, wallLayer);
+        
+        if (hit.collider != null)
+        {
+            // Duvara çarptık, X velocity'yi sıfırla
+            velocity.x = 0;
+        }
     }
 
     private void CheckRailCollision()
@@ -92,4 +119,10 @@ public class Gravity : MonoBehaviour
     }
     public Vector3 GetVelocity() => velocity;
     public bool IsGrounded() => isGrounded;
+    
+    // Wall climb için - duvardayken pozisyon güncellemesi
+    public void ApplyWallMovement()
+    {
+        transform.position += velocity * Time.deltaTime;
+    }
 }
