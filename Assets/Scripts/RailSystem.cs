@@ -25,8 +25,43 @@ public class RailSystem : MonoBehaviour
     private Vector3 originalPlayerScale; // Karakterin orijinal scale'i
     private InputActions railInputActions; // Input referansı
     private InputAction playerMoveAction; // Oyuncunun hareket inputu
+    private MaskObject maskObject; // Mask kontrolü için
 
-    private void Awake() => this.enabled = false;
+    private void Awake()
+    {
+        this.enabled = false;
+        maskObject = GetComponent<MaskObject>();
+    }
+    
+    private void OnEnable()
+    {
+        // Maske değişikliğini dinle
+        if (MaskManager.Instance != null)
+        {
+            MaskManager.Instance.onMaskChanged += OnMaskChanged;
+        }
+    }
+    
+    private void OnDisable()
+    {
+        if (MaskManager.Instance != null)
+        {
+            MaskManager.Instance.onMaskChanged -= OnMaskChanged;
+        }
+    }
+    
+    private void OnMaskChanged(bool isMaskOn)
+    {
+        // Eğer bu ray bir MaskObject ise ve artık aktif değilse, karakteri çıkar
+        if (maskObject != null && isActive)
+        {
+            bool shouldBeSolid = (maskObject.GetWorldType() == MaskObject.ObjectWorldType.Natural) ? !isMaskOn : isMaskOn;
+            if (!shouldBeSolid)
+            {
+                FinishGrind(false); // Raydan düşür
+            }
+        }
+    }
 
     private void Update()
     {
