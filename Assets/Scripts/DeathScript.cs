@@ -5,13 +5,14 @@ using System.Collections;
 public class DeathScript : MonoBehaviour
 {
     [Header("Referanslar")]
-    [SerializeField] private Image fadeImage;      // UI'daki siyah resmi buraya sürükle
-    [SerializeField] private Transform respawnPoint; // Karakterin doğacağı yer (boş bir obje)
+    [SerializeField] private Image fadeImage;      
+    [SerializeField] private Transform initialRespawnPoint; // İlk doğuş yeri
 
     [Header("Ayarlar")]
-    [SerializeField] private float fadeSpeed = 2f;    // Kararma hızı
-    [SerializeField] private float waitAtBlack = 0.5f; // Siyah ekranda ne kadar beklesin?
+    [SerializeField] private float fadeSpeed = 2f;    
+    [SerializeField] private float waitAtBlack = 0.5f; 
 
+    private Vector3 currentRespawnPosition; // Aktif checkpoint konumu
     private ControllerScript controller;
     private Gravity gravity;
     private bool isDead = false;
@@ -21,7 +22,12 @@ public class DeathScript : MonoBehaviour
         controller = GetComponent<ControllerScript>();
         gravity = GetComponent<Gravity>();
 
-        // Oyun başında ekranın açık olduğundan emin olalım
+        // Başlangıç checkpoint'ini belirle
+        if (initialRespawnPoint != null)
+            currentRespawnPosition = initialRespawnPoint.position;
+        else
+            currentRespawnPosition = transform.position; // Atanmamışsa başladığı yer
+
         if (fadeImage != null)
         {
             Color c = fadeImage.color;
@@ -32,9 +38,16 @@ public class DeathScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // ÖLÜM KONTROLÜ
         if (other.CompareTag("Death") && !isDead)
         {
             StartCoroutine(DeathSequence());
+        }
+        
+        // CHECKPOINT KONTROLÜ
+        if (other.CompareTag("Checkpoint"))
+        {
+            UpdateCheckpoint(other.transform.position);
         }
     }
 
@@ -43,6 +56,22 @@ public class DeathScript : MonoBehaviour
         if (collision.gameObject.CompareTag("Death") && !isDead)
         {
             StartCoroutine(DeathSequence());
+        }
+
+        if (collision.gameObject.CompareTag("Checkpoint"))
+        {
+            UpdateCheckpoint(collision.transform.position);
+        }
+    }
+
+    private void UpdateCheckpoint(Vector3 newPos)
+    {
+        // Eğer yeni checkpoint konumu eskisinden farklıysa güncelle
+        if (currentRespawnPosition != newPos)
+        {
+            currentRespawnPosition = newPos;
+            Debug.Log("Checkpoint Alındı! Konum: " + newPos);
+            // İstersen buraya küçük bir "Checkpoint!" yazısı veya partikül ekleyebilirsin
         }
     }
 
@@ -54,7 +83,7 @@ public class DeathScript : MonoBehaviour
         controller.enabled = false;
         gravity.SetVelocity(Vector2.zero);
 
-        // 2. Ekranı Karart (Fade In)
+        // 2. Ekranı Karart
         while (fadeImage.color.a < 1)
         {
             Color c = fadeImage.color;
@@ -63,14 +92,13 @@ public class DeathScript : MonoBehaviour
             yield return null;
         }
 
-        // 3. Siyah Ekranda Bekle ve Işınlan
+        // 3. Siyah Ekranda Bekle ve Kayıtlı Checkpoint'e Işınlan
         yield return new WaitForSeconds(waitAtBlack);
-        transform.position = respawnPoint.position;
+        transform.position = currentRespawnPosition;
         
-        // Işınlanma sonrası hız sıfırlansın ki fırlamasın
         gravity.SetVelocity(Vector2.zero);
 
-        // 4. Ekranı Aç (Fade Out)
+        // 4. Ekranı Aç
         while (fadeImage.color.a > 0)
         {
             Color c = fadeImage.color;
