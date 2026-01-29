@@ -372,33 +372,66 @@ public class ControllerScript : MonoBehaviour
             extraYBoost = wallClimbJumpBoost;
         }
         
-        // Yatay input kontrolü - zıt yöne basılıysa daha güçlü fırlat
+        // Duvar yönünü kaydet (ExitWall'dan önce)
+        int savedWallDir = wallDirection;
+        
+        // Yatay input kontrolü
         float horizontalInput = moveAction.ReadValue<float>();
         float jumpXForce = wallJumpForceX;
         float jumpYForce = wallJumpForceY + extraYBoost;
         
-        // Zıt yöne basılıysa (sol duvarda D, sağ duvarda A) = güçlü fırlatma
-        // Aynı yöne basılıysa veya input yoksa = normal/hafif fırlatma
-        int inputDir = horizontalInput > 0.1f ? 1 : (horizontalInput < -0.1f ? -1 : 0);
+        // Input yönünü belirle
+        int inputDir = 0;
+        if (horizontalInput > 0.3f) inputDir = 1;
+        else if (horizontalInput < -0.3f) inputDir = -1;
         
-        if (inputDir != 0 && inputDir != wallDirection)
+        // Auto climb modunda: duvara tutunmak için zaten o yöne basıyoruz
+        // Bu yüzden "zıt yöne basılı" = input yok veya tam zıt yön
+        // Celeste modunda: grab tuşuyla tutunuyoruz, input bağımsız
+        
+        bool isOppositeDirection = false;
+        bool isSameDirection = false;
+        
+        if (requireGrabButton)
         {
-            // Zıt yöne basılı - güçlü fırlatma (Celeste "wall kick")
+            // Celeste modu - input doğrudan kullanılır
+            isOppositeDirection = (inputDir != 0 && inputDir == -savedWallDir);
+            isSameDirection = (inputDir != 0 && inputDir == savedWallDir);
+        }
+        else
+        {
+            // Auto climb modu - zıt yöne geçiş yapmış mı kontrol et
+            // Eğer kullanıcı zıt yöne basıyorsa = wall kick
+            // Eğer hala aynı yöne basıyorsa veya basmıyorsa = normal/climb jump
+            isOppositeDirection = (inputDir == -savedWallDir);
+            isSameDirection = (inputDir == 0); // Input yoksa yukarı zıpla
+        }
+        
+        Debug.Log($"WallJump: wallDir={savedWallDir}, inputDir={inputDir}, opposite={isOppositeDirection}, same={isSameDirection}, requireGrab={requireGrabButton}");
+        
+        if (isOppositeDirection)
+        {
+            // Zıt yöne basılı - güçlü fırlatma (wall kick)
             jumpXForce = wallJumpForceX * 1.5f;
-            jumpYForce = wallJumpForceY * 0.9f + extraYBoost; // Biraz daha yatay, biraz daha az dikey
+            jumpYForce = wallJumpForceY * 0.85f + extraYBoost;
+            Debug.Log("WALL KICK - Strong horizontal!");
         }
-        else if (inputDir == wallDirection)
+        else if (isSameDirection)
         {
-            // Aynı yöne basılı - sadece yukarı zıpla, az yatay (Celeste "wall climb jump")
-            jumpXForce = wallJumpForceX * 0.3f;
-            jumpYForce = wallJumpForceY * 1.2f + extraYBoost;
+            // Aynı yöne basılı veya input yok - yukarı zıpla (climb jump)
+            jumpXForce = wallJumpForceX * 0.2f;
+            jumpYForce = wallJumpForceY * 1.3f + extraYBoost;
+            Debug.Log("CLIMB JUMP - Strong vertical!");
         }
-        // inputDir == 0 ise normal wall jump
+        else
+        {
+            // Normal wall jump
+            Debug.Log("NORMAL JUMP");
+        }
         
-        int savedWallDir = wallDirection;
         ExitWall();
         
-        // Duvardan zıt yöne fırlat
+        // Duvardan zıt yöne fırlat (her zaman duvardan uzağa)
         Vector3 jumpVel = new Vector3(
             -savedWallDir * jumpXForce,
             jumpYForce,
@@ -406,15 +439,8 @@ public class ControllerScript : MonoBehaviour
         );
         gravity.SetVelocity(jumpVel);
         
-        // Sprite yönünü değiştir (fırlatma yönüne bak)
-        if (inputDir != 0)
-        {
-            transform.localScale = new Vector3(inputDir, 1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(savedWallDir, 1, 1);
-        }
+        // Sprite yönünü değiştir
+        transform.localScale = new Vector3(-savedWallDir, 1, 1);
         
         juice?.ApplyStretch();
         SpawnDust();

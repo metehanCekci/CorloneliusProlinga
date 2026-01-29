@@ -105,7 +105,28 @@ public class Gravity : MonoBehaviour
     {
         Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayDistance, groundLayer);
-        isGrounded = hit.collider != null;
+        
+        if (hit.collider != null)
+        {
+            isGrounded = true;
+            
+            // Zemine gömülmeyi önle - karakteri zeminin üstüne oturt
+            if (velocity.y <= 0)
+            {
+                float groundY = hit.point.y;
+                float feetOffset = col.bounds.min.y - transform.position.y;
+                float targetY = groundY - feetOffset + 0.01f; // Küçük offset
+                
+                if (transform.position.y < targetY)
+                {
+                    transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
+                }
+            }
+        }
+        else
+        {
+            isGrounded = false;
+        }
     }
 
     public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
