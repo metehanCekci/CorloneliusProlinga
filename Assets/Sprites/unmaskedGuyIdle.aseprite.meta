@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: unmaskedGuyIdle
     originalName: 
-    pivot: {x: 0.6, y: -0.11111111}
+    pivot: {x: 0.6333334, y: -0.11111111}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -150,7 +150,7 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 4}
   - name: Frame_1
     originalName: 
-    pivot: {x: 0.6, y: -0.114285715}
+    pivot: {x: 0.6333334, y: -0.114285715}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -171,7 +171,7 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 48}
   - name: Frame_2
     originalName: 
-    pivot: {x: 0.6, y: -0.114285715}
+    pivot: {x: 0.6333334, y: -0.114285715}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -192,7 +192,7 @@ ScriptedImporter:
     uvTransform: {x: 42, y: 4}
   - name: Frame_3
     originalName: 
-    pivot: {x: 0.6, y: -0.114285715}
+    pivot: {x: 0.6333334, y: -0.114285715}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -230,7 +230,7 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 14
+        x: 13
         y: 4
         width: 30
         height: 36
@@ -239,7 +239,7 @@ ScriptedImporter:
       frameIndex: 1
       additiveSortOrder: 0
       cellRect:
-        x: 14
+        x: 13
         y: 4
         width: 30
         height: 35
@@ -248,7 +248,7 @@ ScriptedImporter:
       frameIndex: 2
       additiveSortOrder: 0
       cellRect:
-        x: 14
+        x: 13
         y: 4
         width: 30
         height: 35
@@ -257,7 +257,7 @@ ScriptedImporter:
       frameIndex: 3
       additiveSortOrder: 0
       cellRect:
-        x: 14
+        x: 13
         y: 4
         width: 30
         height: 35
