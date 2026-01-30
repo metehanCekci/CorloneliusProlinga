@@ -485,7 +485,7 @@ PrefabInstance:
     - target: {fileID: 8885974904212459845, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: fadeImage
       value: 
-      objectReference: {fileID: 1880519420}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -57681,7 +57681,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.17077053, y: 0.0858709}
+  m_Offset: {x: -0.19852582, y: 0.03792996}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -57691,7 +57691,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.65845895, y: 0.042585537}
+  m_Size: {x: 0.7139695, y: 0.13846742}
   m_EdgeRadius: 0
 --- !u!1 &946009558
 GameObject:
@@ -59676,17 +59676,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.1273603, y: 0.14466715}
   m_EdgeRadius: 0
---- !u!114 &1880519420 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3906201639780830232, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
-  m_PrefabInstance: {fileID: 5492936238358288417}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1914763758
 GameObject:
   m_ObjectHideFlags: 0
