@@ -39,6 +39,9 @@ public class RailSystem : MonoBehaviour
     {
         this.enabled = false;
         maskObject = GetComponent<MaskObject>();
+        
+        // Rail layer'ı otomatik ata
+        if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
     }
     
     private void OnEnable()
