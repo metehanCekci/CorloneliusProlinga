@@ -171,9 +171,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RailSystem
   startPoint: {fileID: 3741211140288760659}
   endPoint: {fileID: 2714674268950449640}
-  minGrindSpeed: 2
-  maxGrindSpeed: 8
-  midGrindSpeed: 5
+  minGrindSpeed: 1
+  maxGrindSpeed: 2.5
+  midGrindSpeed: 2
   railAcceleration: 3
   reverseDeceleration: 8
   railDashSpeed: 15
