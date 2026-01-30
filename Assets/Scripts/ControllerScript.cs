@@ -317,7 +317,6 @@ public class ControllerScript : MonoBehaviour
         }
         
         gravity.SetVelocity(v);
-        gravity.ApplyWallMovement();
         
         // Sprite yönü
         transform.localScale = new Vector3(-wallDirection, 1, 1);

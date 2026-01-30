@@ -1,164 +1,187 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Gravity : MonoBehaviour
 {
-    [SerializeField] private float gravityStrength = 30f;
-    [SerializeField] private float groundRayDistance = 0.1f;
-    [SerializeField] private float jumpForce = 8f;
-    [SerializeField] private float maxJumpHeight = 2.5f;
+    [Header("Zıplama ve Fizik")]
+    [SerializeField] private float gravityStrength = 35f;
+    [SerializeField] private float jumpForce = 12f;
+    [SerializeField] private float maxJumpHeight = 3f;
+
+    [Header("Zemin ve Rampa Ayarları")]
+    [SerializeField] private float groundCheckDist = 0.4f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float sideOffset = 0.3f; // Ön ve arka teker mesafesi
+    [SerializeField] private float rotationSpeed = 15f;
+
+    [Header("Çarpışma Katmanları")]
     [SerializeField] private LayerMask railLayer;
     [SerializeField] private LayerMask wallLayer;
-    [SerializeField] private float wallCheckDistance = 0.05f;
 
-    private Vector3 velocity = Vector3.zero;
-    private bool isGrounded = false;
-    private bool isJumping = false;
-    private float jumpStartHeight = 0f;
-    private float groundCheckCooldown = 0f;
-    private Collider2D col;
+    private Rigidbody2D rb;
     private ControllerScript controller;
+    private Collider2D col;
+    private Vector2 velocity = Vector2.zero;
+    private bool isGrounded;
+    private bool isJumping;
+    private float jumpStartHeight;
+    private float groundCooldown;
 
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         controller = GetComponent<ControllerScript>();
+
+        // Katmanları kontrol et, atanmamışsa isimden bul
         if (groundLayer == 0) groundLayer = LayerMask.GetMask("Ground");
         if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Wall", "Ground");
+
+        // Rigidbody Ayarlarını Sabitle
+        rb.bodyType = RigidbodyType2D.Kinematic;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
-    void Update()
+    void FixedUpdate()
     {
+        // Grind veya Wallride yaparken yerçekimini ve zemin kontrolünü devre dışı bırak
         if (controller != null && (controller.isGrinding || controller.IsOnWall()))
         {
             isGrounded = false;
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * rotationSpeed);
             return;
         }
 
-        // Ground check'i her zaman en başta yap
-        if (groundCheckCooldown > 0)
+        // Zıplama Cooldown Kontrolü
+        if (groundCooldown > 0)
         {
-            groundCheckCooldown -= Time.deltaTime;
+            groundCooldown -= Time.fixedDeltaTime;
             isGrounded = false;
         }
         else
         {
-            CheckGround();
+            PerformGroundCheck();
         }
 
-        if (isJumping)
-        {
-            velocity.y = jumpForce;
-            if (transform.position.y - jumpStartHeight >= maxJumpHeight) isJumping = false;
-        }
-        else
-        {
-            // Eğer yerdeysek hızı biriktirmeyi bırak, dikey hızı kilitle
-            if (isGrounded && velocity.y <= 0)
-            {
-                velocity.y = 0;
-            }
-            else
-            {
-                velocity.y -= gravityStrength * Time.deltaTime;
-            }
-        }
+        HandleVerticalMovement();
 
-        CheckRailCollision();
+        // --- DUVAR ÇARPIŞMA KONTROLÜ ---
         CheckWallCollision();
+        CheckRailCollision();
+        // ------------------------------
 
-        // Hareketi en son uygula
-        transform.position += velocity * Time.deltaTime;
+        // MovePosition kullanarak pozisyonu uygula (Fizik motoruyla çakışmaz)
+        rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
     }
 
     private void CheckWallCollision()
     {
-        if (col == null || Mathf.Approximately(velocity.x, 0f)) return;
+        // Hareket etmiyorsak kontrol etmeye gerek yok
+        if (Mathf.Approximately(velocity.x, 0f)) return;
 
         float dir = Mathf.Sign(velocity.x);
-        Vector2 origin = new Vector2(
-            dir > 0 ? col.bounds.max.x : col.bounds.min.x,
-            col.bounds.center.y
-        );
-
-        float checkDist = Mathf.Abs(velocity.x * Time.deltaTime) + wallCheckDistance;
+        
+        // Karakterin merkezinden gideceği yöne doğru raycast
+        // col.bounds.extents.x + 0.1f mesafesi karakterin tam kenarından az ötesini kontrol eder
+        Vector2 origin = col.bounds.center;
+        float checkDist = col.bounds.extents.x + 0.1f;
+        
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * dir, checkDist, wallLayer);
+
+        // Debug Çizgisi (Duvar kontrolünü görmen için)
+        Debug.DrawRay(origin, Vector2.right * dir * checkDist, hit.collider != null ? Color.blue : Color.yellow);
 
         if (hit.collider != null)
         {
-            velocity.x = 0;
+            velocity.x = 0; // Duvara çarptığı an yatay hızı sıfırla
+        }
+    }
+
+    private void PerformGroundCheck()
+    {
+        // Karakterin rotasyonuna göre ray başlangıç noktalarını ayarla
+        Vector2 leftOrigin = rb.position + (Vector2)(transform.right * -sideOffset) + (Vector2)(transform.up * 0.1f);
+        Vector2 rightOrigin = rb.position + (Vector2)(transform.right * sideOffset) + (Vector2)(transform.up * 0.1f);
+
+        RaycastHit2D hitL = Physics2D.Raycast(leftOrigin, -transform.up, groundCheckDist, groundLayer);
+        RaycastHit2D hitR = Physics2D.Raycast(rightOrigin, -transform.up, groundCheckDist, groundLayer);
+
+        // Debug Çizgileri
+        Debug.DrawRay(leftOrigin, -transform.up * groundCheckDist, hitL ? Color.green : Color.red);
+        Debug.DrawRay(rightOrigin, -transform.up * groundCheckDist, hitR ? Color.green : Color.red);
+
+        RaycastHit2D hit = hitL ? hitL : hitR;
+
+        if (hit.collider != null && velocity.y <= 0.1f)
+        {
+            isGrounded = true;
+            velocity.y = 0;
+
+            // --- YERE YAPIŞMA VE SNAP SİSTEMİ ---
+            float groundY = hit.point.y;
+            float currentFeetY = col.bounds.min.y;
+            float diff = groundY - currentFeetY;
+
+            // Milimetrik farkları düzelterek yere yapıştır
+            if (Mathf.Abs(diff) > 0.01f)
+            {
+                rb.position = new Vector2(rb.position.x, rb.position.y + diff);
+            }
+
+            if (controller != null) controller.ResetDash();
+        }
+        else
+        {
+            isGrounded = false;
+            // Havadayken dikleşme
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * (rotationSpeed * 0.5f));
+        }
+    }
+
+    private void HandleVerticalMovement()
+    {
+        if (isJumping)
+        {
+            velocity.y = jumpForce;
+            if (rb.position.y - jumpStartHeight >= maxJumpHeight) isJumping = false;
+        }
+        else if (!isGrounded)
+        {
+            velocity.y -= gravityStrength * Time.fixedDeltaTime;
         }
     }
 
     private void CheckRailCollision()
     {
         if (controller == null || !controller.CanEnterRail()) return;
-
+        
         Collider2D hitRail = Physics2D.OverlapBox(col.bounds.center, col.bounds.size, 0f, railLayer);
         if (hitRail != null)
         {
-            RailSystem rail = hitRail.GetComponent<RailSystem>();
-            if (rail != null)
-            {
-                float entrySpeed = Mathf.Abs(velocity.x);
-                float entryDirection = velocity.x;
-                rail.StartGrindFromManual(controller, entrySpeed, entryDirection);
-            }
+            var rail = hitRail.GetComponent<RailSystem>();
+            if (rail != null) rail.StartGrindFromManual(controller, Mathf.Abs(velocity.x), velocity.x);
         }
     }
 
-private void CheckGround()
-{
-    if (col == null) return;
-
-    float checkDist = Mathf.Max(groundRayDistance, Mathf.Abs(velocity.y * Time.deltaTime) + 0.05f);
-    Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y + 0.1f);
-    RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, checkDist, groundLayer);
-
-    if (hit.collider != null && velocity.y <= 0.01f)
-    {
-        isGrounded = true;
-
-        float groundY = hit.point.y;
-        float feetOffset = col.bounds.min.y - transform.position.y;
-        float targetY = groundY - feetOffset;
-
-        // --- DEĞİŞEN KISIM BURASI ---
-        // Eğer karakter yerin çok altındaysa (0.05'ten fazla) sadece o zaman müdahale et
-        // Ve yukarı snaplerken çok küçük bir pay bırak (0.01f)
-        if (transform.position.y < targetY - 0.01f)
-        {
-            // Çat diye ışınlamak yerine sadece olması gereken yere çok yakın bir noktaya çek
-            transform.position = new Vector3(transform.position.x, targetY + 0.01f, transform.position.z);
-        }
-        
-        velocity.y = 0; // Hızı kes ki daha fazla batmasın
-        // ----------------------------
-
-        if (controller != null)
-        {
-            controller.ResetDash();
-        }
-    }
-    else
-    {
+    // --- Public Metotlar ---
+    public void StartJump() 
+    { 
+        isJumping = true; 
+        jumpStartHeight = rb.position.y; 
+        groundCooldown = 0.2f; 
         isGrounded = false;
     }
-}
 
-    public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
-    public void EndJump() { isJumping = false; }
-    public void SetVelocity(Vector3 newVel)
-    {
-        velocity = newVel;
-        if (newVel.y > 0) groundCheckCooldown = 0.15f;
+    public void EndJump() => isJumping = false;
+
+    public void SetVelocity(Vector2 newVel) 
+    { 
+        velocity = newVel; 
+        if (newVel.y > 0) groundCooldown = 0.2f; 
     }
-    public Vector3 GetVelocity() => velocity;
+
+    public Vector2 GetVelocity() => velocity;
     public bool IsGrounded() => isGrounded;
-
-    public void ApplyWallMovement()
-    {
-        transform.position += velocity * Time.deltaTime;
-    }
 }
