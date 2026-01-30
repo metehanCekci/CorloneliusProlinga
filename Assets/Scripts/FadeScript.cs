@@ -62,6 +62,9 @@ public class FadeScript : MonoBehaviour
 
     public void SiradakiSahne()
     {
+        // Bu satırı ekle ve konsola bak, muhtemelen 1 yazacak.
+        Debug.Log("Toplam Sahne Sayısı: " + SceneManager.sceneCountInBuildSettings);
+
         int mevcutIndex = SceneManager.GetActiveScene().buildIndex;
         if (mevcutIndex + 1 < SceneManager.sceneCountInBuildSettings)
             BaslatFadeOut(mevcutIndex + 1);
@@ -96,5 +99,16 @@ public class FadeScript : MonoBehaviour
         {
             SceneManager.LoadScene(hedefIndex);
         }
+    }
+    public void QuitGame()
+    {
+        // #if UNITY_EDITOR komutu, bu kodun sadece Editörde derlenmesini sağlar.
+        // Böylece oyunun build aldığında hata vermez.
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        // Editörde değilsek (Normal oyunsa) uygulamayı kapat
+        Application.Quit();
+#endif
     }
 }
