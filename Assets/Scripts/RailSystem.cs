@@ -308,7 +308,7 @@ public class RailSystem : MonoBehaviour
                 }
                 
                 // Zincir rail yoksa normal fırlatma
-                player.transform.position = targetPoint.position + exitDir * 0.5f;
+                //player.transform.position = targetPoint.position + exitDir * 0.05f;
             }
             
             // Serbest atış: Hem ileri hem yukarı fırlat
