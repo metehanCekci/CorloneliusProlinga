@@ -49,10 +49,19 @@ public class FakeRailSystem : MonoBehaviour
         // Alana bir oyuncu mu girdi?
         if (other.TryGetComponent<ControllerScript>(out var controller))
         {
+            // Collider kontrolü yap
+            if (!GetComponent<Collider2D>().enabled)
+            {
+                Debug.Log($"{gameObject.name}: Player attempted to interact, but collider is disabled.");
+                return;
+            }
+
             playerController = controller;
             playerTransform = playerController.transform;
             playerGravity = playerController.GetComponent<Gravity>(); // Gravity component'ini de alalım
             isPlayerInZone = true;
+
+            Debug.Log($"{gameObject.name}: Player entered rail zone.");
         }
     }
 

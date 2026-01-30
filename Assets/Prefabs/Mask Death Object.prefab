@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 178342174742041802}
   - component: {fileID: 161689358887916344}
   m_Layer: 10
-  m_Name: Mask Object
+  m_Name: Mask Death Object
   m_TagString: Death
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

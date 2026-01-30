@@ -32,6 +32,11 @@ public class MaskManager : MonoBehaviour
         allMaskObjects.Clear();
         allMaskObjects.AddRange(Object.FindObjectsByType<MaskObject>(FindObjectsSortMode.None));
         Debug.Log("Sistem: " + allMaskObjects.Count + " adet obje takip listesine alındı.");
+
+        foreach (var obj in allMaskObjects)
+        {
+            Debug.Log($"Tracked Object: {obj.gameObject.name}, WorldType: {obj.GetWorldType()}");
+        }
     }
 
     private void OnEnable()

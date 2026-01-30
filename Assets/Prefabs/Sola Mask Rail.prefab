@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 5621089093333493154}
   - component: {fileID: 1805789149980007746}
   m_Layer: 9
-  m_Name: Mask Side Rail
+  m_Name: Sola Mask Rail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

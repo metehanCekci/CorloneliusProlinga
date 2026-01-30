@@ -129,7 +129,7 @@ public class RailSystem : MonoBehaviour
             else
             {
                 isReversing = false;
-                
+
                 // İleri yöne basıyorsa hızlan (max hıza kadar)
                 bool pushingForward = (moveInput > 0 && direction.x > 0) || (moveInput < 0 && direction.x < 0);
                 if (pushingForward && currentGrindSpeed < maxGrindSpeed)
@@ -138,6 +138,11 @@ public class RailSystem : MonoBehaviour
                     currentGrindSpeed = Mathf.Min(currentGrindSpeed, maxGrindSpeed);
                 }
             }
+        }
+        else
+        {
+            // Eğer hareket inputu yoksa, karakter rayda sabit kalır
+            currentGrindSpeed = Mathf.Max(currentGrindSpeed, minGrindSpeed);
         }
         
         player.transform.position += direction * activeSpeed * Time.deltaTime;
@@ -161,7 +166,14 @@ public class RailSystem : MonoBehaviour
     public void StartGrindFromManual(ControllerScript targetPlayer, float entrySpeed, float entryDirection)
     {
         if (isActive || targetPlayer == null || startPoint == null || endPoint == null) return;
-        
+
+        // Mask kontrolü yap
+        if (maskObject != null && !maskObject.IsSolid())
+        {
+            Debug.Log($"{gameObject.name}: Attempted to grind, but rail is not solid.");
+            return;
+        }
+
         player = targetPlayer;
         isActive = true;
         
@@ -182,14 +194,11 @@ public class RailSystem : MonoBehaviour
             originPoint = startPoint;
         }
         
-        // Giriş hızına göre ray hızını belirle
         currentGrindSpeed = Mathf.Clamp(entrySpeed, minGrindSpeed, maxGrindSpeed);
         
-        // Karakterin orijinal rotasyonunu ve scale'ini kaydet
         originalPlayerRotation = player.transform.rotation;
         originalPlayerScale = player.transform.localScale;
         
-        // Oyuncunun input aksiyonunu al (hızlanma için)
         if (railInputActions == null)
         {
             railInputActions = new InputActions();
@@ -197,11 +206,10 @@ public class RailSystem : MonoBehaviour
         railInputActions.Enable();
         playerMoveAction = railInputActions.Player.Move;
         
-        // Karakterin mevcut pozisyonuna göre en yakın noktayı bul
         Vector3 playerPos = player.transform.position;
         Vector3 closestPoint = GetClosestPointOnRail(playerPos);
         player.transform.position = closestPoint;
-        
+
         this.enabled = true; 
         player.EnterRail(currentGrindSpeed, this);
     }
@@ -212,7 +220,14 @@ public class RailSystem : MonoBehaviour
     public void StartChainGrind(ControllerScript targetPlayer, float speed, float direction, Quaternion origRotation, Vector3 origScale)
     {
         if (isActive || targetPlayer == null || startPoint == null || endPoint == null) return;
-        
+
+        // Mask kontrolü yap
+        if (maskObject != null && !maskObject.IsSolid())
+        {
+            Debug.Log($"{gameObject.name}: Attempted to chain grind, but rail is not solid.");
+            return;
+        }
+
         player = targetPlayer;
         isActive = true;
         
@@ -229,14 +244,11 @@ public class RailSystem : MonoBehaviour
             originPoint = startPoint;
         }
         
-        // Hızı koru (clamp yok - mevcut hızla devam)
         currentGrindSpeed = speed;
         
-        // Orijinal değerleri aktar (yeni kaydetme)
         originalPlayerRotation = origRotation;
         originalPlayerScale = origScale;
         
-        // Input aksiyonunu al
         if (railInputActions == null)
         {
             railInputActions = new InputActions();
@@ -285,6 +297,10 @@ public class RailSystem : MonoBehaviour
             // Çıkış yönü: origin'den target'a doğru
             Vector3 exitDir = (targetPoint.position - originPoint.position).normalized;
             
+            // Dash ve double jump yenile
+            player.HasDash = true;
+            player.HasSecondJump = true;
+
             // Sadece ray doğal olarak bittiyse (zıplamadıysa) zincir ray kontrolü yap
             if (teleportToEnd)
             {
