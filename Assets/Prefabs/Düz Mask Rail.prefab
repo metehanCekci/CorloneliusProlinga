@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 3328792160882347699}
   - component: {fileID: 5671280907434827802}
   m_Layer: 9
-  m_Name: Mask Rail
+  m_Name: "D\xFCz Mask Rail"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
