@@ -2,30 +2,22 @@ using UnityEngine;
 
 public class NextSceneTrigger : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Temas eden objenin "Player" tag'ine sahip olup olmadýðýný kontrol et
         if (collision.CompareTag("Player"))
         {
-            FadeScript fadeScript = FindObjectOfType<FadeScript>();
-            if (fadeScript != null)
+            // Sahnede FadeScript tipindeki objeyi bul (Düzeltildi: <T> kullanýmý)
+            FadeScript transition = FindObjectOfType<FadeScript>();
+            Debug.Log("sa");
+
+            if (transition != null)
             {
-                fadeScript.SiradakiSahne();
+                transition.SiradakiSahne();
             }
             else
             {
-                Debug.LogError("FadeScript bulunamadý!");
+                Debug.LogError("Sahnede FadeScript bileþeni bulunamadý! Lütfen Canvas'ý ve scripti kontrol et.");
             }
         }
     }

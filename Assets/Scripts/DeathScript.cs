@@ -1,16 +1,14 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 
 public class DeathScript : MonoBehaviour
 {
     [Header("Referanslar")]
-    [SerializeField] private CanvasGroup canvasgroup; // Inspector'dan atamayı unutma!
     [SerializeField] private Transform initialRespawnPoint;
 
     [Header("Ayarlar")]
-    [SerializeField] private float fadeSpeed = 2f;
-    [SerializeField] private float waitAtBlack = 0.5f;
+    [SerializeField] private float fadeDuration = 1f; // Kararma süresi
+    [SerializeField] private float waitAtBlack = 0.5f; // Siyah ekranda bekleme
 
     private Vector3 currentRespawnPosition;
     private ControllerScript controller;
@@ -24,13 +22,6 @@ public class DeathScript : MonoBehaviour
 
         // İlk spawn noktasını ayarla
         currentRespawnPosition = initialRespawnPoint != null ? initialRespawnPoint.position : transform.position;
-
-        // Başlangıçta ekranın açık olduğundan emin olalım
-        if (canvasgroup != null)
-        {
-            canvasgroup.alpha = 0f;
-            canvasgroup.blocksRaycasts = false; // Tıklamaları engellememesi için
-        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -61,41 +52,43 @@ public class DeathScript : MonoBehaviour
     {
         isDead = true;
 
-        // Hareketleri dondur
+        // 1. FadeScript'i bul
+        FadeScript fadeSystem = Object.FindAnyObjectByType<FadeScript>();
+
+        if (fadeSystem == null)
+        {
+            Debug.LogError("FadeScript bulunamadı!");
+            RespawnLogic();
+            isDead = false;
+            yield break;
+        }
+
+        // 2. Hareketleri dondur
         controller.enabled = false;
         gravity.SetVelocity(Vector3.zero);
 
-        // Ekranı karart (CanvasGroup Alpha Artışı)
-        if (canvasgroup != null)
-        {
-            canvasgroup.blocksRaycasts = true; // Kararma sırasında yanlışlıkla bir şeye basılmasın
-            while (canvasgroup.alpha < 1f)
-            {
-                canvasgroup.alpha += Time.deltaTime * fadeSpeed;
-                yield return null;
-            }
-        }
+        // 3. EKRANI KARART (Özel fonksiyonu çağırıyoruz)
+        yield return StartCoroutine(fadeSystem.FadeOutEkraniKarart(fadeDuration));
 
+        // 4. Karanlıkta bekle
         yield return new WaitForSeconds(waitAtBlack);
 
-        // Pozisyonu güncelle ve hızları sıfırla
+        // 5. Oyuncuyu Işınla ve Fizikleri Sıfırla
+        RespawnLogic();
+
+        // 6. EKRANI AÇ (Özel fonksiyonu çağırıyoruz)
+        yield return StartCoroutine(fadeSystem.FadeInEkraniAc(fadeDuration));
+
+        // 7. Kontrolleri geri ver
+        controller.enabled = true;
+        isDead = false;
+    }
+
+    private void RespawnLogic()
+    {
         transform.position = currentRespawnPosition;
         gravity.SetVelocity(Vector3.zero);
         controller.ResetSpeed();
         controller.ResetDash();
-
-        // Ekranı aç (CanvasGroup Alpha Azalışı)
-        if (canvasgroup != null)
-        {
-            while (canvasgroup.alpha > 0f)
-            {
-                canvasgroup.alpha -= Time.deltaTime * fadeSpeed;
-                yield return null;
-            }
-            canvasgroup.blocksRaycasts = false;
-        }
-
-        controller.enabled = true;
-        isDead = false;
     }
 }
