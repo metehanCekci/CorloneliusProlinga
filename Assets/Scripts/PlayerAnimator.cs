@@ -15,7 +15,10 @@ public class PlayerAnimator : MonoBehaviour
     private int isDashingHash;
     private int isOnWallHash;
     private int isGrindingHash;
+    private int isSkatingHash;
+    private int isBrakingHash;
     private int verticalVelocityHash;
+    private int jumpHash;
     
     void Start()
     {
@@ -39,9 +42,20 @@ public class PlayerAnimator : MonoBehaviour
         isDashingHash = Animator.StringToHash("isDashing");
         isOnWallHash = Animator.StringToHash("isOnWall");
         isGrindingHash = Animator.StringToHash("isGrinding");
+        isSkatingHash = Animator.StringToHash("isSkating");
+        isBrakingHash = Animator.StringToHash("isBraking");
         verticalVelocityHash = Animator.StringToHash("VerticalVelocity");
+        jumpHash = Animator.StringToHash("Jump");
     }
     
+    public void OnJump()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(jumpHash);
+        }
+    }
+
     void Update()
     {
         if (animator == null || controller == null || gravity == null)
@@ -72,5 +86,7 @@ public class PlayerAnimator : MonoBehaviour
         animator.SetBool(isOnWallHash, controller.IsOnWall());
         animator.SetBool(isGrindingHash, controller.isGrinding);
         animator.SetBool(isDashingHash, controller.IsDashing);
+        animator.SetBool(isSkatingHash, controller.isSkating);
+        animator.SetBool(isBrakingHash, controller.isBraking);
     }
 }

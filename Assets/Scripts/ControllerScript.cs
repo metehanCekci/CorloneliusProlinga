@@ -14,11 +14,10 @@ public class ControllerScript : MonoBehaviour
     [Header("Durumlar")]
     public bool isGrinding = false;
     public bool isSkating = false;
+    public bool isBraking = false;
     public bool HasDash = true;
     public bool HasSecondJump = true;
     private bool wasGrounded;
-
-    private Animator animator;
 
     [Header("Ray & Momentum")]
     [HideInInspector] public float railCooldown = 0f;
@@ -69,6 +68,7 @@ public class ControllerScript : MonoBehaviour
     private InputAction moveAction, jumpAction, pushAction, brakeAction, dashAction, grabAction;
     private Collider2D col; // BoxCollider2D veya CapsuleCollider2D
     private bool hasGrabAction = false;
+    private PlayerAnimator playerAnimator;
 
     void OnEnable()
     {
@@ -107,13 +107,11 @@ public class ControllerScript : MonoBehaviour
         
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Ground");
 
-        animator = GetComponent<Animator>();
+        playerAnimator = GetComponentInChildren<PlayerAnimator>();
     }
 
     void Update()
     {
-        UpdateAnimator();
-
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
@@ -380,6 +378,8 @@ public class ControllerScript : MonoBehaviour
             gravity.StartJump();
             juice?.ApplyStretch();
             SpawnDust();
+            Debug.Log("JUMP TRIGGER FIRED! (From Grind)");
+            playerAnimator?.OnJump(); // Zıplama sinyali gönder
             return;
         }
 
@@ -389,6 +389,8 @@ public class ControllerScript : MonoBehaviour
             gravity.StartJump();
             juice?.ApplyStretch();
             SpawnDust();
+            Debug.Log("JUMP TRIGGER FIRED! (From Ground/Air)");
+            playerAnimator?.OnJump(); // Zıplama sinyali gönder
         }
     }
 
@@ -575,6 +577,9 @@ public class ControllerScript : MonoBehaviour
     {
         if (IsDashing)
         {
+            // Dash sırasında fren yapıyor olamaz
+            isBraking = false; 
+            
             // Dash collision check - birden fazla ray ile köşeleri de kontrol et
             float dashDistance = dashSpeed * Time.deltaTime;
             float xEdge = dashDirection > 0 ? col.bounds.max.x : col.bounds.min.x;
@@ -620,6 +625,11 @@ public class ControllerScript : MonoBehaviour
         float dir = moveAction.ReadValue<float>();
         Vector3 v = gravity.GetVelocity();
 
+        // Fren durumunu hesapla
+        bool isTryingToStop = Mathf.Approximately(dir, 0f) && Mathf.Abs(v.x) > 0.1f;
+        bool isReversingDirection = isSkating && dir != 0f && Mathf.Sign(v.x) != Mathf.Sign(dir);
+        isBraking = isSkating && (isTryingToStop || isReversingDirection);
+
         // Sprite yönünü velocity'ye göre çevir (momentum ile uyumlu)
         // Sadece belirli bir hızın üstündeyken çevir
         if (Mathf.Abs(v.x) > 0.1f)
@@ -654,17 +664,6 @@ public class ControllerScript : MonoBehaviour
             }
         }
         gravity.SetVelocity(v);
-    }
-
-    private void UpdateAnimator()
-    {
-        if (animator == null) return;
-
-        // Use absolute horizontal velocity for speed
-        float horizontalVelocity = Mathf.Abs(gravity.GetVelocity().x);
-        animator.SetFloat("speed", horizontalVelocity);
-        animator.SetBool("isGrounded", IsGrounded());
-        animator.SetBool("isSkating", isSkating);
     }
 
     void OnDisable() => inputActions.Disable();
