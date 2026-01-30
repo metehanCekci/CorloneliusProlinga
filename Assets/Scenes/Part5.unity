@@ -4305,7 +4305,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1784450312
+--- !u!114 &1593015099
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4330,7 +4330,7 @@ PrefabInstance:
     - target: {fileID: 249249570686868616, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: pauseAction
       value: 
-      objectReference: {fileID: 1784450312}
+      objectReference: {fileID: 1593015099}
     - target: {fileID: 249249570686868616, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: playerScript
       value: 
