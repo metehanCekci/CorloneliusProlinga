@@ -32,6 +32,7 @@ public class ControllerScript : MonoBehaviour
     private float dashTimer = 0f;
     private float dashDirection = 0f;
     private float dashCooldownTimer = 0f;
+    private Vector3 preDashVelocity; // Dash öncesi velocity
 
     [Header("Wall Climb Ayarları")]
     [SerializeField] private float wallClimbSpeed = 4f;
@@ -143,9 +144,10 @@ public class ControllerScript : MonoBehaviour
             {
                 IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
+                
+                // Dash bitince sadece X velocity'yi geri yükle, Y'yi koru
                 Vector3 post = gravity.GetVelocity();
-                float dir = moveAction.ReadValue<float>();
-                post.x = (dir != 0) ? dir * currentMoveSpeed : 0f;
+                post.x = preDashVelocity.x;
                 gravity.SetVelocity(post);
                 
                 // Dash bitti ve yerdeysen dash'i geri ver
@@ -317,7 +319,6 @@ public class ControllerScript : MonoBehaviour
         }
         
         gravity.SetVelocity(v);
-        gravity.ApplyWallMovement();
         
         // Sprite yönü
         transform.localScale = new Vector3(-wallDirection, 1, 1);
@@ -514,6 +515,8 @@ public class ControllerScript : MonoBehaviour
         IsDashing = true;
         dashTimer = dashDuration;
         storedMoveSpeed = currentMoveSpeed;
+        preDashVelocity = gravity.GetVelocity(); // Dash öncesi velocity'yi kaydet
+        momentumTime = 0f; // Dash başlarken momentum'u sıfırla
         
         // Yerde dash attıysan cooldown koy
         if (wasGrounded)
@@ -550,7 +553,14 @@ public class ControllerScript : MonoBehaviour
         isGrinding = false;
         activeRail = null;
         railCooldown = RAIL_COOLDOWN_TIME;
-        momentumTime = 0.3f;
+        momentumTime = 0f; // Momentum bypass etme - normal fizik
+        
+        // Çıkış yönüne göre sprite'ı ayarla ve kilitle
+        if (Mathf.Abs(vel.x) > 0.1f)
+        {
+            transform.localScale = new Vector3(Mathf.Sign(vel.x), 1, 1);
+        }
+        
         if (gravity != null) gravity.SetVelocity(vel);
     }
 
@@ -603,7 +613,12 @@ public class ControllerScript : MonoBehaviour
         float dir = moveAction.ReadValue<float>();
         Vector3 v = gravity.GetVelocity();
 
-        if (dir != 0) transform.localScale = new Vector3(Mathf.Sign(dir), 1, 1);
+        // Sprite yönünü velocity'ye göre çevir (momentum ile uyumlu)
+        // Sadece belirli bir hızın üstündeyken çevir
+        if (Mathf.Abs(v.x) > 0.1f)
+        {
+            transform.localScale = new Vector3(Mathf.Sign(v.x), 1, 1);
+        }
 
         if (momentumTime > 0)
         {

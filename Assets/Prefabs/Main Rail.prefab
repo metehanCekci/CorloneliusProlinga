@@ -91,7 +91,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 22.09, y: -3.81, z: 0}
-  m_LocalScale: {x: 9.479966, y: 6.357204, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3741211140288760659}
@@ -171,13 +171,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RailSystem
   startPoint: {fileID: 3741211140288760659}
   endPoint: {fileID: 2714674268950449640}
-  minGrindSpeed: 2
-  maxGrindSpeed: 8
-  midGrindSpeed: 5
+  minGrindSpeed: 1
+  maxGrindSpeed: 2.5
+  midGrindSpeed: 2
   railAcceleration: 3
   reverseDeceleration: 8
-  exitBoost: 2
+  railDashSpeed: 15
+  railDashDuration: 0.3
+  exitBoost: 0.4
   exitLaunchAngle: 15
+  railLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  chainCheckRadius: 0.2
 --- !u!61 &4992277780696917262
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 36ee6a441ee00424faa7552618529bcd
+guid: 16cf4464d568cdb43bd71ea80d78184f
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -127,9 +127,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: Frame_0
+  - name: unmaskedSkateStop
     originalName: 
-    pivot: {x: 0.6315789, y: -0.05}
+    pivot: {x: 0.41666666, y: -0.075}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 38
+      width: 36
       height: 40
-    spriteID: 245082445e30c3444928f446f31362b0
+    spriteID: 856acc1c712654442b9c518c03f25f09
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -148,150 +148,30 @@ ScriptedImporter:
     edges: []
     tessellationDetail: 0
     uvTransform: {x: 4, y: 4}
-  - name: Frame_1
-    originalName: 
-    pivot: {x: 0.6315789, y: -0.05}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 4
-      y: 52
-      width: 38
-      height: 40
-    spriteID: ab3eef789c28af343a7b96c6a39bcc30
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 4, y: 52}
-  - name: Frame_2
-    originalName: 
-    pivot: {x: 0.6315789, y: -0.051282052}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 4
-      y: 196
-      width: 38
-      height: 39
-    spriteID: 7f71d050f5f5aee428519d6143880480
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 4, y: 196}
-  - name: Frame_3
-    originalName: 
-    pivot: {x: 0.6315789, y: -0.05}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 4
-      y: 100
-      width: 38
-      height: 40
-    spriteID: 4c9ecffd7ea88814e844b8f7f3b52b4e
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 4, y: 100}
-  - name: Frame_4
-    originalName: 
-    pivot: {x: 0.6315789, y: -0.05}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 4
-      y: 148
-      width: 38
-      height: 40
-    spriteID: b5813e28df7998c40862e1a85b27a2fd
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 4, y: 148}
   spriteSheetImportData: []
   tileSetImportData: []
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 2875351326
+      value0: 2142620406
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: unmaskedSkate
+    name: unmaskedSkateStop
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: Frame_0
+    - name: unmaskedSkateStop
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 8
-        y: 2
-        width: 38
+        x: 17
+        y: 3
+        width: 36
         height: 40
-      spriteId: 245082445e30c3444928f446f31362b0
-    - name: Frame_1
-      frameIndex: 1
-      additiveSortOrder: 0
-      cellRect:
-        x: 8
-        y: 2
-        width: 38
-        height: 40
-      spriteId: ab3eef789c28af343a7b96c6a39bcc30
-    - name: Frame_2
-      frameIndex: 2
-      additiveSortOrder: 0
-      cellRect:
-        x: 8
-        y: 2
-        width: 38
-        height: 39
-      spriteId: 7f71d050f5f5aee428519d6143880480
-    - name: Frame_3
-      frameIndex: 3
-      additiveSortOrder: 0
-      cellRect:
-        x: 8
-        y: 2
-        width: 38
-        height: 40
-      spriteId: 4c9ecffd7ea88814e844b8f7f3b52b4e
-    - name: Frame_4
-      frameIndex: 4
-      additiveSortOrder: 0
-      cellRect:
-        x: 8
-        y: 2
-        width: 38
-        height: 40
-      spriteId: b5813e28df7998c40862e1a85b27a2fd
+      spriteId: 856acc1c712654442b9c518c03f25f09
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -302,4 +182,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 64, y: 64}
-  previousTextureSize: {x: 128, y: 256}
+  previousTextureSize: {x: 64, y: 64}

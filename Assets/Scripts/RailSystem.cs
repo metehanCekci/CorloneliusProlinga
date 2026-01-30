@@ -39,6 +39,9 @@ public class RailSystem : MonoBehaviour
     {
         this.enabled = false;
         maskObject = GetComponent<MaskObject>();
+        
+        // Rail layer'ı otomatik ata
+        if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
     }
     
     private void OnEnable()
@@ -308,11 +311,11 @@ public class RailSystem : MonoBehaviour
                 }
                 
                 // Zincir rail yoksa normal fırlatma
-                player.transform.position = targetPoint.position + exitDir * 0.5f;
+                //player.transform.position = targetPoint.position + exitDir * 0.05f;
             }
             
-            // Serbest atış: Hem ileri hem yukarı fırlat
-            float exitSpeed = currentGrindSpeed + exitBoost;
+            // Serbest atış: Sadece mevcut hız ile çık (exit boost yok)
+            float exitSpeed = currentGrindSpeed;
             float angleRad = exitLaunchAngle * Mathf.Deg2Rad;
             Vector3 launchVelocity = new Vector3(
                 exitDir.x * exitSpeed * Mathf.Cos(angleRad),
