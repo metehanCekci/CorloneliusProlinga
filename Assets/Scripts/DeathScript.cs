@@ -5,7 +5,7 @@ using System.Collections;
 public class DeathScript : MonoBehaviour
 {
     [Header("Referanslar")]
-    [SerializeField] private Image fadeImage;
+    [SerializeField] private CanvasGroup canvasgroup; // Inspector'dan atamayı unutma!
     [SerializeField] private Transform initialRespawnPoint;
 
     [Header("Ayarlar")]
@@ -25,22 +25,18 @@ public class DeathScript : MonoBehaviour
         // İlk spawn noktasını ayarla
         currentRespawnPosition = initialRespawnPoint != null ? initialRespawnPoint.position : transform.position;
 
-        if (fadeImage != null)
+        // Başlangıçta ekranın açık olduğundan emin olalım
+        if (canvasgroup != null)
         {
-            Color c = fadeImage.color;
-            c.a = 0;
-            fadeImage.color = c;
+            canvasgroup.alpha = 0f;
+            canvasgroup.blocksRaycasts = false; // Tıklamaları engellememesi için
         }
     }
-
-    // Update içindeki CheckDeathCollision'ı tamamen sildik, çünkü tetiklenme üzerinden gideceğiz.
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isDead) return;
 
-        // İster Tag kullan, ister Layer; ikisi de burada çalışır.
-        // "Death" tag'ine sahip bir şeye değerse ölür.
         if (other.CompareTag("Death"))
         {
             StartCoroutine(DeathSequence());
@@ -57,7 +53,7 @@ public class DeathScript : MonoBehaviour
         if (currentRespawnPosition != newPos)
         {
             currentRespawnPosition = newPos;
-            Debug.Log("Checkpoint Alindi!");
+            Debug.Log("Checkpoint Alındı!");
         }
     }
 
@@ -69,13 +65,15 @@ public class DeathScript : MonoBehaviour
         controller.enabled = false;
         gravity.SetVelocity(Vector3.zero);
 
-        // Ekranı karart
-        while (fadeImage.color.a < 1)
+        // Ekranı karart (CanvasGroup Alpha Artışı)
+        if (canvasgroup != null)
         {
-            Color c = fadeImage.color;
-            c.a += Time.deltaTime * fadeSpeed;
-            fadeImage.color = c;
-            yield return null;
+            canvasgroup.blocksRaycasts = true; // Kararma sırasında yanlışlıkla bir şeye basılmasın
+            while (canvasgroup.alpha < 1f)
+            {
+                canvasgroup.alpha += Time.deltaTime * fadeSpeed;
+                yield return null;
+            }
         }
 
         yield return new WaitForSeconds(waitAtBlack);
@@ -86,13 +84,15 @@ public class DeathScript : MonoBehaviour
         controller.ResetSpeed();
         controller.ResetDash();
 
-        // Ekranı aç
-        while (fadeImage.color.a > 0)
+        // Ekranı aç (CanvasGroup Alpha Azalışı)
+        if (canvasgroup != null)
         {
-            Color c = fadeImage.color;
-            c.a -= Time.deltaTime * fadeSpeed;
-            fadeImage.color = c;
-            yield return null;
+            while (canvasgroup.alpha > 0f)
+            {
+                canvasgroup.alpha -= Time.deltaTime * fadeSpeed;
+                yield return null;
+            }
+            canvasgroup.blocksRaycasts = false;
         }
 
         controller.enabled = true;
