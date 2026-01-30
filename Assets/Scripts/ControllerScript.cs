@@ -13,9 +13,12 @@ public class ControllerScript : MonoBehaviour
 
     [Header("Durumlar")]
     public bool isGrinding = false;
+    public bool isSkating = false;
     public bool HasDash = true;
     public bool HasSecondJump = true;
     private bool wasGrounded;
+
+    private Animator animator;
 
     [Header("Ray & Momentum")]
     [HideInInspector] public float railCooldown = 0f;
@@ -103,10 +106,14 @@ public class ControllerScript : MonoBehaviour
         if (playerSprite != null) originalColor = playerSprite.color;
         
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Ground");
+
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
+        UpdateAnimator();
+
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
@@ -631,6 +638,8 @@ public class ControllerScript : MonoBehaviour
 
             currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed, 
                 (dir != 0 ? accelRate : decelRate) * Time.deltaTime);
+            
+            isSkating = currentMoveSpeed > walkSpeed;
 
             float targetVelX = dir * currentMoveSpeed;
 
@@ -645,6 +654,17 @@ public class ControllerScript : MonoBehaviour
             }
         }
         gravity.SetVelocity(v);
+    }
+
+    private void UpdateAnimator()
+    {
+        if (animator == null) return;
+
+        // Use absolute horizontal velocity for speed
+        float horizontalVelocity = Mathf.Abs(gravity.GetVelocity().x);
+        animator.SetFloat("speed", horizontalVelocity);
+        animator.SetBool("isGrounded", IsGrounded());
+        animator.SetBool("isSkating", isSkating);
     }
 
     void OnDisable() => inputActions.Disable();
