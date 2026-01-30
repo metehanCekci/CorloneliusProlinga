@@ -32,6 +32,7 @@ public class ControllerScript : MonoBehaviour
     private float dashTimer = 0f;
     private float dashDirection = 0f;
     private float dashCooldownTimer = 0f;
+    private Vector3 preDashVelocity; // Dash öncesi velocity
 
     [Header("Wall Climb Ayarları")]
     [SerializeField] private float wallClimbSpeed = 4f;
@@ -143,13 +144,9 @@ public class ControllerScript : MonoBehaviour
             {
                 IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
-                Vector3 post = gravity.GetVelocity();
-                float dir = moveAction.ReadValue<float>();
                 
-                // Dash bitince momentum'u sıfırla - anında yön kontrolü
-                post.x = (dir != 0) ? dir * currentMoveSpeed : 0f;
-                gravity.SetVelocity(post);
-                momentumTime = 0f; // Momentum'u kapat
+                // Dash öncesi velocity ile devam et (momentum kesme engeli)
+                gravity.SetVelocity(preDashVelocity);
                 
                 // Dash bitti ve yerdeysen dash'i geri ver
                 if (IsGrounded())
@@ -516,6 +513,7 @@ public class ControllerScript : MonoBehaviour
         IsDashing = true;
         dashTimer = dashDuration;
         storedMoveSpeed = currentMoveSpeed;
+        preDashVelocity = gravity.GetVelocity(); // Dash öncesi velocity'yi kaydet
         momentumTime = 0f; // Dash başlarken momentum'u sıfırla
         
         // Yerde dash attıysan cooldown koy
@@ -553,7 +551,14 @@ public class ControllerScript : MonoBehaviour
         isGrinding = false;
         activeRail = null;
         railCooldown = RAIL_COOLDOWN_TIME;
-        momentumTime = 0.3f;
+        momentumTime = 0f; // Momentum bypass etme - normal fizik
+        
+        // Çıkış yönüne göre sprite'ı ayarla ve kilitle
+        if (Mathf.Abs(vel.x) > 0.1f)
+        {
+            transform.localScale = new Vector3(Mathf.Sign(vel.x), 1, 1);
+        }
+        
         if (gravity != null) gravity.SetVelocity(vel);
     }
 
@@ -561,20 +566,6 @@ public class ControllerScript : MonoBehaviour
     {
         if (IsDashing)
         {
-            // Havadayken ters yöne basılırsa dash'i kes
-            float input = moveAction.ReadValue<float>();
-            if (!IsGrounded() && input != 0 && Mathf.Sign(input) != Mathf.Sign(dashDirection))
-            {
-                // Dash'i yarıda kes, hızı kıs
-                IsDashing = false;
-                currentMoveSpeed = walkSpeed; // Hızı en düşüğe çek
-                Vector3 cancelVel = gravity.GetVelocity();
-                cancelVel.x = input * walkSpeed; // Yeni yöne yavaş git
-                gravity.SetVelocity(cancelVel);
-                transform.localScale = new Vector3(Mathf.Sign(input), 1, 1); // Yönü çevir
-                return;
-            }
-            
             // Dash collision check - birden fazla ray ile köşeleri de kontrol et
             float dashDistance = dashSpeed * Time.deltaTime;
             float xEdge = dashDirection > 0 ? col.bounds.max.x : col.bounds.min.x;
