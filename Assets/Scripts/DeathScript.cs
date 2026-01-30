@@ -12,10 +12,6 @@ public class DeathScript : MonoBehaviour
     [SerializeField] private float fadeSpeed = 2f;
     [SerializeField] private float waitAtBlack = 0.5f;
 
-    [Header("Death Detection")]
-    [SerializeField] private LayerMask deathLayer;
-    [SerializeField] private Vector2 deathCheckSize = new Vector2(0.4f, 0.8f);
-
     private Vector3 currentRespawnPosition;
     private ControllerScript controller;
     private Gravity gravity;
@@ -26,10 +22,8 @@ public class DeathScript : MonoBehaviour
         controller = GetComponent<ControllerScript>();
         gravity = GetComponent<Gravity>();
 
-        if (initialRespawnPoint != null)
-            currentRespawnPosition = initialRespawnPoint.position;
-        else
-            currentRespawnPosition = transform.position;
+        // İlk spawn noktasını ayarla
+        currentRespawnPosition = initialRespawnPoint != null ? initialRespawnPoint.position : transform.position;
 
         if (fadeImage != null)
         {
@@ -39,31 +33,15 @@ public class DeathScript : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        CheckDeathCollision();
-    }
-
-    private void CheckDeathCollision()
-    {
-        if (isDead) return;
-
-        Collider2D deathHit = Physics2D.OverlapBox(
-            transform.position,
-            deathCheckSize,
-            0f,
-            deathLayer
-        );
-
-        if (deathHit != null)
-        {
-            StartCoroutine(DeathSequence());
-        }
-    }
+    // Update içindeki CheckDeathCollision'ı tamamen sildik, çünkü tetiklenme üzerinden gideceğiz.
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Death") && !isDead)
+        if (isDead) return;
+
+        // İster Tag kullan, ister Layer; ikisi de burada çalışır.
+        // "Death" tag'ine sahip bir şeye değerse ölür.
+        if (other.CompareTag("Death"))
         {
             StartCoroutine(DeathSequence());
         }
@@ -79,7 +57,7 @@ public class DeathScript : MonoBehaviour
         if (currentRespawnPosition != newPos)
         {
             currentRespawnPosition = newPos;
-            Debug.Log("Checkpoint Alindi! Konum: " + newPos);
+            Debug.Log("Checkpoint Alindi!");
         }
     }
 
@@ -87,9 +65,11 @@ public class DeathScript : MonoBehaviour
     {
         isDead = true;
 
+        // Hareketleri dondur
         controller.enabled = false;
         gravity.SetVelocity(Vector3.zero);
 
+        // Ekranı karart
         while (fadeImage.color.a < 1)
         {
             Color c = fadeImage.color;
@@ -99,13 +79,14 @@ public class DeathScript : MonoBehaviour
         }
 
         yield return new WaitForSeconds(waitAtBlack);
+
+        // Pozisyonu güncelle ve hızları sıfırla
         transform.position = currentRespawnPosition;
         gravity.SetVelocity(Vector3.zero);
-        
-        // Hız ve dash'i sıfırla
         controller.ResetSpeed();
         controller.ResetDash();
 
+        // Ekranı aç
         while (fadeImage.color.a > 0)
         {
             Color c = fadeImage.color;
