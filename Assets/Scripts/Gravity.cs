@@ -15,7 +15,7 @@ public class Gravity : MonoBehaviour
     private bool isGrounded = false;
     private bool isJumping = false;
     private float jumpStartHeight = 0f;
-    private float groundCheckCooldown = 0f; // Rail'den çıktıktan sonra kısa süre ground check yapılmaz
+    private float groundCheckCooldown = 0f;
     private Collider2D col;
     private ControllerScript controller;
 
@@ -31,18 +31,20 @@ public class Gravity : MonoBehaviour
     void Update()
     {
         if (controller != null && controller.isGrinding) return;
-        if (controller != null && controller.IsOnWall()) return; // Duvardayken gravity işleme
-
-        // Ground check cooldown
+        
+        // Duvardayken de ground check yap (zemine değince duvardan çıkması için)
         if (groundCheckCooldown > 0)
         {
             groundCheckCooldown -= Time.deltaTime;
-            isGrounded = false; // Cooldown süresince yerde değiliz
+            isGrounded = false;
         }
         else
         {
             CheckGround();
         }
+        
+        // Duvardayken gravity ve hareket işleme (ama ground check yukarıda yapıldı)
+        if (controller != null && controller.IsOnWall()) return;
         
         CheckRailCollision();
 
@@ -57,7 +59,6 @@ public class Gravity : MonoBehaviour
             else velocity.y -= gravityStrength * Time.deltaTime;
         }
 
-        // Wall collision check - yatay hareket için
         CheckWallCollision();
 
         transform.position += velocity * Time.deltaTime;
@@ -78,7 +79,6 @@ public class Gravity : MonoBehaviour
         
         if (hit.collider != null)
         {
-            // Duvara çarptık, X velocity'yi sıfırla
             velocity.x = 0;
         }
     }
@@ -93,9 +93,8 @@ public class Gravity : MonoBehaviour
             RailSystem rail = hitRail.GetComponent<RailSystem>();
             if (rail != null)
             {
-                // Karakterin mevcut hızını ve yönünü raya aktar
                 float entrySpeed = Mathf.Abs(velocity.x);
-                float entryDirection = velocity.x; // Pozitif = sağ, negatif = sol
+                float entryDirection = velocity.x;
                 rail.StartGrindFromManual(controller, entrySpeed, entryDirection);
             }
         }
@@ -103,28 +102,22 @@ public class Gravity : MonoBehaviour
 
     private void CheckGround()
     {
-        if (col == null)
-        {
-            Debug.LogError("COLLIDER YOK!");
-            return;
-        }
+        if (col == null) return;
         
         Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayDistance, groundLayer);
         
-        // Debug ray çiz
         Debug.DrawRay(rayOrigin, Vector2.down * groundRayDistance, hit.collider != null ? Color.green : Color.red);
         
         if (hit.collider != null)
         {
             isGrounded = true;
             
-            // Zemine gömülmeyi önle - karakteri zeminin üstüne oturt
             if (velocity.y <= 0)
             {
                 float groundY = hit.point.y;
                 float feetOffset = col.bounds.min.y - transform.position.y;
-                float targetY = groundY - feetOffset + 0.01f; // Küçük offset
+                float targetY = groundY - feetOffset + 0.01f;
                 
                 if (transform.position.y < targetY)
                 {
@@ -139,18 +132,15 @@ public class Gravity : MonoBehaviour
     }
 
     public void StartJump() { isJumping = true; jumpStartHeight = transform.position.y; }
-    // Call when jump button is released to stop upward hold
     public void EndJump() { isJumping = false; }
     public void SetVelocity(Vector3 newVel) 
     { 
         velocity = newVel;
-        // Yukarı hız verildiyse kısa süre ground check'i devre dışı bırak
         if (newVel.y > 0) groundCheckCooldown = 0.15f;
     }
     public Vector3 GetVelocity() => velocity;
     public bool IsGrounded() => isGrounded;
     
-    // Wall climb için - duvardayken pozisyon güncellemesi
     public void ApplyWallMovement()
     {
         transform.position += velocity * Time.deltaTime;

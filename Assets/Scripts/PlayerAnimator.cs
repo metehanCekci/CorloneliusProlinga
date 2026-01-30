@@ -58,11 +58,9 @@ public class PlayerAnimator : MonoBehaviour
         Vector3 velocity = gravity.GetVelocity();
         
         // Speed - yatay hareket hızı (0-1 arası normalize)
-        float normalizedSpeed = Mathf.Abs(velocity.x) / controller.maxSpeed;
+        // Dash sırasında speed'i 0 yap ki yürüme animasyonu oynamasın
+        float normalizedSpeed = controller.IsDashing ? 0f : Mathf.Abs(velocity.x) / controller.maxSpeed;
         animator.SetFloat(speedHash, normalizedSpeed);
-        
-        // DEBUG
-        Debug.Log($"Speed: {normalizedSpeed:F2}, Grounded: {controller.IsGrounded()}, VelX: {velocity.x:F2}");
         
         // Vertical Velocity - dikey hız (blend tree için)
         animator.SetFloat(verticalVelocityHash, velocity.y);

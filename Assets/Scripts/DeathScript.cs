@@ -88,7 +88,7 @@ public class DeathScript : MonoBehaviour
         isDead = true;
 
         controller.enabled = false;
-        gravity.SetVelocity(Vector2.zero);
+        gravity.SetVelocity(Vector3.zero);
 
         while (fadeImage.color.a < 1)
         {
@@ -100,7 +100,11 @@ public class DeathScript : MonoBehaviour
 
         yield return new WaitForSeconds(waitAtBlack);
         transform.position = currentRespawnPosition;
-        gravity.SetVelocity(Vector2.zero);
+        gravity.SetVelocity(Vector3.zero);
+        
+        // Hız ve dash'i sıfırla
+        controller.ResetSpeed();
+        controller.ResetDash();
 
         while (fadeImage.color.a > 0)
         {

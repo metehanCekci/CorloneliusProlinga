@@ -265,17 +265,38 @@ public class ControllerScript : MonoBehaviour
 
     private void HandleWallClimb()
     {
+        // Yere değdiyse VE aşağı kayıyorsa wall climb'dan çık
+        // (yukarı tırmanırken ground check'i atla - dibinden tırmanabilsin)
         float verticalInput = 0f;
-        
-        // W/S veya Gamepad ile yukarı/aşağı
         if (Keyboard.current != null)
         {
             if (Keyboard.current.wKey.isPressed) verticalInput = 1f;
             else if (Keyboard.current.sKey.isPressed) verticalInput = -1f;
         }
         
-        Vector3 v = gravity.GetVelocity();
-        v.x = 0; // Duvardayken X hareketi yok
+        // Sadece aşağı kayarken veya tutunurken ground check yap
+        if (verticalInput <= 0 && IsGrounded())
+        {
+            ExitWall();
+            return;
+        }
+        
+        // Yukarı tırmanırken duvarın üstüne çıktık mı kontrol et
+        if (verticalInput > 0)
+        {
+            // Duvar hala var mı kontrol et
+            int detectedWall = DetectWall();
+            if (detectedWall == 0)
+            {
+                // Duvar bitti - yukarı ve platforma doğru fırlat
+                ExitWall();
+                Vector3 exitVel = new Vector3(wallDirection * 3f, 6f, 0); // Yukarı ve platforma doğru
+                gravity.SetVelocity(exitVel);
+                return;
+            }
+        }
+        
+        Vector3 v = Vector3.zero; // Tüm velocity'yi sıfırla - sadece wall climb hareketi
         
         if (verticalInput > 0 && currentStamina > 0)
         {
@@ -292,11 +313,11 @@ public class ControllerScript : MonoBehaviour
         {
             // Duvarda tutunma - yavaş kayma
             v.y = -wallSlideSpeed;
-            currentStamina -= Time.deltaTime * 0.5f; // Tutunma yarı stamina harcar
+            currentStamina -= Time.deltaTime * 0.5f;
         }
         
         gravity.SetVelocity(v);
-        gravity.ApplyWallMovement(); // Pozisyonu güncelle
+        gravity.ApplyWallMovement();
         
         // Sprite yönü
         transform.localScale = new Vector3(-wallDirection, 1, 1);
@@ -506,6 +527,13 @@ public class ControllerScript : MonoBehaviour
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
+    public void ResetDash() 
+    { 
+        IsDashing = false; 
+        dashTimer = 0f; 
+        HasDash = true;
+        HasSecondJump = true;
+    }
     public bool CanEnterRail() => railCooldown <= 0 && !isGrinding;
 
     public void EnterRail(float entrySpeed, RailSystem rail)
@@ -530,6 +558,41 @@ public class ControllerScript : MonoBehaviour
     {
         if (IsDashing)
         {
+            // Dash collision check - birden fazla ray ile köşeleri de kontrol et
+            float dashDistance = dashSpeed * Time.deltaTime;
+            float xEdge = dashDirection > 0 ? col.bounds.max.x : col.bounds.min.x;
+            
+            // 3 ray: üst, orta, alt
+            Vector2 topOrigin = new Vector2(xEdge, col.bounds.max.y - 0.05f);
+            Vector2 midOrigin = new Vector2(xEdge, col.bounds.center.y);
+            Vector2 botOrigin = new Vector2(xEdge, col.bounds.min.y + 0.05f);
+            
+            RaycastHit2D topHit = Physics2D.Raycast(topOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
+            RaycastHit2D midHit = Physics2D.Raycast(midOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
+            RaycastHit2D botHit = Physics2D.Raycast(botOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
+            
+            // Debug ray çiz
+            Debug.DrawRay(topOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
+            Debug.DrawRay(midOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
+            Debug.DrawRay(botOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
+            
+            // Herhangi biri çarptıysa dur
+            RaycastHit2D hit = topHit.collider != null ? topHit : (midHit.collider != null ? midHit : botHit);
+            
+            if (hit.collider != null)
+            {
+                // Duvara çarptık - dash'i bitir ve duvara yapış
+                float stopX = hit.point.x - (dashDirection > 0 ? col.bounds.extents.x : -col.bounds.extents.x);
+                transform.position = new Vector3(stopX, transform.position.y, transform.position.z);
+                
+                IsDashing = false;
+                currentMoveSpeed = storedMoveSpeed;
+                Vector3 stopVel = gravity.GetVelocity();
+                stopVel.x = 0;
+                gravity.SetVelocity(stopVel);
+                return;
+            }
+            
             Vector3 dashVel = gravity.GetVelocity();
             dashVel.x = dashDirection * dashSpeed;
             dashVel.y = 0; 
