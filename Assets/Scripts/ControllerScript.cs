@@ -620,7 +620,12 @@ public class ControllerScript : MonoBehaviour
         float dir = moveAction.ReadValue<float>();
         Vector3 v = gravity.GetVelocity();
 
-        if (dir != 0) transform.localScale = new Vector3(Mathf.Sign(dir), 1, 1);
+        // Sprite yönünü velocity'ye göre çevir (momentum ile uyumlu)
+        // Sadece belirli bir hızın üstündeyken çevir
+        if (Mathf.Abs(v.x) > 0.1f)
+        {
+            transform.localScale = new Vector3(Mathf.Sign(v.x), 1, 1);
+        }
 
         if (momentumTime > 0)
         {
