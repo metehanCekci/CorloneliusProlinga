@@ -58028,6 +58028,7 @@ MonoBehaviour:
     m_Bits: 0
   sideOffset: 0.35
   rotationSpeed: 15
+  maxSlopeAngle: 60
   railLayer:
     serializedVersion: 2
     m_Bits: 0
