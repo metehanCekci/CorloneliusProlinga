@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 78ec5ec0d7d084d4599d61e2b5909e5a
+guid: c392733ba817a34efa13b8b602d813b5
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -127,72 +127,9 @@ ScriptedImporter:
     tessellationDetail: 0
     uvTransform: {x: 0, y: 0}
   animatedSpriteImportData:
-  - name: unmaskedSkateEquip
+  - name: background1back
     originalName: 
-    pivot: {x: 0.6333334, y: -0.11111111}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 50
-      y: 50
-      width: 30
-      height: 36
-    spriteID: 5fc4ddd0b1643984a86224a8dc5619ea
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 50, y: 50}
-  - name: Frame_1
-    originalName: 
-    pivot: {x: 0.5294118, y: -0.114285715}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 4
-      y: 52
-      width: 34
-      height: 35
-    spriteID: 0f66cb7245bc7404a8d7040827f073c3
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 4, y: 52}
-  - name: Frame_2
-    originalName: 
-    pivot: {x: 0.46153846, y: -0.02631579}
-    alignment: 9
-    border: {x: 0, y: 0, z: 0, w: 0}
-    customData: 
-    rect:
-      serializedVersion: 2
-      x: 50
-      y: 4
-      width: 39
-      height: 38
-    spriteID: a7e81ace3498f2348b515acf7e32c019
-    spriteBone: []
-    spriteOutline: []
-    vertices: []
-    spritePhysicsOutline: []
-    indices: 
-    edges: []
-    tessellationDetail: 0
-    uvTransform: {x: 50, y: 4}
-  - name: Frame_3
-    originalName: 
-    pivot: {x: 0.47368422, y: -0.05}
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -200,9 +137,9 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 38
-      height: 40
-    spriteID: 08937fa675e5673f5a4e734abbeb2ca0
+      width: 1920
+      height: 360
+    spriteID: 43ad636842c9a7446a52bab584a914b9
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -216,52 +153,25 @@ ScriptedImporter:
   asepriteLayers:
   - layerIndex: 0
     uuid:
-      value0: 275256454
+      value0: 2858589562
       value1: 0
       value2: 0
       value3: 0
     guid: 0
-    name: unmaskedSkateEquip
+    name: background1back
     layerFlags: 0
     layerType: 0
     blendMode: 0
     cells:
-    - name: Frame_0
+    - name: background1back
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 13
-        y: 4
-        width: 30
-        height: 36
-      spriteId: 5fc4ddd0b1643984a86224a8dc5619ea
-    - name: Frame_1
-      frameIndex: 1
-      additiveSortOrder: 0
-      cellRect:
-        x: 14
-        y: 4
-        width: 34
-        height: 35
-      spriteId: 0f66cb7245bc7404a8d7040827f073c3
-    - name: Frame_2
-      frameIndex: 2
-      additiveSortOrder: 0
-      cellRect:
-        x: 14
-        y: 1
-        width: 39
-        height: 38
-      spriteId: a7e81ace3498f2348b515acf7e32c019
-    - name: Frame_3
-      frameIndex: 3
-      additiveSortOrder: 0
-      cellRect:
-        x: 14
-        y: 2
-        width: 38
-        height: 40
-      spriteId: 08937fa675e5673f5a4e734abbeb2ca0
+        x: 0
+        y: 0
+        width: 1920
+        height: 360
+      spriteId: 43ad636842c9a7446a52bab584a914b9
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
@@ -271,5 +181,5 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 64, y: 64}
-  previousTextureSize: {x: 128, y: 128}
+  canvasSize: {x: 1920, y: 360}
+  previousTextureSize: {x: 2048, y: 512}
