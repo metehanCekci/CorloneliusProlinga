@@ -103,8 +103,17 @@ public class Gravity : MonoBehaviour
 
     private void CheckGround()
     {
+        if (col == null)
+        {
+            Debug.LogError("COLLIDER YOK!");
+            return;
+        }
+        
         Vector2 rayOrigin = new Vector2(transform.position.x, col.bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, groundRayDistance, groundLayer);
+        
+        // Debug ray çiz
+        Debug.DrawRay(rayOrigin, Vector2.down * groundRayDistance, hit.collider != null ? Color.green : Color.red);
         
         if (hit.collider != null)
         {
