@@ -145,8 +145,10 @@ public class ControllerScript : MonoBehaviour
                 IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
                 
-                // Dash öncesi velocity ile devam et (momentum kesme engeli)
-                gravity.SetVelocity(preDashVelocity);
+                // Dash bitince sadece X velocity'yi geri yükle, Y'yi koru
+                Vector3 post = gravity.GetVelocity();
+                post.x = preDashVelocity.x;
+                gravity.SetVelocity(post);
                 
                 // Dash bitti ve yerdeysen dash'i geri ver
                 if (IsGrounded())
