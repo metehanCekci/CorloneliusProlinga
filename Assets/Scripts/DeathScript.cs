@@ -48,7 +48,7 @@ public class DeathScript : MonoBehaviour
         }
     }
 
-    private IEnumerator DeathSequence()
+    public IEnumerator DeathSequence()
     {
         isDead = true;
 

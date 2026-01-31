@@ -4,12 +4,11 @@ public class NextSceneTrigger : MonoBehaviour
 {
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Temas eden objenin "Player" tag'ine sahip olup olmadýðýný kontrol et
+        // Temas eden objenin "Player" tag'ine sahip olup olmadï¿½ï¿½ï¿½nï¿½ kontrol et
         if (collision.CompareTag("Player"))
         {
-            // Sahnede FadeScript tipindeki objeyi bul (Düzeltildi: <T> kullanýmý)
+            // Sahnede FadeScript tipindeki objeyi bul (Dï¿½zeltildi: <T> kullanï¿½mï¿½)
             FadeScript transition = FindObjectOfType<FadeScript>();
-            Debug.Log("sa");
 
             if (transition != null)
             {
@@ -17,7 +16,7 @@ public class NextSceneTrigger : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Sahnede FadeScript bileþeni bulunamadý! Lütfen Canvas'ý ve scripti kontrol et.");
+                Debug.LogError("Sahnede FadeScript bileï¿½eni bulunamadï¿½! Lï¿½tfen Canvas'ï¿½ ve scripti kontrol et.");
             }
         }
     }
