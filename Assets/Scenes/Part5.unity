@@ -4290,6 +4290,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   isMaskOn: 0
   player: {fileID: 0}
+  effectsManager: {fileID: 0}
+  lightManager: {fileID: 0}
+  outlineColor: {r: 0, g: 1, b: 0, a: 1}
+  outlineThickness: 1
 --- !u!4 &1581428409
 Transform:
   m_ObjectHideFlags: 0
