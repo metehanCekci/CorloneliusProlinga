@@ -5060,6 +5060,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3328792160882347699, guid: bf901cd72b5454347bdc0b7a04720d6b, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3403242901433578731, guid: bf901cd72b5454347bdc0b7a04720d6b, type: 3}
       propertyPath: m_Name
       value: Mask Rail (2)
