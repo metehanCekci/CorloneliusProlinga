@@ -90,5 +90,10 @@ public class DeathScript : MonoBehaviour
         gravity.SetVelocity(Vector3.zero);
         controller.ResetSpeed();
         controller.ResetDash();
+        // 2. MASKEYİ SIFIRLA (YENİ EKLENEN KISIM)
+        if (MaskManager.Instance != null)
+        {
+            MaskManager.Instance.ResetMaskToDefault();
+        }
     }
 }

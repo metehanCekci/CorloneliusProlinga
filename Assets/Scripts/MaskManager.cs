@@ -8,9 +8,9 @@ public class MaskManager : MonoBehaviour
 
     [Header("Mask Ayarları")]
     [SerializeField] private bool isMaskOn = false;
-    
+
     [Header("Sıkışma Engelleme Ayarları")]
-    [SerializeField] private GameObject player; 
+    [SerializeField] private GameObject player;
 
     private InputActions inputActions;
     private InputAction maskAction;
@@ -43,7 +43,7 @@ public class MaskManager : MonoBehaviour
     {
         inputActions = new InputActions();
         inputActions.Enable();
-        maskAction = inputActions.Player.Mask; 
+        maskAction = inputActions.Player.Mask;
         maskAction.performed += ToggleMask;
     }
 
@@ -59,7 +59,7 @@ public class MaskManager : MonoBehaviour
         if (isMaskOn && IsInsideAnyWall())
         {
             Debug.LogError("!!! MASKMGR: DUVARIN İÇİNDESİN, KAPATMA ENGELLENDİ !!!");
-            return; 
+            return;
         }
 
         isMaskOn = !isMaskOn;
@@ -92,6 +92,17 @@ public class MaskManager : MonoBehaviour
             }
         }
         return false;
+    }
+    public void ResetMaskToDefault()
+    {
+        // Eğer maske zaten kapalıysa (false) işlem yapma, gereksiz olay tetikleme
+        if (!isMaskOn) return;
+
+        isMaskOn = false;
+        Debug.Log("MASKMGR: Ölüm sonrası maske sıfırlandı -> Kapalı");
+
+        // Tüm objelere maskenin kapandığını bildir
+        onMaskChanged?.Invoke(isMaskOn);
     }
 
     public bool IsMaskActive() => isMaskOn;
