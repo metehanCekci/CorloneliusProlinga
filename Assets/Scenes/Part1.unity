@@ -670,6 +670,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: landClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 1f3527c5ae1e5014da2222619fba55d9, type: 3}
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: brakeClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd0ab38284dfe34f878064686ca8209, type: 3}
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: ollieClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 247e7a3ee96f1f2488c94a6d282f9fe5, type: 3}
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
       propertyPath: sfxSource
       value: 
       objectReference: {fileID: 1102952122}
@@ -677,7 +689,25 @@ PrefabInstance:
       propertyPath: loopSource
       value: 
       objectReference: {fileID: 126879044}
-    m_RemovedComponents: []
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: railLoopClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 0fd0ab38284dfe34f878064686ca8209, type: 3}
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: skateLoopClip
+      value: 
+      objectReference: {fileID: 8300000, guid: de860028cb6671944b4b47af4fbdb675, type: 3}
+    - target: {fileID: 5426271094828572563, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: minSpeedForSound
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7070104455800062070, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+      propertyPath: dashDuration
+      value: 0.15
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 338614824847852629, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+    - {fileID: 97565999919548629, guid: 48be7935185b37548b47dcbd57620422, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
