@@ -66,10 +66,11 @@ public class Gravity : MonoBehaviour
         }
         else
         {
-            PerformGroundCheck();
+            
             // Fiziği her zaman dik tutuyoruz (Görseli SlopeStabilizer hallediyor)
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * rotationSpeed);
         }
+        PerformGroundCheck();
 
         HandleVerticalMovement();
 
