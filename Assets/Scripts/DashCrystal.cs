@@ -10,11 +10,10 @@ public class DashCrystal : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private Collider2D crystalCol;
-    private Animator animator; // Animator referansı eklendi
+    private Animator animator; 
     private bool isAvailable = true;
     private ControllerScript playerScript;
 
-    // Animator parametre isimleri (Animator'da oluşturduğun isimlerle aynı olmalı)
     private readonly string pickupTrigger = "Pickup"; 
     private readonly string respawnTrigger = "Respawn";
 
@@ -22,7 +21,7 @@ public class DashCrystal : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         crystalCol = GetComponent<Collider2D>();
-        animator = GetComponent<Animator>(); // Animator'ı yakalıyoruz
+        animator = GetComponent<Animator>(); 
     }
 
     private void Update()
@@ -43,7 +42,10 @@ public class DashCrystal : MonoBehaviour
 
         if (hit != null && hit.TryGetComponent<ControllerScript>(out ControllerScript player))
         {
-            if (!player.HasDash || !player.HasSecondJump)
+            // DEĞİŞİKLİK BURADA: 
+            // Sadece oyuncunun Dash hakkı bitmişse (HasDash == false) kristal toplanır.
+            // Eğer oyuncunun dash'i zaten varsa, kristal onu görmezden gelir.
+            if (!player.HasDash)
             {
                 playerScript = player;
                 CollectCrystal();
@@ -51,31 +53,32 @@ public class DashCrystal : MonoBehaviour
         }
     }
 
-    private void CollectCrystal()
+   private void CollectCrystal()
     {
         isAvailable = false;
         
-        if (spriteRenderer != null) spriteRenderer.color = inactiveColor;
+        if (spriteRenderer != null) spriteRenderer.enabled = false; 
         
-        // Toplama animasyonunu tetikle
         if (animator != null)
         {
             animator.SetTrigger(pickupTrigger);
         }
 
+        // Kristal alındığında her iki hakkı da doldurur
         playerScript.HasDash = true;
         playerScript.HasSecondJump = true;
-        
-        Debug.Log("Kristal manuel olarak toplandi ve oyuncuyu yeniledi!");
     }
 
     private void ResetCrystal()
     {
         isAvailable = true;
         
-        if (spriteRenderer != null) spriteRenderer.color = Color.white;
+        if (spriteRenderer != null) 
+        {
+            spriteRenderer.enabled = true;
+            spriteRenderer.color = Color.white;
+        }
 
-        // Yeniden canlanma animasyonunu tetikle
         if (animator != null)
         {
             animator.SetTrigger(respawnTrigger);
