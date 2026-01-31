@@ -6,7 +6,11 @@ using System.Collections;
 public class FadeScript : MonoBehaviour
 {
     private CanvasGroup canvasGroup;
+
+    [Header("Ayarlar")]
     public float fadeSuresi = 1.0f;
+    // Bu süre boyunca ekran simsiyah kalır, objeler ve kamera yerleşir.
+    public float acilisGecikmesi = 0.5f;
     public bool mainMenu = true;
 
     void Awake()
@@ -16,19 +20,31 @@ public class FadeScript : MonoBehaviour
 
     void Start()
     {
-        // Başlangıçta obje açık olsun
+        // Başlangıçta ekran simsiyah ve açık olsun
         canvasGroup.gameObject.SetActive(true);
         canvasGroup.alpha = 1;
+
+        // Hemen aydınlatma yapma, biraz bekle (Kamera yerine otursun)
+        StartCoroutine(SahneAcilisGecikmesi());
+    }
+
+    // --- YENİ EKLENEN GECİKMELİ BAŞLANGIÇ ---
+    IEnumerator SahneAcilisGecikmesi()
+    {
+        // Belirlenen süre kadar siyah ekranda bekle
+        yield return new WaitForSeconds(acilisGecikmesi);
+
+        // Süre bitince aydınlatmayı başlat
         StartCoroutine(FadeIslemi(1, 0));
     }
 
-    // --- ÖZEL FONKSİYONLAR (DEATH SCRIPT BUNLARI ÇAĞIRIYOR) ---
+    // --- ÖZEL FONKSİYONLAR (DEATH SCRIPT İÇİN) ---
 
-    // KARARTMA
+    // KARARTMA (Aynı kaldı)
     public IEnumerator FadeOutEkraniKarart(float sure)
     {
         canvasGroup.gameObject.SetActive(true);
-        canvasGroup.blocksRaycasts = true;
+        canvasGroup.blocksRaycasts = true; // Tıklamayı engelle
         canvasGroup.alpha = 0;
 
         float counter = 0f;
@@ -41,9 +57,16 @@ public class FadeScript : MonoBehaviour
         canvasGroup.alpha = 1;
     }
 
-    // AYDINLATMA (Burada SetActive(false) YOK!)
-    public IEnumerator FadeInEkraniAc(float sure)
+    // AYDINLATMA (ÖNEMLİ: Death Script'ten çağırırken bunu GECİKMELİ kullanmak isteyebilirsin)
+    public IEnumerator FadeInEkraniAc(float sure, float beklemeSuresi = 0f)
     {
+        // Eğer bir bekleme süresi varsa (kamera yetişsin diye), siyah ekranda bekle
+        if (beklemeSuresi > 0)
+        {
+            canvasGroup.alpha = 1;
+            yield return new WaitForSeconds(beklemeSuresi);
+        }
+
         float counter = 0f;
         while (counter < sure)
         {
@@ -53,23 +76,18 @@ public class FadeScript : MonoBehaviour
         }
         canvasGroup.alpha = 0;
         canvasGroup.blocksRaycasts = false;
-
-        // ÖNEMLİ: gameObject.SetActive(false) SİLİNDİ.
-        // Obje sahnede hep açık kalacak, sadece görünmez olacak.
     }
 
-    // --- NORMAL SAHNE GEÇİŞLERİ ---
+    // --- NORMAL SAHNE GEÇİŞLERİ (Aynı kaldı) ---
 
     public void SiradakiSahne()
     {
-        // Bu satırı ekle ve konsola bak, muhtemelen 1 yazacak.
         Debug.Log("Toplam Sahne Sayısı: " + SceneManager.sceneCountInBuildSettings);
-
         int mevcutIndex = SceneManager.GetActiveScene().buildIndex;
         if (mevcutIndex + 1 < SceneManager.sceneCountInBuildSettings)
             BaslatFadeOut(mevcutIndex + 1);
         else
-        { Debug.Log("başka sahne yok amınığlu"); }
+            Debug.Log("Başka sahne yok.");
     }
 
     public void BaslatFadeOut(int hedefIndex)
@@ -93,21 +111,18 @@ public class FadeScript : MonoBehaviour
         if (!sahneYukle)
         {
             canvasGroup.blocksRaycasts = false;
-            // Buradaki SetActive(false) da kapalı kalsın garanti olsun.
         }
         else
         {
             SceneManager.LoadScene(hedefIndex);
         }
     }
+
     public void QuitGame()
     {
-        // #if UNITY_EDITOR komutu, bu kodun sadece Editörde derlenmesini sağlar.
-        // Böylece oyunun build aldığında hata vermez.
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-        // Editörde değilsek (Normal oyunsa) uygulamayı kapat
         Application.Quit();
 #endif
     }

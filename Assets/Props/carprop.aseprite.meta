@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: carprop
     originalName: 
-    pivot: {x: 0.60952383, y: 0}
+    pivot: {x: 0.5, y: 0}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,8 +137,8 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 105
-      height: 63
+      width: 128
+      height: 66
     spriteID: 1ad4c50d08460b4a887a7fd713441493
     spriteBone: []
     spriteOutline: []
@@ -169,8 +169,8 @@ ScriptedImporter:
       cellRect:
         x: 0
         y: 0
-        width: 105
-        height: 63
+        width: 128
+        height: 66
       spriteId: 1ad4c50d08460b4a887a7fd713441493
     linkedCells: []
     tileCells: []
@@ -182,4 +182,4 @@ ScriptedImporter:
   secondarySpriteTextures: []
   spritePackingTag: 
   canvasSize: {x: 128, y: 128}
-  previousTextureSize: {x: 128, y: 128}
+  previousTextureSize: {x: 256, y: 128}

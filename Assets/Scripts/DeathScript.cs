@@ -7,8 +7,8 @@ public class DeathScript : MonoBehaviour
     [SerializeField] private Transform initialRespawnPoint;
 
     [Header("Ayarlar")]
-    [SerializeField] private float fadeDuration = 1f; // Kararma süresi
-    [SerializeField] private float waitAtBlack = 0.5f; // Siyah ekranda bekleme
+    [SerializeField] private float fadeDuration = 1f; // Kararma/Açılma süresi
+    [SerializeField] private float waitAtBlack = 0.8f; // Siyah ekranda bekleme süresi (Artırdım ki kamera yetişsin)
 
     private Vector3 currentRespawnPosition;
     private ControllerScript controller;
@@ -70,20 +70,21 @@ public class DeathScript : MonoBehaviour
         // OYUNU DURDUR
         Time.timeScale = 0f;
 
-        // 3. EKRANI KARART (Unscaled time ile fade)
+        // 3. EKRANI KARART
         yield return StartCoroutine(fadeSystem.FadeOutEkraniKarart(fadeDuration));
 
-        // 4. Karanlıkta bekle (unscaled time ile bekle)
-        yield return new WaitForSecondsRealtime(waitAtBlack);
-
-        // 5. Oyuncuyu Işınla ve Fizikleri Sıfırla
+        // 4. OYUNCUYU IŞINLA
         RespawnLogic();
 
-        // OYUNU DEVAM ETTİR
+        // 5. OYUNU DEVAM ETTİR (ÖNEMLİ NOKTA BURASI)
+        // Zamanı başlattık ki Kamera (CameraFollow scripti) karakterin yeni yerine ışınlanabilsin/gidebilsin.
         Time.timeScale = 1f;
 
-        // 6. EKRANI AÇ (Unscaled time ile fade)
-        yield return StartCoroutine(fadeSystem.FadeInEkraniAc(fadeDuration));
+        // 6. EKRANI AÇ (GECİKMELİ)
+        // Burada 2. parametreye 'waitAtBlack' veriyoruz.
+        // FadeScript, bu süre kadar SİYAH EKRANDA bekleyecek.
+        // Bu sırada arkada oyun çalıştığı için kamera yerine oturmuş olacak.
+        yield return StartCoroutine(fadeSystem.FadeInEkraniAc(fadeDuration, waitAtBlack));
 
         // 7. Kontrolleri geri ver
         controller.enabled = true;
@@ -96,7 +97,8 @@ public class DeathScript : MonoBehaviour
         gravity.SetVelocity(Vector3.zero);
         controller.ResetSpeed();
         controller.ResetDash();
-        // 2. MASKEYİ SIFIRLA (YENİ EKLENEN KISIM)
+
+        // Maskeyi sıfırla
         if (MaskManager.Instance != null)
         {
             MaskManager.Instance.ResetMaskToDefault();
