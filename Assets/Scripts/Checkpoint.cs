@@ -8,12 +8,15 @@ public class Checkpoint : MonoBehaviour
 
     private SpriteRenderer spriteRenderer;
     private Collider2D checkpointCol;
+    private Animator animator;
     private bool isCollected = false;
+    private readonly string pickupTrigger = "Pickup";
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         checkpointCol = GetComponent<Collider2D>();
+        animator = GetComponent<Animator>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -34,12 +37,14 @@ public class Checkpoint : MonoBehaviour
 
         Debug.Log("Checkpoint Alındı: " + gameObject.name);
 
+        if (animator != null)
+        {
+            animator.SetTrigger(pickupTrigger);
+        }
         if (disableOnCollect)
         {
             // Objenin görselini ve çarpışmasını kapatır ama script çalışmaya devam eder
-            if (spriteRenderer != null) spriteRenderer.enabled = false;
             if (checkpointCol != null) checkpointCol.enabled = false;
-            
             // Eğer objeyi tamamen hiyerarşiden silmek istersen:
             // Destroy(gameObject); 
         }
@@ -49,7 +54,6 @@ public class Checkpoint : MonoBehaviour
     public void ResetCheckpoint()
     {
         isCollected = false;
-        if (spriteRenderer != null) spriteRenderer.enabled = true;
         if (checkpointCol != null) checkpointCol.enabled = true;
     }
 }
