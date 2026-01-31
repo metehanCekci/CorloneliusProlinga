@@ -22,8 +22,8 @@ public class ControllerScript : MonoBehaviour
     [Header("Ray & Momentum")]
     [HideInInspector] public float railCooldown = 0f;
     [HideInInspector] public RailSystem activeRail = null;
-    private const float RAIL_COOLDOWN_TIME = 0.5f;
-    private float momentumTime = 0f; 
+    public const float RAIL_COOLDOWN_TIME = 0.5f;
+    public float momentumTime = 0f; 
     private float storedMoveSpeed;
 
     [Header("Dash Ayarları")]

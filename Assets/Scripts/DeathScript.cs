@@ -74,8 +74,24 @@ public class DeathScript : MonoBehaviour
         yield return StartCoroutine(fadeSystem.FadeOutEkraniKarart(fadeDuration));
 
         // 4. OYUNCUYU IŞINLA
-        RespawnLogic();
+        // --- DÜZELTME BURADA BAŞLIYOR ---
 
+        // Eğer karakter ölürken bir rayın üzerindeyse, önce ray sistemine "beni bırak" demeli.
+        if (controller.activeRail != null)
+        {
+            // Yeni yazdığımız fonksiyonu çağır
+            controller.activeRail.ForceDisconnect();
+        }
+
+        // Controller üzerindeki değerleri sıfırla
+        controller.isGrinding = false;
+        controller.activeRail = null;
+        controller.railCooldown = 0.5f; // Hemen tekrar tutunmasın diye cooldown
+        controller.momentumTime = 0f;
+
+        // --- DÜZELTME BURADA BİTİYOR ---
+
+        RespawnLogic();
         // 5. OYUNU DEVAM ETTİR (ÖNEMLİ NOKTA BURASI)
         // Zamanı başlattık ki Kamera (CameraFollow scripti) karakterin yeni yerine ışınlanabilsin/gidebilsin.
         Time.timeScale = 1f;
@@ -93,12 +109,27 @@ public class DeathScript : MonoBehaviour
 
     private void RespawnLogic()
     {
-        transform.position = currentRespawnPosition;
-        gravity.SetVelocity(Vector3.zero);
+        // 1. ÖNCE Controller'daki ray bilgilerini temizle
+        // Bunu yapınca RailSystem'deki Update bloğundaki "if (player.activeRail != this)" çalışacak
+        // ve ray sistemi karakteri bırakacak.
+        if (controller.activeRail != null)
+        {
+            // Eğer referans hala duruyorsa nezaketen bırak diyelim
+            controller.activeRail.ForceDisconnect();
+        }
+
+        controller.isGrinding = false;
+        controller.activeRail = null; // En kritik satır burası!
+        controller.railCooldown = 0.5f;
+        controller.momentumTime = 0f;
         controller.ResetSpeed();
         controller.ResetDash();
 
-        // Maskeyi sıfırla
+        // 2. SONRA pozisyonu değiştir
+        // Artık ray sistemi karakteri tutmadığı için uçma olmayacak.
+        transform.position = currentRespawnPosition;
+        gravity.SetVelocity(Vector3.zero);
+
         if (MaskManager.Instance != null)
         {
             MaskManager.Instance.ResetMaskToDefault();
