@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 3d95ade5f75ca8b42b01a0e07ac382b6
+guid: 2a79223c0c9d54e4e850add3da32959b
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,8 +129,8 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: flaggyObject
     originalName: 
-    pivot: {x: 0.5, y: 0.5}
-    alignment: 0
+    pivot: {x: 0.5, y: -0.11538462}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -139,7 +139,7 @@ ScriptedImporter:
       y: 4
       width: 26
       height: 26
-    spriteID: 49fe574d3d3d4ef488a5cfcf28844d92
+    spriteID: 9609591d3ded1c147a2d7e1be587aef3
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -171,7 +171,7 @@ ScriptedImporter:
         y: 3
         width: 26
         height: 26
-      spriteId: 49fe574d3d3d4ef488a5cfcf28844d92
+      spriteId: 9609591d3ded1c147a2d7e1be587aef3
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
