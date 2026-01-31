@@ -57,7 +57,7 @@ public class DashCrystal : MonoBehaviour
     {
         isAvailable = false;
         
-        if (spriteRenderer != null) spriteRenderer.enabled = false; 
+        //if (spriteRenderer != null) spriteRenderer.enabled = false; 
         
         if (animator != null)
         {
