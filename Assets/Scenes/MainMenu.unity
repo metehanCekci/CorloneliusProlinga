@@ -551,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03935cf15776b8d06bc82015d6fd2c2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogoScript
-  bpm: 164
+  bpm: 140
   atisGucu: 0.01
   suzulmeHizi: 0
   suzulmeMiktari: 0
@@ -739,8 +739,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e188d919d9fa2cf4baae83feccc736ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FadeScript
-  fadeSuresi: 1
-  acilisGecikmesi: 0.5
+  fadeSuresi: 0.5
+  acilisGecikmesi: 0
   mainMenu: 0
 --- !u!225 &1087008092
 CanvasGroup:
@@ -919,11 +919,11 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 8401794301859105371, guid: bc5e7d75e2d1e8143867cb40c25859b1, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 70d72a1080e7e9a40bbba2b447b6f75e, type: 3}
+  m_Resource: {fileID: 8300000, guid: 6e727d2ecb9eb0a43bc7548ef9146178, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
