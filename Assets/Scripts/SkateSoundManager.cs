@@ -2,22 +2,22 @@ using UnityEngine;
 
 public class SkateSoundManager : MonoBehaviour
 {
-    [Header("Audio Sources (SÃ¼rÃ¼kle BÄ±rak)")]
+    [Header("Audio Sources (Sürükle Býrak)")]
     public AudioSource loopSource;
     public AudioSource sfxSource;
 
-    [Header("Ses DosyalarÄ± (SÃ¼rÃ¼kle BÄ±rak)")]
+    [Header("Ses Dosyalarý (Sürükle Býrak)")]
     public AudioClip skateLoopClip;
     public AudioClip railLoopClip;
-    public AudioClip brakeClip; // YENÄ°: Buraya fren sesini at
+    public AudioClip brakeClip; // YENÝ: Buraya fren sesini at
     public AudioClip ollieClip;
     public AudioClip landClip;
 
     [Header("Ayarlar")]
     public float minSpeedForSound = 0.5f;
 
-    // DurumlarÄ± artÄ±k dÄ±ÅŸarÄ±dan (Controller'dan) yÃ¶netiyoruz, 
-    // burada sadece "ÅŸu an ne Ã§alÄ±yor" kontrolÃ¼ yapacaÄŸÄ±z.
+    // Durumlarý artýk dýþarýdan (Controller'dan) yönetiyoruz, 
+    // burada sadece "þu an ne çalýyor" kontrolü yapacaðýz.
 
     public void StartSkating(float currentSpeed)
     {
@@ -27,7 +27,7 @@ public class SkateSoundManager : MonoBehaviour
             return;
         }
 
-        // EÄŸer zaten Skate sesi Ã§alÄ±yorsa elleme (kesinti olmasÄ±n)
+        // Eðer zaten Skate sesi çalýyorsa elleme (kesinti olmasýn)
         if (loopSource.isPlaying && loopSource.clip == skateLoopClip) return;
 
         loopSource.clip = skateLoopClip;
@@ -37,7 +37,7 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StartRailGrind()
     {
-        // Zaten Rail Ã§alÄ±yorsa elleme
+        // Zaten Rail çalýyorsa elleme
         if (loopSource.isPlaying && loopSource.clip == railLoopClip) return;
 
         loopSource.clip = railLoopClip;
@@ -47,7 +47,7 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StartBraking()
     {
-        // YENÄ°: Zaten Fren Ã§alÄ±yorsa elleme
+        // YENÝ: Zaten Fren çalýyorsa elleme
         if (loopSource.isPlaying && loopSource.clip == brakeClip) return;
 
         loopSource.clip = brakeClip;
@@ -57,7 +57,7 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StopLoop()
     {
-        // Loop kaynaÄŸÄ±nÄ± tamamen durdurur
+        // Loop kaynaðýný tamamen durdurur
         if (loopSource.isPlaying) loopSource.Stop();
     }
 

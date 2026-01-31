@@ -73,17 +73,29 @@ public class PlayerAnimator : MonoBehaviour
     {
         currentMaskState = isNowMasked;
         Debug.Log($"PlayerAnimator: Mask durumu değişti -> {(isNowMasked ? "Masked" : "Normal")}");
+
+        // Mask tuşuna basıldığında hangi animasyonda olursa olsun anında Idle veya MaskedIdle'a geç
+        if (animator != null)
+        {
+            if (isNowMasked)
+            {
+                animator.Play("MaskedIdle", 0, 0f);
+            }
+            else
+            {
+                animator.Play("Idle", 0, 0f);
+            }
+        }
     }
     
     public void OnJump()
     {
-        if (animator != null)
-        // Önce parametreleri güncelle
-        UpdateAnimatorParameters();
-        if (animator != null)
-        {
-            animator.SetTrigger(jumpHash);
-        }
+    UpdateAnimatorParameters();
+    Debug.Log($"Jump Trigger: isMasked={animator.GetBool(isMaskedHash)}, isSkating={animator.GetBool(isSkatingHash)}");
+    if (animator != null)
+    {
+        animator.SetTrigger(jumpHash);
+    }
     }
 
     void Update()
