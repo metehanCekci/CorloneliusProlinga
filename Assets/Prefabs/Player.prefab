@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 2762704888442632203}
   - component: {fileID: 6376459208595759417}
   - component: {fileID: 5950470863255242249}
-  - component: {fileID: 5426271094828572563}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -221,7 +220,7 @@ MonoBehaviour:
   activeRail: {fileID: 0}
   momentumTime: 0
   dashSpeed: 5
-  dashDuration: 0.15
+  dashDuration: 0.3
   groundDashCooldown: 1
   wallClimbSpeed: 1
   wallSlideSpeed: 0.3
@@ -386,26 +385,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5426271094828572563
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1462767395608077529}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79275b21bc806b47a7a7bb373b2ef5b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  loopSource: {fileID: 0}
-  sfxSource: {fileID: 0}
-  skateLoopClip: {fileID: 8300000, guid: de860028cb6671944b4b47af4fbdb675, type: 3}
-  railLoopClip: {fileID: 8300000, guid: 0fd0ab38284dfe34f878064686ca8209, type: 3}
-  brakeClip: {fileID: 8300000, guid: 0fd0ab38284dfe34f878064686ca8209, type: 3}
-  ollieClip: {fileID: 8300000, guid: 247e7a3ee96f1f2488c94a6d282f9fe5, type: 3}
-  landClip: {fileID: 8300000, guid: 1f3527c5ae1e5014da2222619fba55d9, type: 3}
-  minSpeedForSound: 1
 --- !u!1 &1822048200545877998
 GameObject:
   m_ObjectHideFlags: 0
