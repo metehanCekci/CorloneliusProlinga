@@ -95,7 +95,6 @@ public class SlopeStabilizer : MonoBehaviour
                 // Zemin açısı negatifse (\) sola bakan için yokuş yukarıdır
                 else if (zeminAcisi < -0.1f) finalAngle += solBakisYokusYukari;
             }
-Debug.Log("aeav");
             // 3. Sadece GÖRSELİ döndür (Fiziği değil)
             Quaternion hedefRotasyon = Quaternion.Euler(0, 0, finalAngle);
             gorselObje.localRotation = Quaternion.Slerp(gorselObje.localRotation, hedefRotasyon, Time.deltaTime * donusHizi);
