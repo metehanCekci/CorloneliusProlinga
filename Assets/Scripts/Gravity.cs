@@ -50,7 +50,6 @@ public class Gravity : MonoBehaviour
         if (controller != null && (controller.isGrinding || controller.IsOnWall()))
         {
             isGrounded = false;
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * rotationSpeed);
             return;
         }
 
@@ -62,7 +61,13 @@ public class Gravity : MonoBehaviour
         }
         else
         {
+            // BURADAKİ HATALI SATIR SİLİNDİ (isGrounded = false yazıyordu)
             PerformGroundCheck();
+
+            // Eğer SlopeStabilizer (Görsel Döndürme) kullanıyorsan,
+            // Fizik objesi (Collider) her zaman dik durmalıdır.
+            // Bu yüzden her zaman dikleşmeye zorluyoruz (hem yerde hem havada).
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * rotationSpeed);
         }
 
         HandleVerticalMovement();
@@ -72,22 +77,21 @@ public class Gravity : MonoBehaviour
         CheckRailCollision();
         // ------------------------------
 
-        // MovePosition kullanarak pozisyonu uygula (Fizik motoruyla çakışmaz)
+        // MovePosition kullanarak pozisyonu uygula
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
     }
-
     private void CheckWallCollision()
     {
         // Hareket etmiyorsak kontrol etmeye gerek yok
         if (Mathf.Approximately(velocity.x, 0f)) return;
 
         float dir = Mathf.Sign(velocity.x);
-        
+
         // Karakterin merkezinden gideceği yöne doğru raycast
         // col.bounds.extents.x + 0.1f mesafesi karakterin tam kenarından az ötesini kontrol eder
         Vector2 origin = col.bounds.center;
         float checkDist = col.bounds.extents.x + 0.1f;
-        
+
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * dir, checkDist, wallLayer);
 
         // Debug Çizgisi (Duvar kontrolünü görmen için)
@@ -102,6 +106,7 @@ public class Gravity : MonoBehaviour
     private void PerformGroundCheck()
     {
         // Karakterin rotasyonuna göre ray başlangıç noktalarını ayarla
+        // Not: SlopeStabilizer kullanıyorsan transform.up hep (0,1) dir, bu doğru çalışır.
         Vector2 leftOrigin = rb.position + (Vector2)(transform.right * -sideOffset) + (Vector2)(transform.up * 0.1f);
         Vector2 rightOrigin = rb.position + (Vector2)(transform.right * sideOffset) + (Vector2)(transform.up * 0.1f);
 
@@ -135,8 +140,6 @@ public class Gravity : MonoBehaviour
         else
         {
             isGrounded = false;
-            // Havadayken dikleşme
-            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * (rotationSpeed * 0.5f));
         }
     }
 
@@ -156,7 +159,7 @@ public class Gravity : MonoBehaviour
     private void CheckRailCollision()
     {
         if (controller == null || !controller.CanEnterRail()) return;
-        
+
         Collider2D hitRail = Physics2D.OverlapBox(col.bounds.center, col.bounds.size, 0f, railLayer);
         if (hitRail != null)
         {
@@ -166,20 +169,20 @@ public class Gravity : MonoBehaviour
     }
 
     // --- Public Metotlar ---
-    public void StartJump() 
-    { 
-        isJumping = true; 
-        jumpStartHeight = rb.position.y; 
-        groundCooldown = 0.2f; 
+    public void StartJump()
+    {
+        isJumping = true;
+        jumpStartHeight = rb.position.y;
+        groundCooldown = 0.2f;
         isGrounded = false;
     }
 
     public void EndJump() => isJumping = false;
 
-    public void SetVelocity(Vector2 newVel) 
-    { 
-        velocity = newVel; 
-        if (newVel.y > 0) groundCooldown = 0.2f; 
+    public void SetVelocity(Vector2 newVel)
+    {
+        velocity = newVel;
+        if (newVel.y > 0) groundCooldown = 0.2f;
     }
 
     public Vector2 GetVelocity() => velocity;
