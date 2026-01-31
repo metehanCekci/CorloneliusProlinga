@@ -8,12 +8,13 @@ public class MovingPlatform : MonoBehaviour
     [SerializeField] private float speed = 2f;
 
     private Vector3 targetPosition;
-    private Transform playerTransform;
-    private Rigidbody2D playerRigidbody;
+    private Gravity playerGravity;
+    private Vector3 lastPlatformPosition;
 
     private void Start()
     {
         targetPosition = pointB.position;
+        lastPlatformPosition = transform.position;
     }
 
     private void FixedUpdate()
@@ -24,13 +25,17 @@ public class MovingPlatform : MonoBehaviour
         transform.position = Vector3.MoveTowards(currentPos, targetPosition, speed * Time.fixedDeltaTime);
         
         // Calculate how much the platform moved this frame
-        Vector3 deltaMovement = transform.position - currentPos;
+        Vector3 platformMovement = transform.position - lastPlatformPosition;
 
-        // Move player with the platform using Rigidbody2D
-        if (playerRigidbody != null)
+        // If player is on platform, add platform movement to player's velocity
+        if (playerGravity != null)
         {
-            playerRigidbody.MovePosition(playerRigidbody.position + (Vector2)deltaMovement);
+            Vector2 currentVelocity = playerGravity.GetVelocity();
+            Vector2 newVelocity = currentVelocity + (Vector2)platformMovement / Time.fixedDeltaTime;
+            playerGravity.SetVelocity(newVelocity);
         }
+
+        lastPlatformPosition = transform.position;
 
         // Switch direction when reaching target
         if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
@@ -43,8 +48,20 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            playerTransform = collision.transform;
-            playerRigidbody = collision.gameObject.GetComponent<Rigidbody2D>();
+            playerGravity = collision.gameObject.GetComponent<Gravity>();
+            if (playerGravity != null)
+            {
+                lastPlatformPosition = transform.position;
+            }
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player") && playerGravity == null)
+        {
+            playerGravity = collision.gameObject.GetComponent<Gravity>();
+            lastPlatformPosition = transform.position;
         }
     }
 
@@ -52,8 +69,7 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            playerTransform = null;
-            playerRigidbody = null;
+            playerGravity = null;
         }
     }
 }

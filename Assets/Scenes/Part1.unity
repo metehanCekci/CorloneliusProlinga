@@ -1320,6 +1320,7 @@ GameObject:
   m_Component:
   - component: {fileID: 360121833}
   - component: {fileID: 360121834}
+  - component: {fileID: 360121835}
   m_Layer: 6
   m_Name: box (6)
   m_TagString: Slope
@@ -1388,6 +1389,23 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.2750912, y: 0.042585537}
   m_EdgeRadius: 0
+--- !u!114 &360121835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360121832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbbf45840f61bd149a8ea7e85404ffa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FakeRailSystem
+  rotationSpeed: 8
+  resetRotationSpeed: 5
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &361957530
 GameObject:
   m_ObjectHideFlags: 0
