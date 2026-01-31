@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8396423276282642468}
   - component: {fileID: 8653923709104203633}
   - component: {fileID: 1589021402429969230}
+  - component: {fileID: 6337600770531026999}
   m_Layer: 0
   m_Name: Checkpoint
   m_TagString: Checkpoint
@@ -27,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 7460811239551659822}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.43, y: -1.907, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.3, z: 1}
+  m_LocalPosition: {x: 6.4425, y: -1.9185, z: 0}
+  m_LocalScale: {x: 1.034252, y: 1.006894, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -82,7 +83,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 3625043607559282579, guid: 19fb86013d8c24d6cb8410c0aadf30fa, type: 3}
+  m_Sprite: {fileID: 5837353791379205016, guid: 3d95ade5f75ca8b42b01a0e07ac382b6, type: 3}
   m_Color: {r: 1, g: 0.9487194, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -126,15 +127,37 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.011556625, y: -0.007235512}
+  m_Offset: {x: -0.01584655, y: 0.010391831}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 0.5}
+    oldSize: {x: 0.26, y: 0.26}
     newSize: {x: 1, y: 0.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.5316181, y: 0.6302388}
+  m_Size: {x: 0.34464067, y: 0.395207}
   m_EdgeRadius: 0
+--- !u!95 &6337600770531026999
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7460811239551659822}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: acd6a80dde986594a992fb1059a6c968, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
