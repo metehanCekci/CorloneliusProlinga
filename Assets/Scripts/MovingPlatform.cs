@@ -3,25 +3,37 @@ using UnityEngine;
 public class MovingPlatform : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private Transform pointA; // Start point
-    [SerializeField] private Transform pointB; // End point
-    [SerializeField] private float speed = 2f; // Movement speed
+    [SerializeField] private Transform pointA;
+    [SerializeField] private Transform pointB;
+    [SerializeField] private float speed = 2f;
 
     private Vector3 targetPosition;
+    private Transform playerTransform;
+    private Rigidbody2D playerRigidbody;
 
     private void Start()
     {
-        // Start moving towards point B
         targetPosition = pointB.position;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        // Move the platform towards the target position
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
+        Vector3 currentPos = transform.position;
+        
+        // Move platform
+        transform.position = Vector3.MoveTowards(currentPos, targetPosition, speed * Time.fixedDeltaTime);
+        
+        // Calculate how much the platform moved this frame
+        Vector3 deltaMovement = transform.position - currentPos;
 
-        // Switch target when the platform reaches the destination
-        if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
+        // Move player with the platform using Rigidbody2D
+        if (playerRigidbody != null)
+        {
+            playerRigidbody.MovePosition(playerRigidbody.position + (Vector2)deltaMovement);
+        }
+
+        // Switch direction when reaching target
+        if (Vector3.Distance(transform.position, targetPosition) < 0.05f)
         {
             targetPosition = targetPosition == pointA.position ? pointB.position : pointA.position;
         }
@@ -29,19 +41,19 @@ public class MovingPlatform : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Make the player a child of the platform to move with it
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(transform);
+            playerTransform = collision.transform;
+            playerRigidbody = collision.gameObject.GetComponent<Rigidbody2D>();
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        // Detach the player from the platform
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(null);
+            playerTransform = null;
+            playerRigidbody = null;
         }
     }
 }
