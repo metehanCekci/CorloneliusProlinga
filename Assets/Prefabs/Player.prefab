@@ -222,8 +222,8 @@ MonoBehaviour:
   railCooldown: 0
   activeRail: {fileID: 0}
   momentumTime: 0
-  dashSpeed: 2.5
-  dashDuration: 0.3
+  dashSpeed: 5
+  dashDuration: 0.15
   groundDashCooldown: 1
   wallClimbSpeed: 1
   wallSlideSpeed: 0.3

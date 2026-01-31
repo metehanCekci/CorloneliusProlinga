@@ -10,9 +10,12 @@ public class Gravity : MonoBehaviour
 
     [Header("Zemin, Tavan ve Rampa")]
     [SerializeField] private float groundCheckDist = 0.4f;
-    [SerializeField] private float ceilingCheckDist = 0.4f;
+    [SerializeField] private float ceilingCheckDist = 0.4f; // Tavan kontrol mesafesi
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private LayerMask ceilingLayer;
+    
+    // YENİ: Sadece tavanı algılayacak layer
+    [SerializeField] private LayerMask ceilingLayer; 
+    
     [SerializeField] private float sideOffset = 0.3f;
     [SerializeField] private float rotationSpeed = 15f;
 
@@ -38,7 +41,9 @@ public class Gravity : MonoBehaviour
         if (groundLayer == 0) groundLayer = LayerMask.GetMask("Ground");
         if (railLayer == 0) railLayer = LayerMask.GetMask("Rail");
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Wall");
-        if (ceilingLayer == 0) ceilingLayer = groundLayer;
+        
+        // Eğer Tavan layerı seçilmediyse otomatik olarak Ground veya Wall yapalım ki kod bozulmasın
+        if (ceilingLayer == 0) ceilingLayer = groundLayer; 
 
         rb.bodyType = RigidbodyType2D.Kinematic;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
@@ -61,14 +66,16 @@ public class Gravity : MonoBehaviour
         }
         else
         {
-            PerformGroundCheck();
+            
+            // Fiziği her zaman dik tutuyoruz (Görseli SlopeStabilizer hallediyor)
             transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.identity, Time.fixedDeltaTime * rotationSpeed);
         }
+        PerformGroundCheck();
 
         HandleVerticalMovement();
 
         // --- TAVAN KONTROLÜ ---
-        CheckCeilingCollision();
+        CheckCeilingCollision(); 
 
         // --- DİĞER KONTROLLER ---
         CheckWallCollision();
@@ -77,33 +84,47 @@ public class Gravity : MonoBehaviour
         rb.MovePosition(rb.position + velocity * Time.fixedDeltaTime);
     }
 
+    // --- GÜNCELLENMİŞ TAVAN KONTROLÜ ---
     private void CheckCeilingCollision()
     {
+        // Sadece yukarı çıkarken kontrol et
         if (velocity.y <= 0) return;
 
-        float iceriPayi = 0.15f;
+        // Kafanın üstünden iki ışın (Sağ ve Sol köşe)
+        // sideOffset kullanarak karakterin genişliği kadar açıyoruz ama biraz içeriden atıyoruz
+        // (Böylece duvara yapışık zıplarsan duvara kafa atmazsın)
+        float iceriPayi = 0.15f; 
+        
         Vector2 center = col.bounds.center;
         float topY = col.bounds.max.y;
 
         Vector2 topLeft = new Vector2(center.x - sideOffset + iceriPayi, topY);
         Vector2 topRight = new Vector2(center.x + sideOffset - iceriPayi, topY);
 
+        // Işınları SADECE ceilingLayer'a atıyoruz
         RaycastHit2D hitL = Physics2D.Raycast(topLeft, Vector2.up, ceilingCheckDist, ceilingLayer);
         RaycastHit2D hitR = Physics2D.Raycast(topRight, Vector2.up, ceilingCheckDist, ceilingLayer);
 
+        // Debug (Sarı = Boş, Kırmızı = Çarptı)
+        Debug.DrawRay(topLeft, Vector2.up * ceilingCheckDist, hitL.collider != null ? Color.red : Color.yellow);
+        Debug.DrawRay(topRight, Vector2.up * ceilingCheckDist, hitR.collider != null ? Color.red : Color.yellow);
+
         if (hitL.collider != null || hitR.collider != null)
         {
+            // Yukarı hızı anında kes (Küt diye dur)
             velocity.y = 0;
             isJumping = false;
 
+            // Kafa içine girdiyse aşağı it (Snap)
             RaycastHit2D hit = (hitL.collider != null) ? hitL : hitR;
             if (hitL.collider != null && hitR.collider != null)
             {
                 hit = (hitL.distance < hitR.distance) ? hitL : hitR;
             }
-
+            
             float distanceToCeiling = hit.distance;
-            if (distanceToCeiling < 0.05f)
+            // Eğer mesafe çok azsa (içine girdiyse) aşağı it
+            if (distanceToCeiling < 0.05f) 
             {
                 rb.position = new Vector2(rb.position.x, rb.position.y - (0.05f - distanceToCeiling));
             }
@@ -116,9 +137,10 @@ public class Gravity : MonoBehaviour
 
         float dir = Mathf.Sign(velocity.x);
         Vector2 origin = col.bounds.center;
-        float checkDist = col.bounds.extents.x + 0.1f;
+        float checkDist = col.bounds.extents.x + 0.1f; 
 
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * dir, checkDist, wallLayer);
+        Debug.DrawRay(origin, Vector2.right * dir * checkDist, hit.collider != null ? Color.blue : Color.yellow);
 
         if (hit.collider != null)
         {
@@ -128,30 +150,28 @@ public class Gravity : MonoBehaviour
 
     private void PerformGroundCheck()
     {
+        // SlopeStabilizer ile uyumlu olması için fiziksel raycast her zaman dik atılır
         Vector2 center = col.bounds.center;
         float bottomY = col.bounds.min.y;
+
+        // Ayakların biraz yukarısından başlatıyoruz (0.1f)
         Vector2 leftOrigin = new Vector2(center.x - sideOffset, bottomY + 0.1f);
         Vector2 rightOrigin = new Vector2(center.x + sideOffset, bottomY + 0.1f);
 
         RaycastHit2D hitL = Physics2D.Raycast(leftOrigin, Vector2.down, groundCheckDist, groundLayer);
         RaycastHit2D hitR = Physics2D.Raycast(rightOrigin, Vector2.down, groundCheckDist, groundLayer);
 
+        Debug.DrawRay(leftOrigin, Vector2.down * groundCheckDist, hitL ? Color.green : Color.red);
+        Debug.DrawRay(rightOrigin, Vector2.down * groundCheckDist, hitR ? Color.green : Color.red);
+
         RaycastHit2D hit = hitL ? hitL : hitR;
 
         if (hit.collider != null && velocity.y <= 0.1f)
         {
-            // === KRİTİK DEĞİŞİKLİK BURADA ===
-            // Havadaysak ve şimdi yere değdiysek Controller'a haber ver
-            if (!isGrounded && controller != null)
-            {
-                // Hız henüz sıfırlanmadı, bu değeri gönderiyoruz
-                controller.OnLand(velocity.y);
-            }
-            // ================================
-
             isGrounded = true;
-            velocity.y = 0; // Hız şimdi sıfırlanıyor
+            velocity.y = 0;
 
+            // Snap (Yere yapıştırma)
             float groundY = hit.point.y;
             float currentFeetY = col.bounds.min.y;
             float diff = groundY - currentFeetY;
@@ -194,6 +214,7 @@ public class Gravity : MonoBehaviour
         }
     }
 
+    // --- Public Metotlar ---
     public void StartJump()
     {
         isJumping = true;
