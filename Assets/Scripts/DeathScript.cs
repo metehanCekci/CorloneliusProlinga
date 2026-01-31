@@ -67,16 +67,22 @@ public class DeathScript : MonoBehaviour
         controller.enabled = false;
         gravity.SetVelocity(Vector3.zero);
 
-        // 3. EKRANI KARART (Özel fonksiyonu çağırıyoruz)
+        // OYUNU DURDUR
+        Time.timeScale = 0f;
+
+        // 3. EKRANI KARART (Unscaled time ile fade)
         yield return StartCoroutine(fadeSystem.FadeOutEkraniKarart(fadeDuration));
 
-        // 4. Karanlıkta bekle
-        yield return new WaitForSeconds(waitAtBlack);
+        // 4. Karanlıkta bekle (unscaled time ile bekle)
+        yield return new WaitForSecondsRealtime(waitAtBlack);
 
         // 5. Oyuncuyu Işınla ve Fizikleri Sıfırla
         RespawnLogic();
 
-        // 6. EKRANI AÇ (Özel fonksiyonu çağırıyoruz)
+        // OYUNU DEVAM ETTİR
+        Time.timeScale = 1f;
+
+        // 6. EKRANI AÇ (Unscaled time ile fade)
         yield return StartCoroutine(fadeSystem.FadeInEkraniAc(fadeDuration));
 
         // 7. Kontrolleri geri ver

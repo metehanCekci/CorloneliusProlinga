@@ -34,7 +34,7 @@ public class FadeScript : MonoBehaviour
         float counter = 0f;
         while (counter < sure)
         {
-            counter += Time.deltaTime;
+            counter += Time.unscaledDeltaTime;
             canvasGroup.alpha = Mathf.Lerp(0, 1, counter / sure);
             yield return null;
         }
@@ -47,7 +47,7 @@ public class FadeScript : MonoBehaviour
         float counter = 0f;
         while (counter < sure)
         {
-            counter += Time.deltaTime;
+            counter += Time.unscaledDeltaTime;
             canvasGroup.alpha = Mathf.Lerp(1, 0, counter / sure);
             yield return null;
         }

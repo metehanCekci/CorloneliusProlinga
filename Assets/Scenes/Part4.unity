@@ -4527,7 +4527,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mask Death Object (5)
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 161689358887916344, guid: 194ad87937d1d0543a006680e7f1781b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -5116,8 +5117,16 @@ PrefabInstance:
       value: 1.1078427
       objectReference: {fileID: 0}
     - target: {fileID: 4762317310704306161, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
+      propertyPath: m_Size.y
+      value: 0.39462173
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762317310704306161, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
       propertyPath: m_Offset.x
-      value: -0.37602314
+      value: -0.37602317
+      objectReference: {fileID: 0}
+    - target: {fileID: 4762317310704306161, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.069212705
       objectReference: {fileID: 0}
     - target: {fileID: 5896042881807419734, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
       propertyPath: m_Name
@@ -5125,11 +5134,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7039532643970290151, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.202
+      value: 0.097
       objectReference: {fileID: 0}
     - target: {fileID: 7039532643970290151, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.716
+      value: -0.611
       objectReference: {fileID: 0}
     - target: {fileID: 7039532643970290151, guid: 4b3b33f27ddeb4b4aa0c7adccd94565b, type: 3}
       propertyPath: m_LocalPosition.z
