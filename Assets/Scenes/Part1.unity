@@ -701,7 +701,9 @@ PrefabInstance:
       propertyPath: minSpeedForSound
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 338614824847852629, guid: 48be7935185b37548b47dcbd57620422, type: 3}
+    - {fileID: 97565999919548629, guid: 48be7935185b37548b47dcbd57620422, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
