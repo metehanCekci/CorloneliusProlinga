@@ -6459,6 +6459,10 @@ PrefabInstance:
       propertyPath: playerScript
       value: 
       objectReference: {fileID: 82182539}
+    - target: {fileID: 1665486733939634411, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1779856144816334044, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -6539,6 +6543,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3536157572639229999, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4115433997641202793, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5513578535705093996, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5931710426234500214, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -6546,6 +6562,14 @@ PrefabInstance:
     - target: {fileID: 5931710426234500214, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081876063940221341, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9132300656968231547, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
