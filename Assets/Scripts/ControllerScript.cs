@@ -649,7 +649,7 @@ public class ControllerScript : MonoBehaviour
             currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed, 
                 (dir != 0 ? accelRate : decelRate) * Time.deltaTime);
             
-            isSkating = currentMoveSpeed > walkSpeed;
+            isSkating = currentMoveSpeed > 1f;
 
             float targetVelX = dir * currentMoveSpeed;
 
