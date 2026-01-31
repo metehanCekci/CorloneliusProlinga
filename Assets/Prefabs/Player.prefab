@@ -218,8 +218,8 @@ MonoBehaviour:
   railCooldown: 0
   activeRail: {fileID: 0}
   momentumTime: 0
-  dashSpeed: 2.5
-  dashDuration: 0.3
+  dashSpeed: 5
+  dashDuration: 0.15
   groundDashCooldown: 1
   wallClimbSpeed: 1
   wallSlideSpeed: 0.3
@@ -235,7 +235,6 @@ MonoBehaviour:
   staminaWarningThreshold: 0.3
   requireGrabButton: 1
   DustEffectPrefab: {fileID: 1045170745345451740}
-  effectsManager: {fileID: 0}
 --- !u!114 &2714161747077474119
 MonoBehaviour:
   m_ObjectHideFlags: 0
