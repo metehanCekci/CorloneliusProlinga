@@ -83177,7 +83177,11 @@ MonoBehaviour:
   jumpForce: 10
   maxJumpHeight: 5
   groundCheckDist: 0.25
+  ceilingCheckDist: 0.4
   groundLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  ceilingLayer:
     serializedVersion: 2
     m_Bits: 0
   sideOffset: 0.35

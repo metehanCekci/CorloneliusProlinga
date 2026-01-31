@@ -129,8 +129,8 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: unmaskedSkateEquip
     originalName: 
-    pivot: {x: 0.6333334, y: -0.11111111}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -150,8 +150,8 @@ ScriptedImporter:
     uvTransform: {x: 50, y: 50}
   - name: Frame_1
     originalName: 
-    pivot: {x: 0.5294118, y: -0.114285715}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -171,8 +171,8 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 52}
   - name: Frame_2
     originalName: 
-    pivot: {x: 0.46153846, y: -0.02631579}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -192,8 +192,8 @@ ScriptedImporter:
     uvTransform: {x: 50, y: 4}
   - name: Frame_3
     originalName: 
-    pivot: {x: 0.47368422, y: -0.05}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
