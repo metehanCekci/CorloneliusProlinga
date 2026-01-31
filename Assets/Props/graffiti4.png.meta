@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 8d5f46c8bf64a93759ea0b530e668b19
+guid: 383c37755fe056ab6bf9ee2196ef9fc4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5348329947048962803
-    second: playButton_0
-  - first:
-      213: 6591286298271653515
-    second: playButton_1
-  - first:
-      213: 2871477136939885114
-    second: playButton_2
+      213: 745849404493034544
+    second: graffiti4_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -106,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: playButton_0
+      name: graffiti4_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 398
-        height: 278
+        x: 3
+        y: 2
+        width: 30
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -121,52 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d051094ff3ae6c5b0800000000000000
-      internalID: -5348329947048962803
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: playButton_1
-      rect:
-        serializedVersion: 2
-        x: 365
-        y: 94
-        width: 77
-        height: 141
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8e916557f3f87b50800000000000000
-      internalID: 6591286298271653515
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: playButton_2
-      rect:
-        serializedVersion: 2
-        x: 51
-        y: 0
-        width: 10
-        height: 25
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: a3225f70e3989d720800000000000000
-      internalID: 2871477136939885114
+      spriteID: 0347ebae41ac95a00800000000000000
+      internalID: 745849404493034544
       vertices: []
       indices: 
       edges: []
@@ -185,9 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      playButton_0: -5348329947048962803
-      playButton_1: 6591286298271653515
-      playButton_2: 2871477136939885114
+      graffiti4_0: 745849404493034544
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
