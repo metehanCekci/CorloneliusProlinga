@@ -9,8 +9,9 @@ public class MaskManager : MonoBehaviour
     [Header("Mask Ayarları")]
     [SerializeField] private bool isMaskOn = false;
 
-    [Header("Sıkışma Engelleme Ayarları")]
+    [Header("Referanslar")]
     [SerializeField] private GameObject player;
+    private SpriteRenderer playerSprite; 
 
     private InputActions inputActions;
     private InputAction maskAction;
@@ -25,14 +26,81 @@ public class MaskManager : MonoBehaviour
 
     // Hedef Rengi Cache'lemek için
     private Color maskOnColor;
-    private Color maskOffColor = Color.white; // Normal hali beyaz (renksiz)
+    private Color maskOffColor = Color.white; 
+
+    // --- OUTLINE İÇİN DEĞİŞKENLER (DEĞİŞTİ) ---
+    // MaterialPropertyBlock sildik, yerine Hayalet Obje referansları geldi
+    private GameObject outlineObject; 
+    private SpriteRenderer outlineSprite;
+    
+    [Header("Outline Ayarları")]
+    public Color outlineColor = Color.green; 
+    public float outlineThickness = 1f; // Bu artık büyüklük çarpanı olarak çalışacak (Örn: 1.15f)
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        
         ColorUtility.TryParseHtmlString("#40E0D8", out maskOnColor);
+        outlineColor = maskOnColor; 
 
         RefreshObjectList();
+    }
+
+    void Start() 
+    {
+        if (player != null)
+        {
+            playerSprite = player.GetComponentInChildren<SpriteRenderer>();
+            // PropBlock sildik, yerine Outline objesini yaratıyoruz
+            CreateOutlineObject(); 
+        }
+    }
+
+    // --- YENİ EKLENEN: GHOST OBJE YARATMA ---
+    private void CreateOutlineObject()
+    {
+        // 1. Yeni boş bir obje oluştur
+        outlineObject = new GameObject("PlayerOutline_Ghost");
+        // 2. Player ile aynı hiyerarşiye koy (Düzenli dursun)
+        outlineObject.transform.SetParent(player.transform.parent); 
+        
+        // 3. Sprite Renderer ekle
+        outlineSprite = outlineObject.AddComponent<SpriteRenderer>();
+        
+        // 4. Ayarları yap
+        outlineSprite.color = outlineColor; // Belirlediğin renk (#40E0D8)
+        outlineSprite.sortingLayerName = playerSprite.sortingLayerName;
+        outlineSprite.sortingOrder = playerSprite.sortingOrder - 1; // Karakterin ARKASINA koy
+        
+        // Default materyal kullan (Shader derdi yok)
+        outlineSprite.material = new Material(Shader.Find("Sprites/Default")); 
+        
+        // Başlangıçta gizle
+        outlineObject.SetActive(false);
+    }
+
+    // --- YENİ EKLENEN: SÜREKLİ TAKİP ---
+    void Update()
+    {
+        // Eğer outline açıksa (aktifse), sürekli ana karakteri kopyalasın
+        if (outlineObject != null && outlineObject.activeSelf && playerSprite != null)
+        {
+            // Pozisyon ve Dönüşü eşitle
+            outlineObject.transform.position = player.transform.position;
+            outlineObject.transform.rotation = player.transform.rotation;
+            
+            // Büyüklüğü ayarla (Karakterden biraz daha büyük olsun ki arkadan taşsın)
+            // 0.15f ekleyerek %15 daha büyük yapıyoruz (outlineThickness burada işe yarıyor)
+            float scaleMultiplier = 1f + (outlineThickness * 0.15f); 
+            outlineObject.transform.localScale = player.transform.localScale * scaleMultiplier;
+            
+            // Sprite ve Flip durumunu anlık kopyala (Animasyon aynen görünür)
+            outlineSprite.sprite = playerSprite.sprite;
+            outlineSprite.flipX = playerSprite.flipX;
+            outlineSprite.flipY = playerSprite.flipY;
+        }
     }
 
     public void RefreshObjectList()
@@ -40,11 +108,6 @@ public class MaskManager : MonoBehaviour
         allMaskObjects.Clear();
         allMaskObjects.AddRange(Object.FindObjectsByType<MaskObject>(FindObjectsSortMode.None));
         Debug.Log("Sistem: " + allMaskObjects.Count + " adet obje takip listesine alındı.");
-
-        foreach (var obj in allMaskObjects)
-        {
-            Debug.Log($"Tracked Object: {obj.gameObject.name}, WorldType: {obj.GetWorldType()}");
-        }
     }
 
     private void OnEnable()
@@ -73,27 +136,27 @@ public class MaskManager : MonoBehaviour
         isMaskOn = !isMaskOn;
         Debug.Log("MASKMGR: Maske durumu değiştirildi -> " + (isMaskOn ? "Açık" : "Kapalı"));
         onMaskChanged?.Invoke(isMaskOn);
-        // --- IŞIK VE RENK DEĞİŞİMİ ---
+
+        // --- OUTLINE GÜNCELLEME ---
+        UpdateOutline(isMaskOn); 
+
         if (lightManager != null)
         {
-            if (isMaskOn)
-            {
-                // MASKE AÇIK: Intensity 2.5, Renk #00FF08 (Yeşil), Süre 0.5sn (Hızlı geçiş)
-                lightManager.ChangeAtmosphere(2.5f, maskOnColor, 0.5f);
-            }
-            else
-            {
-                // MASKE KAPALI: Intensity 1.0, Renk Beyaz, Süre 0.5sn
-                lightManager.ChangeAtmosphere(1f, maskOffColor, 0.5f);
-            }
+            if (isMaskOn) lightManager.ChangeAtmosphere(2.5f, maskOnColor, 0.5f);
+            else lightManager.ChangeAtmosphere(1f, maskOffColor, 0.5f);
         }
 
-        // --- EKRAN BOZULMA EFEKTİ ---
-        if (effectsManager != null)
+        if (effectsManager != null) effectsManager.VurusEfekti(1f);
+    }
+
+    // --- GÜNCELLENEN FONKSİYON ---
+    // Artık Shader parametresi değil, objenin kendisini açıp kapatıyor
+    private void UpdateOutline(bool active)
+    {
+        if (outlineObject != null)
         {
-            effectsManager.VurusEfekti(1f); // 1f = Tam güç efekt (Maksimum bozulma)
+            outlineObject.SetActive(active);
         }
-
     }
 
     private bool IsInsideAnyWall()
@@ -104,7 +167,7 @@ public class MaskManager : MonoBehaviour
         if (playerCol == null) return false;
 
         Bounds pBounds = playerCol.bounds;
-        pBounds.Expand(0.6f); // Kenar kaçaklarını engellemek için genişletme
+        pBounds.Expand(0.6f); 
 
         foreach (var obj in allMaskObjects)
         {
@@ -122,16 +185,20 @@ public class MaskManager : MonoBehaviour
         }
         return false;
     }
+
     public void ResetMaskToDefault()
     {
-        // Eğer maske zaten kapalıysa (false) işlem yapma, gereksiz olay tetikleme
         if (!isMaskOn) return;
 
         isMaskOn = false;
         Debug.Log("MASKMGR: Ölüm sonrası maske sıfırlandı -> Kapalı");
 
-        // Tüm objelere maskenin kapandığını bildir
         onMaskChanged?.Invoke(isMaskOn);
+        
+        if (lightManager != null) lightManager.ChangeAtmosphere(1f, maskOffColor, 0.1f); // Hızlı reset
+
+        // Outline'ı da sıfırla
+        UpdateOutline(false);
     }
 
     public bool IsMaskActive() => isMaskOn;

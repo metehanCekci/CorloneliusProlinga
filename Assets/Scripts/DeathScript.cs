@@ -13,13 +13,15 @@ public class DeathScript : MonoBehaviour
     private Vector3 currentRespawnPosition;
     private ControllerScript controller;
     private Gravity gravity;
+    private Animator animator; // <--- 1. EKLENEN: Animator referansı
     private bool isDead = false;
 
     void Start()
     {
         controller = GetComponent<ControllerScript>();
         gravity = GetComponent<Gravity>();
-
+        // <--- 2. EKLENEN: Animator'ı bul (Genelde child objededir)
+        animator = GetComponentInChildren<Animator>();
         // İlk spawn noktasını ayarla
         currentRespawnPosition = initialRespawnPoint != null ? initialRespawnPoint.position : transform.position;
     }
@@ -109,30 +111,34 @@ public class DeathScript : MonoBehaviour
 
     private void RespawnLogic()
     {
-        // 1. ÖNCE Controller'daki ray bilgilerini temizle
-        // Bunu yapınca RailSystem'deki Update bloğundaki "if (player.activeRail != this)" çalışacak
-        // ve ray sistemi karakteri bırakacak.
-        if (controller.activeRail != null)
-        {
-            // Eğer referans hala duruyorsa nezaketen bırak diyelim
-            controller.activeRail.ForceDisconnect();
-        }
-
+        // 1. Ray ve Fizik Resetleme (Önceki kodlardan)
+        if (controller.activeRail != null) controller.activeRail.ForceDisconnect();
         controller.isGrinding = false;
-        controller.activeRail = null; // En kritik satır burası!
+        controller.activeRail = null;
         controller.railCooldown = 0.5f;
         controller.momentumTime = 0f;
         controller.ResetSpeed();
         controller.ResetDash();
 
-        // 2. SONRA pozisyonu değiştir
-        // Artık ray sistemi karakteri tutmadığı için uçma olmayacak.
+        // 2. Pozisyon Resetleme
         transform.position = currentRespawnPosition;
         gravity.SetVelocity(Vector3.zero);
 
+        // 3. Maske Resetleme
         if (MaskManager.Instance != null)
         {
             MaskManager.Instance.ResetMaskToDefault();
+        }
+
+        // --- 4. EKLENEN: ANIMATOR RESETLEME ---
+        if (animator != null)
+        {
+            // Rebind: Animator'ı tamamen sıfırlar (Entry state'e döner)
+            animator.Rebind();
+
+            // Update(0f): Değişikliğin bir sonraki kareyi beklemeden 
+            // hemen şimdi uygulanmasını sağlar. Karakter T-Pose'da kalmaz.
+            animator.Update(0f);
         }
     }
 }
