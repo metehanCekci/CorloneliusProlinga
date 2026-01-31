@@ -19,10 +19,18 @@ public class MaskManager : MonoBehaviour
     public delegate void OnMaskChanged(bool isOn);
     public event OnMaskChanged onMaskChanged;
 
+    [Header("Efektler")]
+    public EffectsManager effectsManager;
+    public LightManager lightManager;
+
+    // Hedef Rengi Cache'lemek için
+    private Color maskOnColor;
+    private Color maskOffColor = Color.white; // Normal hali beyaz (renksiz)
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+        ColorUtility.TryParseHtmlString("#40E0D8", out maskOnColor);
 
         RefreshObjectList();
     }
@@ -65,6 +73,27 @@ public class MaskManager : MonoBehaviour
         isMaskOn = !isMaskOn;
         Debug.Log("MASKMGR: Maske durumu değiştirildi -> " + (isMaskOn ? "Açık" : "Kapalı"));
         onMaskChanged?.Invoke(isMaskOn);
+        // --- IŞIK VE RENK DEĞİŞİMİ ---
+        if (lightManager != null)
+        {
+            if (isMaskOn)
+            {
+                // MASKE AÇIK: Intensity 2.5, Renk #00FF08 (Yeşil), Süre 0.5sn (Hızlı geçiş)
+                lightManager.ChangeAtmosphere(2.5f, maskOnColor, 0.5f);
+            }
+            else
+            {
+                // MASKE KAPALI: Intensity 1.0, Renk Beyaz, Süre 0.5sn
+                lightManager.ChangeAtmosphere(1f, maskOffColor, 0.5f);
+            }
+        }
+
+        // --- EKRAN BOZULMA EFEKTİ ---
+        if (effectsManager != null)
+        {
+            effectsManager.VurusEfekti(1f); // 1f = Tam güç efekt (Maksimum bozulma)
+        }
+
     }
 
     private bool IsInsideAnyWall()

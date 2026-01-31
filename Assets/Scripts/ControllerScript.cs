@@ -8,8 +8,8 @@ public class ControllerScript : MonoBehaviour
     public float midSpeed = 3f;
     public float maxSpeed = 5f;
     public float currentMoveSpeed = 1f;
-    [SerializeField] private float accelerationTime = 2f; 
-    [SerializeField] private float decelerationTime = 0.5f; 
+    [SerializeField] private float accelerationTime = 2f;
+    [SerializeField] private float decelerationTime = 0.5f;
 
     [Header("Durumlar")]
     public bool isGrinding = false;
@@ -23,7 +23,7 @@ public class ControllerScript : MonoBehaviour
     [HideInInspector] public float railCooldown = 0f;
     [HideInInspector] public RailSystem activeRail = null;
     public const float RAIL_COOLDOWN_TIME = 0.5f;
-    public float momentumTime = 0f; 
+    public float momentumTime = 0f;
     private float storedMoveSpeed;
 
     [Header("Dash Ayarları")]
@@ -47,10 +47,10 @@ public class ControllerScript : MonoBehaviour
     [SerializeField] private LayerMask wallLayer;
     [SerializeField] private float wallCheckDistance = 0.1f;
     [SerializeField] private float staminaWarningThreshold = 0.3f; // Stamina bu yüzdenin altına düşünce uyarı
-    
+
     // Celeste modu için: true = tuşa basılı tutmak gerekir, false = otomatik tutunma
     [SerializeField] private bool requireGrabButton = true;
-    
+
     private float currentStamina;
     private bool isOnWall = false;
     private int wallDirection = 0; // -1 = sol duvar, 1 = sağ duvar
@@ -69,7 +69,7 @@ public class ControllerScript : MonoBehaviour
     private Collider2D col; // BoxCollider2D veya CapsuleCollider2D
     private bool hasGrabAction = false;
     private PlayerAnimator playerAnimator;
-
+    
     void OnEnable()
     {
         inputActions = new InputActions();
@@ -79,13 +79,13 @@ public class ControllerScript : MonoBehaviour
         pushAction = inputActions.Player.Push;
         brakeAction = inputActions.Player.Brake;
         dashAction = inputActions.Player.Dash;
-        
+
         // Grab action opsiyonel - InputActions'da varsa kullan
-        try 
-        { 
-            grabAction = inputActions.Player.Grab; 
+        try
+        {
+            grabAction = inputActions.Player.Grab;
             hasGrabAction = true;
-        } 
+        }
         catch { hasGrabAction = false; }
 
         brakeAction.performed += OnBrake;
@@ -100,11 +100,11 @@ public class ControllerScript : MonoBehaviour
         juice = GetComponentInChildren<JuiceEffect>();
         col = GetComponent<Collider2D>(); // Her türlü 2D collider çalışır
         currentStamina = maxStamina;
-        
+
         // Sprite referansı al
         playerSprite = GetComponentInChildren<SpriteRenderer>();
         if (playerSprite != null) originalColor = playerSprite.color;
-        
+
         if (wallLayer == 0) wallLayer = LayerMask.GetMask("Ground");
 
         playerAnimator = GetComponentInChildren<PlayerAnimator>();
@@ -123,7 +123,7 @@ public class ControllerScript : MonoBehaviour
         bool grounded = IsGrounded();
         if (grounded && !wasGrounded)
         {
-            HasDash = true; 
+            HasDash = true;
             HasSecondJump = true;
             juice?.ApplySquish();
         }
@@ -135,7 +135,7 @@ public class ControllerScript : MonoBehaviour
             currentStamina = Mathf.MoveTowards(currentStamina, maxStamina, staminaRecoveryRate * Time.deltaTime);
             ResetStaminaWarning();
         }
-        
+
         // Stamina uyarısı (düşükken kırmızı yanıp sönme)
         UpdateStaminaWarning();
 
@@ -149,12 +149,12 @@ public class ControllerScript : MonoBehaviour
             {
                 IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
-                
+
                 // Dash bitince sadece X velocity'yi geri yükle, Y'yi koru
                 Vector3 post = gravity.GetVelocity();
                 post.x = preDashVelocity.x;
                 gravity.SetVelocity(post);
-                
+
                 // Dash bitti ve yerdeysen dash'i geri ver
                 if (IsGrounded())
                 {
@@ -164,14 +164,14 @@ public class ControllerScript : MonoBehaviour
         }
 
         if (isGrinding) return;
-        
+
         // Wall climb kontrolü (yerdeyken de çalışır)
         if (isOnWall)
         {
             HandleWallClimb();
             return;
         }
-        
+
         ApplyMovement();
     }
 
@@ -202,7 +202,7 @@ public class ControllerScript : MonoBehaviour
         }
 
         int detectedWall = DetectWall();
-        
+
         if (detectedWall != 0)
         {
             if (!isOnWall)
@@ -219,13 +219,13 @@ public class ControllerScript : MonoBehaviour
     private int DetectWall()
     {
         if (col == null) return 0;
-        
+
         Vector2 rightOrigin = new Vector2(col.bounds.max.x, col.bounds.center.y);
         Vector2 leftOrigin = new Vector2(col.bounds.min.x, col.bounds.center.y);
-        
+
         RaycastHit2D rightHit = Physics2D.Raycast(rightOrigin, Vector2.right, wallCheckDistance, wallLayer);
         RaycastHit2D leftHit = Physics2D.Raycast(leftOrigin, Vector2.left, wallCheckDistance, wallLayer);
-        
+
         // Celeste modu: grab tuşuna basıldıysa yöne bakmadan duvara tutun
         if (requireGrabButton && isGrabbing)
         {
@@ -233,20 +233,20 @@ public class ControllerScript : MonoBehaviour
             if (leftHit.collider != null) return -1;
             return 0;
         }
-        
+
         float moveDir = moveAction.ReadValue<float>();
-        
+
         // Normal mod: Hareket yönündeki duvara öncelik ver
         if (rightHit.collider != null && moveDir > 0) return 1;
         if (leftHit.collider != null && moveDir < 0) return -1;
-        
+
         // Hareket input yoksa her iki duvara da tutunabilir
         if (moveDir == 0)
         {
             if (rightHit.collider != null) return 1;
             if (leftHit.collider != null) return -1;
         }
-        
+
         return 0;
     }
 
@@ -256,7 +256,7 @@ public class ControllerScript : MonoBehaviour
         wallDirection = direction;
         HasDash = true;
         HasSecondJump = true;
-        
+
         // Duvara tutunduğunda Y hızını sıfırla/yavaşlat
         Vector3 v = gravity.GetVelocity();
         v.y = 0;
@@ -280,14 +280,14 @@ public class ControllerScript : MonoBehaviour
             if (Keyboard.current.wKey.isPressed) verticalInput = 1f;
             else if (Keyboard.current.sKey.isPressed) verticalInput = -1f;
         }
-        
+
         // Sadece aşağı kayarken veya tutunurken ground check yap
         if (verticalInput <= 0 && IsGrounded())
         {
             ExitWall();
             return;
         }
-        
+
         // Yukarı tırmanırken duvarın üstüne çıktık mı kontrol et
         if (verticalInput > 0)
         {
@@ -302,9 +302,9 @@ public class ControllerScript : MonoBehaviour
                 return;
             }
         }
-        
+
         Vector3 v = Vector3.zero; // Tüm velocity'yi sıfırla - sadece wall climb hareketi
-        
+
         if (verticalInput > 0 && currentStamina > 0)
         {
             // Yukarı tırmanma
@@ -322,9 +322,9 @@ public class ControllerScript : MonoBehaviour
             v.y = -wallSlideSpeed;
             currentStamina -= Time.deltaTime * 0.5f;
         }
-        
+
         gravity.SetVelocity(v);
-        
+
         // Sprite yönü
         transform.localScale = new Vector3(-wallDirection, 1, 1);
     }
@@ -332,13 +332,13 @@ public class ControllerScript : MonoBehaviour
     public bool IsOnWall() => isOnWall;
     public int GetWallDirection() => wallDirection;
     public float GetStaminaPercent() => currentStamina / maxStamina;
-    
+
     private void UpdateStaminaWarning()
     {
         if (playerSprite == null) return;
-        
+
         float staminaPercent = currentStamina / maxStamina;
-        
+
         if (isOnWall && staminaPercent < staminaWarningThreshold)
         {
             // Kırmızı yanıp sönme
@@ -351,7 +351,7 @@ public class ControllerScript : MonoBehaviour
             ResetStaminaWarning();
         }
     }
-    
+
     private void ResetStaminaWarning()
     {
         if (playerSprite != null)
@@ -371,7 +371,7 @@ public class ControllerScript : MonoBehaviour
             PerformWallJump();
             return;
         }
-        
+
         if (isGrinding)
         {
             if (activeRail != null) activeRail.FinishGrind(false);
@@ -402,27 +402,27 @@ public class ControllerScript : MonoBehaviour
         {
             extraYBoost = wallClimbJumpBoost;
         }
-        
+
         // Duvar yönünü kaydet (ExitWall'dan önce)
         int savedWallDir = wallDirection;
-        
+
         // Yatay input kontrolü
         float horizontalInput = moveAction.ReadValue<float>();
         float jumpXForce = wallJumpForceX;
         float jumpYForce = wallJumpForceY + extraYBoost;
-        
+
         // Input yönünü belirle
         int inputDir = 0;
         if (horizontalInput > 0.3f) inputDir = 1;
         else if (horizontalInput < -0.3f) inputDir = -1;
-        
+
         // Auto climb modunda: duvara tutunmak için zaten o yöne basıyoruz
         // Bu yüzden "zıt yöne basılı" = input yok veya tam zıt yön
         // Celeste modunda: grab tuşuyla tutunuyoruz, input bağımsız
-        
+
         bool isOppositeDirection = false;
         bool isSameDirection = false;
-        
+
         if (requireGrabButton)
         {
             // Celeste modu - input doğrudan kullanılır
@@ -437,9 +437,9 @@ public class ControllerScript : MonoBehaviour
             isOppositeDirection = (inputDir == -savedWallDir);
             isSameDirection = (inputDir == 0); // Input yoksa yukarı zıpla
         }
-        
+
         Debug.Log($"WallJump: wallDir={savedWallDir}, inputDir={inputDir}, opposite={isOppositeDirection}, same={isSameDirection}, requireGrab={requireGrabButton}");
-        
+
         if (isOppositeDirection)
         {
             // Zıt yöne basılı - güçlü fırlatma (wall kick)
@@ -459,9 +459,9 @@ public class ControllerScript : MonoBehaviour
             // Normal wall jump
             Debug.Log("NORMAL JUMP");
         }
-        
+
         ExitWall();
-        
+
         // Duvardan zıt yöne fırlat (her zaman duvardan uzağa)
         Vector3 jumpVel = new Vector3(
             -savedWallDir * jumpXForce,
@@ -469,13 +469,13 @@ public class ControllerScript : MonoBehaviour
             0
         );
         gravity.SetVelocity(jumpVel);
-        
+
         // Sprite yönünü değiştir
         transform.localScale = new Vector3(-savedWallDir, 1, 1);
-        
+
         juice?.ApplyStretch();
         SpawnDust();
-        
+
         // Wall jump sonrası kısa süre duvar kontrolü yapma
         StartCoroutine(WallJumpCooldown());
     }
@@ -506,7 +506,7 @@ public class ControllerScript : MonoBehaviour
     private void OnDash(InputAction.CallbackContext context)
     {
         if (!HasDash || IsDashing || dashCooldownTimer > 0) return;
-        
+
         // Raildeyken dash
         if (isGrinding && activeRail != null)
         {
@@ -515,10 +515,10 @@ public class ControllerScript : MonoBehaviour
             juice?.ApplyDashStretch();
             return;
         }
-        
+
         // Yerde dash atıyorsan cooldown başlat
         bool wasGrounded = IsGrounded();
-        
+
         // Normal dash
         HasDash = false;
         IsDashing = true;
@@ -526,12 +526,13 @@ public class ControllerScript : MonoBehaviour
         storedMoveSpeed = currentMoveSpeed;
         preDashVelocity = gravity.GetVelocity(); // Dash öncesi velocity'yi kaydet
         momentumTime = 0f; // Dash başlarken momentum'u sıfırla
-        
+
         // Yerde dash attıysan cooldown koy
         if (wasGrounded)
         {
             dashCooldownTimer = groundDashCooldown;
         }
+        
 
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
@@ -539,10 +540,10 @@ public class ControllerScript : MonoBehaviour
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
-    public void ResetDash() 
-    { 
-        IsDashing = false; 
-        dashTimer = 0f; 
+    public void ResetDash()
+    {
+        IsDashing = false;
+        dashTimer = 0f;
         HasDash = true;
         HasSecondJump = true;
     }
@@ -563,13 +564,13 @@ public class ControllerScript : MonoBehaviour
         activeRail = null;
         railCooldown = RAIL_COOLDOWN_TIME;
         momentumTime = 0f; // Momentum bypass etme - normal fizik
-        
+
         // Çıkış yönüne göre sprite'ı ayarla ve kilitle
         if (Mathf.Abs(vel.x) > 0.1f)
         {
             transform.localScale = new Vector3(Mathf.Sign(vel.x), 1, 1);
         }
-        
+
         if (gravity != null) gravity.SetVelocity(vel);
     }
 
@@ -578,35 +579,35 @@ public class ControllerScript : MonoBehaviour
         if (IsDashing)
         {
             // Dash sırasında fren yapıyor olamaz
-            isBraking = false; 
-            
+            isBraking = false;
+
             // Dash collision check - birden fazla ray ile köşeleri de kontrol et
             float dashDistance = dashSpeed * Time.deltaTime;
             float xEdge = dashDirection > 0 ? col.bounds.max.x : col.bounds.min.x;
-            
+
             // 3 ray: üst, orta, alt
             Vector2 topOrigin = new Vector2(xEdge, col.bounds.max.y - 0.05f);
             Vector2 midOrigin = new Vector2(xEdge, col.bounds.center.y);
             Vector2 botOrigin = new Vector2(xEdge, col.bounds.min.y + 0.05f);
-            
+
             RaycastHit2D topHit = Physics2D.Raycast(topOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
             RaycastHit2D midHit = Physics2D.Raycast(midOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
             RaycastHit2D botHit = Physics2D.Raycast(botOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
-            
+
             // Debug ray çiz
             Debug.DrawRay(topOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
             Debug.DrawRay(midOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
             Debug.DrawRay(botOrigin, Vector2.right * dashDirection * (dashDistance + 0.1f), Color.yellow);
-            
+
             // Herhangi biri çarptıysa dur
             RaycastHit2D hit = topHit.collider != null ? topHit : (midHit.collider != null ? midHit : botHit);
-            
+
             if (hit.collider != null)
             {
                 // Duvara çarptık - dash'i bitir ve duvara yapış
                 float stopX = hit.point.x - (dashDirection > 0 ? col.bounds.extents.x : -col.bounds.extents.x);
                 transform.position = new Vector3(stopX, transform.position.y, transform.position.z);
-                
+
                 IsDashing = false;
                 currentMoveSpeed = storedMoveSpeed;
                 Vector3 stopVel = gravity.GetVelocity();
@@ -614,12 +615,12 @@ public class ControllerScript : MonoBehaviour
                 gravity.SetVelocity(stopVel);
                 return;
             }
-            
+
             Vector3 dashVel = gravity.GetVelocity();
             dashVel.x = dashDirection * dashSpeed;
-            dashVel.y = 0; 
+            dashVel.y = 0;
             gravity.SetVelocity(dashVel);
-            return; 
+            return;
         }
 
         float dir = moveAction.ReadValue<float>();
@@ -646,9 +647,9 @@ public class ControllerScript : MonoBehaviour
             float accelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, accelerationTime);
             float decelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, decelerationTime);
 
-            currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed, 
+            currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed,
                 (dir != 0 ? accelRate : decelRate) * Time.deltaTime);
-            
+
             isSkating = currentMoveSpeed > 1f;
 
             float targetVelX = dir * currentMoveSpeed;
