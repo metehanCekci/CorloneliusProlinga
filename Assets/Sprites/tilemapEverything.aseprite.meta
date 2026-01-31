@@ -3475,10 +3475,10 @@ ScriptedImporter:
     customData: 
     rect:
       serializedVersion: 2
-      x: 78
+      x: 157
       y: 444
-      width: 26
-      height: 129
+      width: 59
+      height: 158
     spriteID: 6b0503ab0cc018d4fa200c4474382a91
     spriteBone: []
     spriteOutline: []
@@ -3690,6 +3690,27 @@ ScriptedImporter:
       width: 16
       height: 16
     spriteID: cdb30df7ad8e3884a83c23c19f89d1f2
+    spriteBone: []
+    spriteOutline: []
+    vertices: []
+    spritePhysicsOutline: []
+    indices: 
+    edges: []
+    tessellationDetail: 0
+    uvTransform: {x: 0, y: 0}
+  - name: tilemapEverything_169
+    originalName: 
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
+    border: {x: 0, y: 0, z: 0, w: 0}
+    customData: 
+    rect:
+      serializedVersion: 2
+      x: 212
+      y: 940
+      width: 65
+      height: 16
+    spriteID: b566ef8b7a2ecb041b5d1f9deb6f4a76
     spriteBone: []
     spriteOutline: []
     vertices: []
