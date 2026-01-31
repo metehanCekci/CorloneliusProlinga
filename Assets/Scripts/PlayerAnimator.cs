@@ -78,6 +78,9 @@ public class PlayerAnimator : MonoBehaviour
     public void OnJump()
     {
         if (animator != null)
+        // Önce parametreleri güncelle
+        UpdateAnimatorParameters();
+        if (animator != null)
         {
             animator.SetTrigger(jumpHash);
         }
@@ -94,7 +97,7 @@ public class PlayerAnimator : MonoBehaviour
         UpdateAnimatorParameters();
     }
     
-    private void UpdateAnimatorParameters()
+    public void UpdateAnimatorParameters()
     {
         Vector3 velocity = gravity.GetVelocity();
         
