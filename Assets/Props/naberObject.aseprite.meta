@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2f4138290596bfb409623591eb5e420d
+guid: c03cfd63eaa12e809a91b9b78204ce07
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,8 +129,8 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: naberObject
     originalName: 
-    pivot: {x: 0.5, y: -0.625}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -139,7 +139,7 @@ ScriptedImporter:
       y: 4
       width: 24
       height: 16
-    spriteID: 9f9a8bb5a961e3544b6bcc9136542952
+    spriteID: 616de1d863fa569b58b76ef49b60c130
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -171,7 +171,7 @@ ScriptedImporter:
         y: 10
         width: 24
         height: 16
-      spriteId: 9f9a8bb5a961e3544b6bcc9136542952
+      spriteId: 616de1d863fa569b58b76ef49b60c130
     linkedCells: []
     tileCells: []
     tileSetIndex: 0
