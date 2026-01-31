@@ -29,6 +29,11 @@ public class ControllerScript : MonoBehaviour
     public const float RAIL_COOLDOWN_TIME = 0.5f;
     public float momentumTime = 0f;
     private float storedMoveSpeed;
+    
+    // --- YENİ EKLENEN: Rail Coyote Time ---
+    [Header("Coyote Time Ayarları")]
+    [SerializeField] private float railCoyoteTime = 0.15f; // Raydan çıktıktan sonra zıplamak için tanınan süre
+    private float railCoyoteTimer = 0f;
 
     [Header("Dash Ayarları")]
     [SerializeField] private float dashSpeed = 15f;
@@ -109,11 +114,14 @@ public class ControllerScript : MonoBehaviour
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
+        
+        // --- Rail Coyote Timer Güncellemesi ---
+        if (railCoyoteTimer > 0) railCoyoteTimer -= Time.deltaTime;
 
         isGrabbing = hasGrabAction && grabAction.ReadValue<float>() > 0.5f;
         bool grounded = IsGrounded();
 
-        // --- SES KONTROLÜ (GÜNCELLENDİ) ---
+        // --- SES KONTROLÜ ---
         HandleSkateSound(grounded);
 
         if (grounded && !isOnWall)
@@ -144,7 +152,7 @@ public class ControllerScript : MonoBehaviour
         if (isOnWall)
         {
             HandleWallClimb();
-            if (soundManager != null) soundManager.StopLoop(); // Duvardaysak sesi kes
+            if (soundManager != null) soundManager.StopLoop(); 
             return;
         }
 
@@ -163,35 +171,28 @@ public class ControllerScript : MonoBehaviour
         }
     }
 
-    // --- YENİ SES MANTIĞI ---
     private void HandleSkateSound(bool grounded)
     {
         if (soundManager == null) return;
 
-        // 1. ÖNCELİK: GRIND
         if (isGrinding)
         {
             soundManager.StartRailGrind();
             return;
         }
 
-        // 2. ÖNCELİK: FREN (BRAKE)
-        // Yerdeysek ve fren yapıyorsak
         if (isBraking && grounded)
         {
-            soundManager.StartBraking(); // Yeni brake fonksiyonunu çağır
+            soundManager.StartBraking(); 
             return;
         }
 
-        // 3. ÖNCELİK: HAVA VEYA DUVAR (Sessiz)
         if (!grounded || isOnWall)
         {
             soundManager.StopLoop();
             return;
         }
 
-        // 4. ÖNCELİK: NORMAL KAYMA
-        // Buraya gelindiyse fren yapılmıyor demektir, otomatik olarak Skate sesine döner.
         float absSpeed = Mathf.Abs(gravity.GetVelocity().x);
         if (absSpeed > 0.1f)
         {
@@ -310,13 +311,31 @@ public class ControllerScript : MonoBehaviour
     private void OnJumpStart(InputAction.CallbackContext context)
     {
         if (isOnWall) { PerformWallJump(); if (soundManager != null) soundManager.PlayOllie(); return; }
-        if (isGrinding)
+
+        // --- GÜNCELLENEN KISIM: Coyote Time Kontrolü ---
+        // Eğer grind yapıyorsak VEYA coyote time içindeysek zıpla
+        if (isGrinding || railCoyoteTimer > 0)
         {
-            if (activeRail != null) activeRail.FinishGrind(false);
-            gravity.StartJump(); juice?.ApplyStretch(); SpawnDust(); playerAnimator?.OnJump();
+            // Coyote time'ı tüket
+            railCoyoteTimer = 0f;
+
+            // Eğer hala grind üzerindeysek (manuel zıplama) raydan kopar
+            if (isGrinding && activeRail != null) 
+            {
+                activeRail.FinishGrind(false);
+            }
+            // Değilsek zaten fiziksel olarak raydan çıkmışızdır (Coyote Time işliyor),
+            // sadece zıplama kuvvetini uygula.
+
+            gravity.StartJump(); 
+            juice?.ApplyStretch(); 
+            SpawnDust(); 
+            playerAnimator?.OnJump();
             if (soundManager != null) soundManager.PlayOllie();
             return;
         }
+
+        // Normal zemin veya Double Jump
         if (IsGrounded() || HasSecondJump)
         {
             if (!IsGrounded()) HasSecondJump = false;
@@ -411,12 +430,22 @@ public class ControllerScript : MonoBehaviour
     public void EnterRail(float entrySpeed, RailSystem rail)
     {
         isGrinding = true; activeRail = rail; HasDash = true; HasSecondJump = true; juice?.ApplySquish();
+        // Grind'a girince coyote time'ı sıfırla
+        railCoyoteTimer = 0f;
         if (soundManager != null) soundManager.StartRailGrind();
     }
 
     public void ExitRail(Vector3 vel)
     {
-        isGrinding = false; activeRail = null; railCooldown = RAIL_COOLDOWN_TIME; momentumTime = 0f;
+        isGrinding = false; 
+        activeRail = null; 
+        railCooldown = RAIL_COOLDOWN_TIME; 
+        momentumTime = 0f;
+
+        // --- GÜNCELLENEN KISIM: Coyote Time Başlat ---
+        // Raydan çıktığımız an sayacı başlatıyoruz.
+        railCoyoteTimer = railCoyoteTime;
+
         if (Mathf.Abs(vel.x) > 0.1f) transform.localScale = new Vector3(Mathf.Sign(vel.x), 1, 1);
         if (gravity != null) gravity.SetVelocity(vel);
         if (soundManager != null) soundManager.StopLoop();
@@ -455,7 +484,6 @@ public class ControllerScript : MonoBehaviour
         bool isTryingToStop = Mathf.Approximately(dir, 0f) && Mathf.Abs(v.x) > 0.1f;
         bool isReversingDirection = isSkating && dir != 0f && Mathf.Sign(v.x) != Mathf.Sign(dir);
 
-        // Fren durumu burada hesaplanıyor
         isBraking = isSkating && (isTryingToStop || isReversingDirection);
 
         if (Mathf.Abs(v.x) > 0.1f) transform.localScale = new Vector3(Mathf.Sign(v.x), 1, 1);

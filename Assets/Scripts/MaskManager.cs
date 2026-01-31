@@ -142,7 +142,7 @@ public class MaskManager : MonoBehaviour
 
         if (lightManager != null)
         {
-            if (isMaskOn) lightManager.ChangeAtmosphere(1.7f, maskOnColor, 0.5f);
+            if (isMaskOn) lightManager.ChangeAtmosphere(1f, maskOnColor, 0.5f);
             else lightManager.ChangeAtmosphere(1f, maskOffColor, 0.5f);
         }
 
