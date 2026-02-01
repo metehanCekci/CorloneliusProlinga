@@ -413,4 +413,13 @@ public class RailSystem : MonoBehaviour
         }
         return null;
     }
+ // RailSystem.cs'in içine herhangi bir yere ekle
+public void SetRailInput(bool isActive)
+{
+    if (railInputActions != null)
+    {
+        if (isActive) railInputActions.Enable();
+        else railInputActions.Disable();
+    }
+}
 }
