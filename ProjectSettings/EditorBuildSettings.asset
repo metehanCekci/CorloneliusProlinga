@@ -27,9 +27,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Part2.unity
     guid: e71e0abb2d5d221fab93d689a4eca1dd
   - enabled: 1
-    path: Assets/Scenes/Part2Comic.unity
-    guid: dcbf6bf48821ad05387667696786d917
-  - enabled: 1
     path: Assets/Scenes/LoadingToPart3.unity
     guid: f8603f135cea9c549815f6b51d994ae1
   - enabled: 1
