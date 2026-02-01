@@ -427,6 +427,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 220019277}
     m_Modifications:
+    - target: {fileID: 116947760560025021, guid: 2d21a208f3592564f8b6bb2a75b0ba80, type: 3}
+      propertyPath: fadeDuration
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 116947760560025021, guid: 2d21a208f3592564f8b6bb2a75b0ba80, type: 3}
+      propertyPath: delayBetweenPanels
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 902120048833764874, guid: 2d21a208f3592564f8b6bb2a75b0ba80, type: 3}
       propertyPath: m_SizeDelta.x
       value: 950
@@ -638,6 +646,10 @@ PrefabInstance:
     - target: {fileID: 8768332043151107816, guid: 2d21a208f3592564f8b6bb2a75b0ba80, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0.000029087
+      objectReference: {fileID: 0}
+    - target: {fileID: 9160123646353772386, guid: 2d21a208f3592564f8b6bb2a75b0ba80, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
