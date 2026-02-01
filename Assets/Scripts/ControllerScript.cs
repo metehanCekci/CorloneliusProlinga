@@ -29,7 +29,7 @@ public class ControllerScript : MonoBehaviour
     public const float RAIL_COOLDOWN_TIME = 0.5f;
     public float momentumTime = 0f;
     private float storedMoveSpeed;
-    
+
     // --- YENİ EKLENEN: Rail Coyote Time ---
     [Header("Coyote Time Ayarları")]
     [SerializeField] private float railCoyoteTime = 0.15f; // Raydan çıktıktan sonra zıplamak için tanınan süre
@@ -114,7 +114,7 @@ public class ControllerScript : MonoBehaviour
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
-        
+
         // --- Rail Coyote Timer Güncellemesi ---
         if (railCoyoteTimer > 0) railCoyoteTimer -= Time.deltaTime;
 
@@ -152,7 +152,7 @@ public class ControllerScript : MonoBehaviour
         if (isOnWall)
         {
             HandleWallClimb();
-            if (soundManager != null) soundManager.StopLoop(); 
+            if (soundManager != null) soundManager.StopLoop();
             return;
         }
 
@@ -183,7 +183,7 @@ public class ControllerScript : MonoBehaviour
 
         if (isBraking && grounded)
         {
-            soundManager.StartBraking(); 
+            soundManager.StartBraking();
             return;
         }
 
@@ -320,16 +320,16 @@ public class ControllerScript : MonoBehaviour
             railCoyoteTimer = 0f;
 
             // Eğer hala grind üzerindeysek (manuel zıplama) raydan kopar
-            if (isGrinding && activeRail != null) 
+            if (isGrinding && activeRail != null)
             {
                 activeRail.FinishGrind(false);
             }
             // Değilsek zaten fiziksel olarak raydan çıkmışızdır (Coyote Time işliyor),
             // sadece zıplama kuvvetini uygula.
 
-            gravity.StartJump(); 
-            juice?.ApplyStretch(); 
-            SpawnDust(); 
+            gravity.StartJump();
+            juice?.ApplyStretch();
+            SpawnDust();
             playerAnimator?.OnJump();
             if (soundManager != null) soundManager.PlayOllie();
             return;
@@ -420,7 +420,9 @@ public class ControllerScript : MonoBehaviour
         float input = moveAction.ReadValue<float>();
         dashDirection = input != 0 ? Mathf.Sign(input) : (transform.localScale.x >= 0 ? 1f : -1f);
         juice?.ApplyDashStretch();
-        if (soundManager != null) soundManager.PlayOllie();
+
+        // --- YENİ EKLENEN: Dash Sesi ---
+        if (soundManager != null) soundManager.PlayDash();
     }
 
     public void ResetSpeed() { currentMoveSpeed = walkSpeed; }
@@ -437,9 +439,9 @@ public class ControllerScript : MonoBehaviour
 
     public void ExitRail(Vector3 vel)
     {
-        isGrinding = false; 
-        activeRail = null; 
-        railCooldown = RAIL_COOLDOWN_TIME; 
+        isGrinding = false;
+        activeRail = null;
+        railCooldown = RAIL_COOLDOWN_TIME;
         momentumTime = 0f;
 
         // --- GÜNCELLENEN KISIM: Coyote Time Başlat ---
