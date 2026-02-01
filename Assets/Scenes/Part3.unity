@@ -49835,6 +49835,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &486299133 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4492555292738252668, guid: 71cf9b588ab0f81479fca5d8a2c0f6c4, type: 3}
+  m_PrefabInstance: {fileID: 2008775834}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &516710909
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51838,6 +51843,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558212669}
     m_Modifications:
+    - target: {fileID: 2714674268950449640, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
+    - target: {fileID: 3741211140288760659, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
     - target: {fileID: 7267980900941886154, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
       propertyPath: m_Name
       value: Main Rail
@@ -51900,6 +51913,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558212669}
     m_Modifications:
+    - target: {fileID: 2714674268950449640, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
+    - target: {fileID: 3741211140288760659, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
     - target: {fileID: 7267980900941886154, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
       propertyPath: m_Name
       value: Main Rail (1)
@@ -52031,6 +52052,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 1559787591129867764, guid: c20c6f0b7258cd74c9d3e95c2ac4ddf7, type: 3}
   m_PrefabInstance: {fileID: 1095400867}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1106952543 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 22594713812944828, guid: 71cf9b588ab0f81479fca5d8a2c0f6c4, type: 3}
+  m_PrefabInstance: {fileID: 2008775834}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1167623287
 PrefabInstance:
@@ -53716,6 +53742,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558212669}
     m_Modifications:
+    - target: {fileID: 2714674268950449640, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
+    - target: {fileID: 3741211140288760659, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
     - target: {fileID: 7267980900941886154, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
       propertyPath: m_Name
       value: Main Rail (3)
@@ -53996,6 +54030,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rail
       objectReference: {fileID: 0}
+    - target: {fileID: 7339694631211197645, guid: 71cf9b588ab0f81479fca5d8a2c0f6c4, type: 3}
+      propertyPath: endPoint
+      value: 
+      objectReference: {fileID: 486299133}
+    - target: {fileID: 7339694631211197645, guid: 71cf9b588ab0f81479fca5d8a2c0f6c4, type: 3}
+      propertyPath: startPoint
+      value: 
+      objectReference: {fileID: 1106952543}
     - target: {fileID: 9118244161876420878, guid: 71cf9b588ab0f81479fca5d8a2c0f6c4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.53268
@@ -54116,6 +54158,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 558212669}
     m_Modifications:
+    - target: {fileID: 2714674268950449640, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
+    - target: {fileID: 3741211140288760659, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.533
+      objectReference: {fileID: 0}
     - target: {fileID: 7267980900941886154, guid: 32578dcdaa8da4c4d8d72f871eca3fc6, type: 3}
       propertyPath: m_Name
       value: Main Rail (2)
@@ -54661,7 +54711,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8086625370878446409, guid: cee7b1fdf23cc52409463bff9a61d8cd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.2601266
+      value: -2.198
       objectReference: {fileID: 0}
     - target: {fileID: 8086625370878446409, guid: cee7b1fdf23cc52409463bff9a61d8cd, type: 3}
       propertyPath: m_LocalPosition.y
