@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 375fd6a48fbc24e6db90560273514eab
+guid: 3847a42594649584a94380ecffbb4cf6
 ScriptedImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -129,8 +129,8 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: Frame_0
     originalName: 
-    pivot: {x: 0.6315789, y: -0.03846154}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -139,7 +139,7 @@ ScriptedImporter:
       y: 4
       width: 38
       height: 52
-    spriteID: cdfb6f27f79f33e69b4632f33dd00f1c
+    spriteID: 5a48251f13e6a96488c3b04d20f134e0
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -150,8 +150,8 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 4}
   - name: Frame_1
     originalName: 
-    pivot: {x: 0.6315789, y: -0.040816326}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -160,7 +160,7 @@ ScriptedImporter:
       y: 123
       width: 38
       height: 49
-    spriteID: e624f3607dbb637f4a90213d0c81dc29
+    spriteID: 3c32897177639a9419ade2dd54b166a1
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -171,8 +171,8 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 123}
   - name: Frame_2
     originalName: 
-    pivot: {x: 0.6315789, y: -0.045454547}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -181,7 +181,7 @@ ScriptedImporter:
       y: 4
       width: 38
       height: 44
-    spriteID: 5c41d1e62d2f7bc298389af64ad98559
+    spriteID: b41fa090877e6c642b393b2ee604f7c8
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -192,8 +192,8 @@ ScriptedImporter:
     uvTransform: {x: 50, y: 4}
   - name: Frame_3
     originalName: 
-    pivot: {x: 0.6315789, y: -0.040816326}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -202,7 +202,7 @@ ScriptedImporter:
       y: 180
       width: 38
       height: 49
-    spriteID: 6f805631a2947d082b72143a30b35a2f
+    spriteID: 447ea49ef934c044dbb6eae1ab448cce
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -213,8 +213,8 @@ ScriptedImporter:
     uvTransform: {x: 4, y: 180}
   - name: Frame_4
     originalName: 
-    pivot: {x: 0.6315789, y: -0.039215688}
-    alignment: 9
+    pivot: {x: 0.5, y: 0.5}
+    alignment: 0
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
     rect:
@@ -223,7 +223,7 @@ ScriptedImporter:
       y: 64
       width: 38
       height: 51
-    spriteID: 91fbcb9cd112813fbb2f8c952a7ae628
+    spriteID: 5675edae63296d344947b26f5170affa
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -255,7 +255,7 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 52
-      spriteId: cdfb6f27f79f33e69b4632f33dd00f1c
+      spriteId: 5a48251f13e6a96488c3b04d20f134e0
     - name: Frame_1
       frameIndex: 1
       additiveSortOrder: 0
@@ -264,7 +264,7 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 49
-      spriteId: e624f3607dbb637f4a90213d0c81dc29
+      spriteId: 3c32897177639a9419ade2dd54b166a1
     - name: Frame_2
       frameIndex: 2
       additiveSortOrder: 0
@@ -273,7 +273,7 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 44
-      spriteId: 5c41d1e62d2f7bc298389af64ad98559
+      spriteId: b41fa090877e6c642b393b2ee604f7c8
     - name: Frame_3
       frameIndex: 3
       additiveSortOrder: 0
@@ -282,7 +282,7 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 49
-      spriteId: 6f805631a2947d082b72143a30b35a2f
+      spriteId: 447ea49ef934c044dbb6eae1ab448cce
     - name: Frame_4
       frameIndex: 4
       additiveSortOrder: 0
@@ -291,7 +291,7 @@ ScriptedImporter:
         y: 2
         width: 38
         height: 51
-      spriteId: 91fbcb9cd112813fbb2f8c952a7ae628
+      spriteId: 5675edae63296d344947b26f5170affa
     linkedCells: []
     tileCells: []
     tileSetIndex: 0

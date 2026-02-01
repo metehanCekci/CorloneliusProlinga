@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(AudioSource))] // Bu satır objeye otomatik AudioSource ekler
+[RequireComponent(typeof(AudioSource))]
 public class ComicScript : MonoBehaviour
 {
     [Header("Görsel Ayarlar")]
@@ -18,8 +18,9 @@ public class ComicScript : MonoBehaviour
     public float startDelay = 1.0f;
 
     [Header("Ses Ayarları")]
-    public AudioClip impactSound; // BURAYA ÖRS SESİNİ SÜRÜKLE
-    [Range(0f, 1f)] public float volume = 1.0f; // Ses seviyesi
+    public AudioClip impactSound;       // Normal resimlerin sesi (Örs)
+    public AudioClip finalImpactSound;  // SON resmin sesi (Örn: Daha güçlü bir vuruş veya zil)
+    [Range(0f, 1f)] public float volume = 1.0f;
 
     private AudioSource audioSource;
     private FadeScript transition;
@@ -29,9 +30,7 @@ public class ComicScript : MonoBehaviour
         transition = FindObjectOfType<FadeScript>();
         audioSource = GetComponent<AudioSource>();
         
-        // Temizlik
         PrepareImages();
-
         StartCoroutine(PlayComicSequence());
     }
 
@@ -54,9 +53,9 @@ public class ComicScript : MonoBehaviour
 
     IEnumerator PlayComicSequence()
     {
-        // Sahne açılışını bekle
         yield return new WaitForSeconds(startDelay);
 
+        // Resimleri listeye al
         List<Image> comicPanels = new List<Image>();
         foreach (Transform child in transform)
         {
@@ -64,16 +63,29 @@ public class ComicScript : MonoBehaviour
             if (img != null) comicPanels.Add(img);
         }
 
-        foreach (Image panelImg in comicPanels)
+        // Listeyi döngüye al (For döngüsü kullanıyoruz ki sırayı bilelim)
+        for (int i = 0; i < comicPanels.Count; i++)
         {
-            // --- SESİ BURADA OYNATIYORUZ ---
-            if (impactSound != null && audioSource != null)
+            Image panelImg = comicPanels[i];
+
+            // --- SES KONTROLÜ ---
+            // Eğer bu döngüdeki sayı (i), listenin son elemanının sırasına eşitse:
+            if (i == comicPanels.Count - 1)
             {
-                // PlayOneShot, sesler üst üste binse bile kesilmemesini sağlar
-                audioSource.PlayOneShot(impactSound, volume);
+                // SON SESİ ÇAL
+                if (finalImpactSound != null)
+                    audioSource.PlayOneShot(finalImpactSound, volume);
+                else if (impactSound != null) // Son ses atanmamışsa yine normali çal
+                    audioSource.PlayOneShot(impactSound, volume);
+            }
+            else
+            {
+                // NORMAL SESİ ÇAL
+                if (impactSound != null)
+                    audioSource.PlayOneShot(impactSound, volume);
             }
 
-            // GÖRSELİ AÇ
+            // --- GÖRSELİ AÇ ---
             if (fadeDuration <= 0.05f)
             {
                 SetAlpha(panelImg, 1f);
@@ -87,6 +99,7 @@ public class ComicScript : MonoBehaviour
         }
 
         Debug.Log("Hikaye bitti!");
+        
         if(SceneManager.GetActiveScene().buildIndex == 12)
         {
              yield return new WaitForSeconds(5);
