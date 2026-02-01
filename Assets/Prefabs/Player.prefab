@@ -223,7 +223,7 @@ MonoBehaviour:
   activeRail: {fileID: 0}
   momentumTime: 0
   railCoyoteTime: 0.15
-  dashSpeed: 5
+  dashSpeed: 6
   dashDuration: 0.15
   groundDashCooldown: 1
   wallClimbSpeed: 1
