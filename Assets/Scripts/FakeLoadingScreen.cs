@@ -1,25 +1,22 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class FakeLoadingScreen : MonoBehaviour
 {
     [Header("Bilesenler")]
-    public Image targetImage;       // Animasyonun oynayacağı UI Image
-    public Sprite[] animationFrames; // 9 karelik görsellerin buraya gelecek
+    public Image targetImage;        // Animasyonun oynayacağı UI Image
+    public Sprite[] animationFrames; // Görseller
 
     [Header("Ayarlar")]
-    public float fakeWaitTime = 3.0f; // Kullanıcı ne kadar beklesin (saniye)
-    public float frameRate = 12.0f;   // Animasyon hızı (saniyedeki kare sayısı)
-    public string sceneToLoad;        // Yüklenecek sahnenin tam adı
+    public float fakeWaitTime = 3.0f; // Bekleme süresi
+    public float frameRate = 12.0f;   // Animasyon hızı
 
     private void Start()
     {
-        // Eğer görsel atanmadıysa hata vermemesi için kontrol
         if (targetImage == null || animationFrames.Length == 0)
         {
-            Debug.LogError("Lütfen Inspector'dan Image ve Sprite'ları atadığından emin ol!");
+            Debug.LogError("Lütfen Inspector'dan Image ve Sprite'ları ata!");
             return;
         }
 
@@ -31,31 +28,54 @@ public class FakeLoadingScreen : MonoBehaviour
         float timer = 0f;
         int frameIndex = 0;
         float frameTimer = 0f;
-        float timePerFrame = 1f / frameRate; // Her karenin ne kadar ekranda kalacağı
+        float timePerFrame = 1f / frameRate;
 
-        // Belirlenen süre (fakeWaitTime) dolana kadar döngü devam eder
-        while (timer < fakeWaitTime)
+        // Bu değişkeni sahne yükleme emrini sadece 1 kere vermek için kullanacağız
+        bool hasTriggeredNextScene = false;
+
+        // KANKA BURASI ARTIK SONSUZ DÖNGÜ (while true)
+        // Sahne değişip bu obje yok olana kadar animasyon hep döner.
+        while (true)
         {
-            // Zamanlayıcıları güncelle
-            timer += Time.deltaTime;
+            // --- 1. KISIM: ANİMASYON (Hep çalışır) ---
             frameTimer += Time.deltaTime;
 
-            // Animasyon karesini değiştirme mantığı
             if (frameTimer >= timePerFrame)
             {
-                frameTimer -= timePerFrame; // Sayacı sıfırlama (taşmayı koruyarak)
-                
-                // Sıradaki kareye geç, dizi biterse başa dön (%)
+                frameTimer -= timePerFrame;
                 frameIndex = (frameIndex + 1) % animationFrames.Length;
-                
-                // Görseli güncelle
                 targetImage.sprite = animationFrames[frameIndex];
             }
 
-            yield return null; // Bir sonraki frame'i bekle
-        }
+            // --- 2. KISIM: SÜRE KONTROLÜ ---
+            // Eğer henüz geçiş emri verilmediyse süreyi say
+            if (!hasTriggeredNextScene)
+            {
+                timer += Time.deltaTime;
 
-        // Süre doldu, sahneyi yükle
-        SceneManager.LoadScene(sceneToLoad);
+                // Süre dolduysa GEÇİŞİ BAŞLAT ama döngüden çıkma
+                if (timer >= fakeWaitTime)
+                {
+                    hasTriggeredNextScene = true; // Bir daha buraya girmesin
+                    LoadNextScene();
+                }
+            }
+
+            yield return null; // Frame bekle ve devam et
+        }
+    }
+
+    private void LoadNextScene()
+    {
+        FadeScript transition = FindObjectOfType<FadeScript>();
+
+        if (transition != null)
+        {
+            transition.SiradakiSahne();
+        }
+        else
+        {
+            Debug.LogError("Sahnede FadeScript bulunamadı!");
+        }
     }
 }
