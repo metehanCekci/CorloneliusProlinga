@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // 1. BU KÜTÜPHANEYÝ MUTLAKA EKLE
+using UnityEngine.SceneManagement;
 
 public class KeepAlive : MonoBehaviour
 {
@@ -7,11 +7,16 @@ public class KeepAlive : MonoBehaviour
 
     void Awake()
     {
-        // --- 1. KONTROL: Eðer oyun direkt Scene 0'da baþladýysa ve bu obje oradaysa ---
-        if (SceneManager.GetActiveScene().buildIndex == 0)
+        // Þu anki sahne ve Son sahne indexini alalým
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int lastSceneIndex = SceneManager.sceneCountInBuildSettings - 1; // Örn: 5 sahne varsa son index 4'tür.
+
+        // --- 1. KONTROL: Baþlangýçta Scene 0'da VEYA Son Sahnede isek ---
+        // Oyun direkt son sahnede baþlarsa da (test için) bu obje oluþmasýn.
+        if (currentSceneIndex == 0 || currentSceneIndex == lastSceneIndex)
         {
             Destroy(gameObject);
-            return; // Kodu burada kes, aþaðýya inmesin
+            return;
         }
 
         // --- SINGLETON MANTIÐI ---
@@ -20,7 +25,7 @@ public class KeepAlive : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // 2. Sahne deðiþtiðinde haber ver (Abone oluyoruz)
+            // Sahne deðiþimini dinlemeye baþla
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -29,16 +34,19 @@ public class KeepAlive : MonoBehaviour
         }
     }
 
-    // Bu fonksiyon her sahne yüklendiðinde Unity tarafýndan otomatik çaðrýlýr
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // Eðer yüklenen sahnenin numarasý (Build Index) 0 ise
-        if (scene.buildIndex == 0)
+        // Son sahnenin indexini hesapla
+        int lastSceneIndex = SceneManager.sceneCountInBuildSettings - 1;
+
+        // --- YENÝ EKLENEN KISIM ---
+        // Eðer yüklenen sahne 0 (Ana Menü) VEYA Son Sahne (Credits/Final) ise:
+        if (scene.buildIndex == 0 || scene.buildIndex == lastSceneIndex)
         {
-            // Aboneliði iptal et (Hata vermesin diye)
+            // Aboneliði iptal et
             SceneManager.sceneLoaded -= OnSceneLoaded;
 
-            // Eðer Instance ben isem, statik referansý boþa çýkar
+            // Instance'ý boþa çýkar
             if (Instance == this) Instance = null;
 
             // Kendini yok et
@@ -46,7 +54,6 @@ public class KeepAlive : MonoBehaviour
         }
     }
 
-    // Obje yok olurken her ihtimale karþý aboneliði temizleyelim
     void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
