@@ -21,10 +21,13 @@ EditorBuildSettings:
     path: Assets/Scenes/Part2Comic.unity
     guid: dcbf6bf48821ad05387667696786d917
   - enabled: 1
-    path: Assets/Scenes/Part4.unity
+    path: Assets/Scenes/Part3.unity
     guid: f28dad7820db568b9a5eeb8ed08a7fc7
   - enabled: 1
-    path: Assets/Scenes/Part3.unity
+    path: Assets/Scenes/Part3Comic.unity
+    guid: ca1e8c6c793ce35bf8a5ae0b0c2bedcc
+  - enabled: 1
+    path: Assets/Scenes/Part4.unity
     guid: 4eadb76341f7cd0d4b0cb22483b0359f
   - enabled: 1
     path: Assets/Scenes/EndingScene.unity

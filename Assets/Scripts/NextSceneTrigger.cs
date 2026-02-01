@@ -20,4 +20,19 @@ public class NextSceneTrigger : MonoBehaviour
             }
         }
     }
+
+    public void nextScene()
+    {
+        // Sahnede FadeScript tipindeki objeyi bul (D�zeltildi: <T> kullan�m�)
+        FadeScript transition = FindObjectOfType<FadeScript>();
+
+        if (transition != null)
+        {
+            transition.SiradakiSahne();
+        }
+        else
+        {
+            Debug.LogError("Sahnede FadeScript bile�eni bulunamad�! L�tfen Canvas'� ve scripti kontrol et.");
+        }
+    }
 }
