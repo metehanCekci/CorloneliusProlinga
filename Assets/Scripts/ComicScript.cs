@@ -1,82 +1,137 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // UI elementlerine erişmek için gerekli
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class ComicScript : MonoBehaviour
 {
-    [Header("Ayarlar")]
-    [Tooltip("Her bir karenin görünür olma süresi (saniye)")]
-    public float fadeDuration = 1.0f;
+    [Header("Görsel Ayarlar")]
+    [Tooltip("Eğer 'Pop' diye gelsin istiyorsan burayı 0 yap.")]
+    public float fadeDuration = 0.0f; 
 
-    [Tooltip("Bir sonraki kareye geçmeden önceki bekleme süresi")]
+    [Tooltip("Bir sonraki kareye geçmeden bekleme süresi")]
     public float delayBetweenPanels = 0.5f;
-    FadeScript transition;
 
+    [Tooltip("Sahne perdesinin açılmasını beklemek için burayı artır")]
+    public float startDelay = 1.0f;
+
+    [Header("Ses Ayarları")]
+    public AudioClip impactSound;       // Normal resimlerin sesi (Örs)
+    public AudioClip finalImpactSound;  // SON resmin sesi (Örn: Daha güçlü bir vuruş veya zil)
+    [Range(0f, 1f)] public float volume = 1.0f;
+
+    private AudioSource audioSource;
+    private FadeScript transition;
 
     private void Start()
     {
-        // Oyuna başlar başlamaz hikayeyi oynat
         transition = FindObjectOfType<FadeScript>();
+        audioSource = GetComponent<AudioSource>();
+        
+        PrepareImages();
         StartCoroutine(PlayComicSequence());
-        Debug.Log("sa");
     }
 
-    IEnumerator PlayComicSequence()
+    void PrepareImages()
     {
-        // 1. ADIM: Panel içindeki tüm resimleri sırasıyla al
-        // transform.childCount kullanarak hiyerarşideki sıraya göre gideriz.
-        List<Image> comicPanels = new List<Image>();
-
         foreach (Transform child in transform)
         {
             Image img = child.GetComponent<Image>();
             if (img != null)
             {
-                // Başlangıçta hepsinin alpha'sını 0 yap (Görünmez)
+                if (img.GetComponent<Animator>()) img.GetComponent<Animator>().enabled = false;
+                if (img.GetComponent<Button>()) img.GetComponent<Button>().enabled = false;
+
                 Color c = img.color;
                 c.a = 0f;
                 img.color = c;
-
-                comicPanels.Add(img);
             }
         }
+    }
 
-        // 2. ADIM: Sırayla her birini görünür yap
-        foreach (Image panelImg in comicPanels)
+    IEnumerator PlayComicSequence()
+    {
+        yield return new WaitForSeconds(startDelay);
+
+        // Resimleri listeye al
+        List<Image> comicPanels = new List<Image>();
+        foreach (Transform child in transform)
         {
-            yield return StartCoroutine(FadeInImage(panelImg));
+            Image img = child.GetComponent<Image>();
+            if (img != null) comicPanels.Add(img);
+        }
 
-            // Bir sonraki kareye geçmeden önce biraz bekle (opsiyonel)
+        // Listeyi döngüye al (For döngüsü kullanıyoruz ki sırayı bilelim)
+        for (int i = 0; i < comicPanels.Count; i++)
+        {
+            Image panelImg = comicPanels[i];
+
+            // --- SES KONTROLÜ ---
+            // Eğer bu döngüdeki sayı (i), listenin son elemanının sırasına eşitse:
+            if (i == comicPanels.Count - 1)
+            {
+                // SON SESİ ÇAL
+                if (finalImpactSound != null)
+                    audioSource.PlayOneShot(finalImpactSound, volume);
+                else if (impactSound != null) // Son ses atanmamışsa yine normali çal
+                    audioSource.PlayOneShot(impactSound, volume);
+            }
+            else
+            {
+                // NORMAL SESİ ÇAL
+                if (impactSound != null)
+                    audioSource.PlayOneShot(impactSound, volume);
+            }
+
+            // --- GÖRSELİ AÇ ---
+            if (fadeDuration <= 0.05f)
+            {
+                SetAlpha(panelImg, 1f);
+            }
+            else
+            {
+                yield return StartCoroutine(FadeInImage(panelImg));
+            }
+
             yield return new WaitForSeconds(delayBetweenPanels);
         }
 
-        Debug.Log("Hikaye anlatımı bitti!");
-        transition.SiradakiSahne();
-        // Buraya "Devam Et" butonu açma kodu ekleyebilirsin.
+        Debug.Log("Hikaye bitti!");
+        
+        if(SceneManager.GetActiveScene().buildIndex == 12)
+        {
+             yield return new WaitForSeconds(5);
+        }
+        
+        if (transition != null) transition.SiradakiSahne();
     }
 
-    // Alpha değerini 0'dan 1'e yumuşakça çeken fonksiyon
+    void SetAlpha(Image img, float alpha)
+    {
+        Color c = img.color;
+        c.a = alpha;
+        img.color = c;
+    }
+
     IEnumerator FadeInImage(Image targetImage)
     {
         float elapsedTime = 0f;
         Color c = targetImage.color;
+        c.a = 0f;
+        targetImage.color = c;
 
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            // Lerp (Linear Interpolation) 0 ile 1 arasında yumuşak geçiş sağlar
             float newAlpha = Mathf.Lerp(0f, 1f, elapsedTime / fadeDuration);
-
             c.a = newAlpha;
             targetImage.color = c;
-
-            yield return null; // Bir sonraki frame'i bekle
+            yield return null;
         }
 
-        // Garanti olsun diye döngü bitince alpha'yı tam 1 yap
         c.a = 1f;
         targetImage.color = c;
     }
-
 }

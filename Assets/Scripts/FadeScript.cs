@@ -87,7 +87,11 @@ public class FadeScript : MonoBehaviour
         if (mevcutIndex + 1 < SceneManager.sceneCountInBuildSettings)
             BaslatFadeOut(mevcutIndex + 1);
         else
-            Debug.Log("Başka sahne yok.");
+            if (SceneManager.GetActiveScene().buildIndex >= SceneManager.sceneCountInBuildSettings -1)
+            {
+                BaslatFadeOut(0);
+                Debug.Log("ana sahneden selmalar");
+            }
     }
 
     public void BaslatFadeOut(int hedefIndex)

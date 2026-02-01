@@ -76,6 +76,13 @@ public class ControllerScript : MonoBehaviour
     private Collider2D col;
     private bool hasGrabAction = false;
     private PlayerAnimator playerAnimator;
+    [Range(0f, 1f)][SerializeField] private float groundDashEndDamping = 0.25f;
+    [Header("Dash Bitiş Ayarları (Tweaks)")]
+    [Tooltip("İşaretlenirse: Havada dash bitince eski hız geri gelmez, zemindeki gibi frenlenir/limitlenir. (Mesafe eşitlemek için ideal)")]
+    [SerializeField] private bool useGroundLogicInAir = false;
+
+    [Tooltip("Dash bittiğinde hız MaxSpeed'in kaç katına limitlensin? (1.0 = Tam MaxSpeed, 1.2 = Biraz boostlu çıkış)")]
+    [Range(0.5f, 2f)][SerializeField] private float dashEndSpeedMultiplier = 1.0f;
 
     void OnEnable()
     {
@@ -109,19 +116,17 @@ public class ControllerScript : MonoBehaviour
         if (soundManager == null) soundManager = GetComponent<SkateSoundManager>();
     }
 
-    void Update()
+   void Update()
     {
+        // Zamanlayıcıları güncelle
         if (railCooldown > 0) railCooldown -= Time.deltaTime;
         if (momentumTime > 0) momentumTime -= Time.deltaTime;
         if (dashCooldownTimer > 0) dashCooldownTimer -= Time.deltaTime;
-
-        // --- Rail Coyote Timer Güncellemesi ---
         if (railCoyoteTimer > 0) railCoyoteTimer -= Time.deltaTime;
 
         isGrabbing = hasGrabAction && grabAction.ReadValue<float>() > 0.5f;
         bool grounded = IsGrounded();
 
-        // --- SES KONTROLÜ ---
         HandleSkateSound(grounded);
 
         if (grounded && !isOnWall)
@@ -129,21 +134,75 @@ public class ControllerScript : MonoBehaviour
             currentStamina = Mathf.MoveTowards(currentStamina, maxStamina, staminaRecoveryRate * Time.deltaTime);
             ResetStaminaWarning();
         }
-
         UpdateStaminaWarning();
         CheckWallState();
 
         if (IsDashing)
         {
             dashTimer -= Time.deltaTime;
+
+            // --- DASH SIRASINDA HIZI ZORLA ---
+            if (dashTimer > 0)
+            {
+                Vector3 dashVel = gravity.GetVelocity();
+                dashVel.x = dashDirection * dashSpeed;
+                dashVel.y = 0; 
+                gravity.SetVelocity(dashVel);
+                return; 
+            }
+
+            // --- DASH SÜRESİ BİTTİĞİ AN ---
             if (dashTimer <= 0)
             {
                 IsDashing = false;
-                currentMoveSpeed = storedMoveSpeed;
-                Vector3 post = gravity.GetVelocity();
-                post.x = preDashVelocity.x;
-                gravity.SetVelocity(post);
-                if (IsGrounded()) HasDash = true;
+
+                // Zemin mantığını nerede uygulayacağız?
+                bool applyLimitLogic = IsGrounded() || useGroundLogicInAir;
+
+                if (applyLimitLogic)
+                {
+                    // --- LİMİTLEME MANTIĞI (CLAMP) ---
+                    float inputDir = moveAction.ReadValue<float>();
+
+                    if (inputDir != 0)
+                    {
+                        // Tuşa basılıysa: Hızı MaxSpeed * Multiplier değerine çivile
+                        float exitSpeed = maxSpeed * dashEndSpeedMultiplier;
+                        
+                        Vector3 clampedVel = gravity.GetVelocity();
+                        clampedVel.x = Mathf.Sign(inputDir) * exitSpeed; 
+                        gravity.SetVelocity(clampedVel);
+
+                        currentMoveSpeed = exitSpeed;
+                    }
+                    else
+                    {
+                        // Tuşa basmıyorsa: ZINKS diye dur.
+                        Vector3 stopVel = gravity.GetVelocity();
+                        stopVel.x = 0;
+                        gravity.SetVelocity(stopVel);
+                        currentMoveSpeed = 0; 
+                    }
+                }
+                else
+                {
+                    // --- ESKİ MANTIK (Sadece useGroundLogicInAir kapalıysa havada çalışır) ---
+                    Vector3 post = gravity.GetVelocity();
+                    post.x = preDashVelocity.x;
+                    gravity.SetVelocity(post);
+                    currentMoveSpeed = storedMoveSpeed;
+                }
+                
+                // --- DÜZELTME BURADA ---
+                // Eskiden direkt 'HasDash = true' diyorduk, bu yüzden havada sınırsız dash atılıyordu.
+                // Artık sadece YERDEYSEK dash hakkını geri veriyoruz.
+                // Havadaysak vermiyoruz (OnLand fonksiyonu yere inince verecek).
+                if (IsGrounded())
+                {
+                    HasDash = true;
+                }
+                
+                return; 
             }
         }
 
@@ -158,7 +217,6 @@ public class ControllerScript : MonoBehaviour
 
         ApplyMovement();
     }
-
     public void OnLand(float impactVelocity)
     {
         HasDash = true;
@@ -455,37 +513,31 @@ public class ControllerScript : MonoBehaviour
 
     private void ApplyMovement()
     {
-        if (IsDashing)
-        {
-            isBraking = false;
-            float dashDistance = dashSpeed * Time.deltaTime;
-            float xEdge = dashDirection > 0 ? col.bounds.max.x : col.bounds.min.x;
-            Vector2 topOrigin = new Vector2(xEdge, col.bounds.max.y - 0.05f);
-            Vector2 midOrigin = new Vector2(xEdge, col.bounds.center.y);
-            Vector2 botOrigin = new Vector2(xEdge, col.bounds.min.y + 0.05f);
-
-            RaycastHit2D hit = Physics2D.Raycast(topOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
-            if (hit.collider == null) hit = Physics2D.Raycast(midOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
-            if (hit.collider == null) hit = Physics2D.Raycast(botOrigin, Vector2.right * dashDirection, dashDistance + 0.1f, wallLayer);
-
-            if (hit.collider != null)
-            {
-                float stopX = hit.point.x - (dashDirection > 0 ? col.bounds.extents.x : -col.bounds.extents.x);
-                transform.position = new Vector3(stopX, transform.position.y, transform.position.z);
-                IsDashing = false; currentMoveSpeed = storedMoveSpeed;
-                Vector3 stopVel = gravity.GetVelocity(); stopVel.x = 0; gravity.SetVelocity(stopVel);
-                return;
-            }
-
-            Vector3 dashVel = gravity.GetVelocity(); dashVel.x = dashDirection * dashSpeed / 2; dashVel.y = 0;
-            gravity.SetVelocity(dashVel); return;
-        }
+        if (IsDashing) return;
 
         float dir = moveAction.ReadValue<float>();
         Vector3 v = gravity.GetVelocity();
+
+        // --- EMNİYET KİLİDİ GÜNCELLEMESİ ---
+        // Dash çıkış hızımız (maxSpeed * multiplier) olabilir.
+        // Güvenlik kilidi, bu yeni limite göre çalışmalı.
+        float speedLimit = maxSpeed * dashEndSpeedMultiplier;
+
+        if (momentumTime <= 0 && IsGrounded())
+        {
+            // Eğer hızımız belirlenen limiti aşıyorsa tırpanla
+            if (Mathf.Abs(v.x) > speedLimit)
+            {
+                v.x = Mathf.Sign(v.x) * speedLimit;
+            }
+        }
+        // ----------------------------------------------------
+
+        // ... (Geri kalan kodlar aynı) ...
         bool isTryingToStop = Mathf.Approximately(dir, 0f) && Mathf.Abs(v.x) > 0.1f;
         bool isReversingDirection = isSkating && dir != 0f && Mathf.Sign(v.x) != Mathf.Sign(dir);
 
+        // ... (Devam eden ApplyMovement kodları) ...
         isBraking = isSkating && (isTryingToStop || isReversingDirection);
 
         if (Mathf.Abs(v.x) > 0.1f) transform.localScale = new Vector3(Mathf.Sign(v.x), 1, 1);
@@ -498,11 +550,18 @@ public class ControllerScript : MonoBehaviour
         {
             float accelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, accelerationTime);
             float decelRate = (maxSpeed - walkSpeed) / Mathf.Max(0.0001f, decelerationTime);
+
+            // DİKKAT: Burada hedef hızımız hala normal 'maxSpeed'. 
+            // Dash ile 1.5x hızla çıksan bile zamanla normal 'maxSpeed'e düşeceksin (Deceleration ile).
             currentMoveSpeed = Mathf.MoveTowards(currentMoveSpeed, dir != 0 ? maxSpeed : walkSpeed, (dir != 0 ? accelRate : decelRate) * Time.deltaTime);
             isSkating = currentMoveSpeed > 1f;
+
             float targetVelX = dir * currentMoveSpeed;
 
-            if (Mathf.Approximately(dir, 0f)) v.x = Mathf.MoveTowards(v.x, 0f, decelRate * Time.deltaTime);
+            if (Mathf.Approximately(dir, 0f))
+            {
+                v.x = Mathf.MoveTowards(v.x, 0f, decelRate * Time.deltaTime);
+            }
             else
             {
                 float rate = (Mathf.Sign(v.x) != Mathf.Sign(dir) && v.x != 0) ? decelRate * 2f : accelRate;
@@ -511,6 +570,5 @@ public class ControllerScript : MonoBehaviour
         }
         gravity.SetVelocity(v);
     }
-
     void OnDisable() => inputActions.Disable();
 }

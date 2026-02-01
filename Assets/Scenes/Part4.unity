@@ -49817,7 +49817,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 5492936238358288418}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &464645046
@@ -50281,19 +50281,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.x
-      value: 1.2815747
+      value: 1.7640088
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.y
-      value: 0.23283672
+      value: 0.1403917
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.x
-      value: -0.16918959
+      value: 0.072027415
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.y
-      value: 0.1282046
+      value: 0.081982106
       objectReference: {fileID: 0}
     - target: {fileID: 6330009396369880369, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_LocalPosition.x
@@ -50900,19 +50900,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.x
-      value: 1.1204847
+      value: 1.4063282
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.y
-      value: 0.23283672
+      value: 0.16346797
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.x
-      value: -0.24973458
+      value: -0.39265645
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.y
-      value: 0.1282046
+      value: 0.093520224
       objectReference: {fileID: 0}
     - target: {fileID: 6330009396369880369, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_LocalPosition.x
@@ -51274,19 +51274,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.x
-      value: 1.1204847
+      value: 1.6463277
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.y
-      value: 0.23283672
+      value: 0.1669474
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.x
-      value: -0.24973458
+      value: -0.5126561
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.y
-      value: 0.1282046
+      value: 0.095259935
       objectReference: {fileID: 0}
     - target: {fileID: 6330009396369880369, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_LocalPosition.x
@@ -53615,19 +53615,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.x
-      value: 1.2815747
+      value: 1.5502812
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Size.y
-      value: 0.23283672
+      value: 0.1593008
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.x
-      value: -0.16918959
+      value: -0.3035428
       objectReference: {fileID: 0}
     - target: {fileID: 1419601256555598339, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_Offset.y
-      value: 0.1282046
+      value: 0.091436654
       objectReference: {fileID: 0}
     - target: {fileID: 6330009396369880369, guid: 1815cda6bf3bdc74abc20e1f47d32174, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54883,6 +54883,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+--- !u!1 &5492936238358288418 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9106691032635966587, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+  m_PrefabInstance: {fileID: 5492936238358288417}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

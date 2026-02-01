@@ -26,7 +26,6 @@ public class LogoScript : MonoBehaviour
 
     void Update()
     {
-        Debug.Log("sa");
         // --- 1. KISIM: BPM EŞLİKLİ KALP ATIŞI ---
         
         // Matematiksel Formül: (Zaman * 2 * PI) * (BPM / 60)

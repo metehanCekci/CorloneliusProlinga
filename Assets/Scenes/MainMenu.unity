@@ -616,7 +616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 71700531}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &879763189
@@ -1072,6 +1072,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Global Volume
       objectReference: {fileID: 0}
+    - target: {fileID: 4027245197062211139, guid: f854daca8cb530bd489b69fe9387d315, type: 3}
+      propertyPath: sharedProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: c86e4eff8479d0198acf3d803cb81814, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1342,6 +1346,18 @@ PrefabInstance:
       value: MainSlider
       objectReference: {fileID: 0}
     - target: {fileID: 6197934678629639519, guid: a823b820226d99942aac05a84647a01d, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197934678629639519, guid: a823b820226d99942aac05a84647a01d, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197934678629639519, guid: a823b820226d99942aac05a84647a01d, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6197934678629639519, guid: a823b820226d99942aac05a84647a01d, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 653971037}
@@ -1474,6 +1490,18 @@ PrefabInstance:
     - target: {fileID: 7843406075514589330, guid: 3d25817ab8553df49af7d66f6ee0b8cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8215121092092861504, guid: 3d25817ab8553df49af7d66f6ee0b8cc, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8215121092092861504, guid: 3d25817ab8553df49af7d66f6ee0b8cc, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8215121092092861504, guid: 3d25817ab8553df49af7d66f6ee0b8cc, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8215121092092861504, guid: 3d25817ab8553df49af7d66f6ee0b8cc, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
