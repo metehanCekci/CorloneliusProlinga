@@ -6,22 +6,22 @@ public class DashCrystal : MonoBehaviour
     [SerializeField] private Color inactiveColor = new Color(0.5f, 0.5f, 0.5f, 0.2f);
 
     [Header("Manuel Kontrol Ayarlari")]
-    [SerializeField] private LayerMask playerLayer; 
+    [SerializeField] private LayerMask playerLayer;
 
     private SpriteRenderer spriteRenderer;
     private Collider2D crystalCol;
-    private Animator animator; 
+    private Animator animator;
     private bool isAvailable = true;
     private ControllerScript playerScript;
 
-    private readonly string pickupTrigger = "Pickup"; 
+    private readonly string pickupTrigger = "Pickup";
     private readonly string respawnTrigger = "Respawn";
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         crystalCol = GetComponent<Collider2D>();
-        animator = GetComponent<Animator>(); 
+        animator = GetComponent<Animator>();
     }
 
     private void Update()
@@ -42,9 +42,7 @@ public class DashCrystal : MonoBehaviour
 
         if (hit != null && hit.TryGetComponent<ControllerScript>(out ControllerScript player))
         {
-            // DEĞİŞİKLİK BURADA: 
             // Sadece oyuncunun Dash hakkı bitmişse (HasDash == false) kristal toplanır.
-            // Eğer oyuncunun dash'i zaten varsa, kristal onu görmezden gelir.
             if (!player.HasDash)
             {
                 playerScript = player;
@@ -53,15 +51,22 @@ public class DashCrystal : MonoBehaviour
         }
     }
 
-   private void CollectCrystal()
+    private void CollectCrystal()
     {
         isAvailable = false;
-        
-        //if (spriteRenderer != null) spriteRenderer.enabled = false; 
-        
+
+        // Görseli kapatmak yerine animasyon oynatıyoruz, animatör sprite'ı yönetir
+        // if (spriteRenderer != null) spriteRenderer.enabled = false; 
+
         if (animator != null)
         {
             animator.SetTrigger(pickupTrigger);
+        }
+
+        // YENİ: Pickup sesini oynat
+        if (playerScript != null && playerScript.soundManager != null)
+        {
+            playerScript.soundManager.PlayPickup();
         }
 
         // Kristal alındığında her iki hakkı da doldurur
@@ -72,8 +77,8 @@ public class DashCrystal : MonoBehaviour
     private void ResetCrystal()
     {
         isAvailable = true;
-        
-        if (spriteRenderer != null) 
+
+        if (spriteRenderer != null)
         {
             spriteRenderer.enabled = true;
             spriteRenderer.color = Color.white;
