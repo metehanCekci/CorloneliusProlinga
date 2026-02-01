@@ -913,6 +913,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3398407354165852527, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
+      propertyPath: fadeSuresi
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 5931710426234500214, guid: a20b79b7e4f094e4b8b6e3984b607c37, type: 3}
       propertyPath: m_Name
       value: Canvas
