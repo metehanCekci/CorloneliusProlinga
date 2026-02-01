@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 888ee7e98638e0f4aaae286d1c701cd4
   - enabled: 1
+    path: Assets/Scenes/StoryTeller.unity
+    guid: 6e447571138067799942ef7b1b872ba3
+  - enabled: 1
     path: Assets/Scenes/IntroComic.unity
     guid: 415037fef67ac9945ae7ca921cf260db
   - enabled: 1
