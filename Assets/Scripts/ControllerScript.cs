@@ -477,7 +477,7 @@ public class ControllerScript : MonoBehaviour
                 return;
             }
 
-            Vector3 dashVel = gravity.GetVelocity(); dashVel.x = dashDirection * dashSpeed; dashVel.y = 0;
+            Vector3 dashVel = gravity.GetVelocity(); dashVel.x = dashDirection * dashSpeed / 2; dashVel.y = 0;
             gravity.SetVelocity(dashVel); return;
         }
 
