@@ -408,6 +408,8 @@ MonoBehaviour:
   brakeClip: {fileID: 8300000, guid: 0fd0ab38284dfe34f878064686ca8209, type: 3}
   ollieClip: {fileID: 8300000, guid: 247e7a3ee96f1f2488c94a6d282f9fe5, type: 3}
   landClip: {fileID: 8300000, guid: 1f3527c5ae1e5014da2222619fba55d9, type: 3}
+  dashClip: {fileID: 8300000, guid: 38d94aabaf804394eb244615ce4af1a7, type: 3}
+  pickupClip: {fileID: 8300000, guid: 0df76716901b0a14cba6835b67f72b29, type: 3}
   minSpeedForSound: 1
 --- !u!82 &2190795274480766643
 AudioSource:

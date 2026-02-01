@@ -9,15 +9,18 @@ public class SkateSoundManager : MonoBehaviour
     [Header("Ses Dosyalarý (Sürükle Býrak)")]
     public AudioClip skateLoopClip;
     public AudioClip railLoopClip;
-    public AudioClip brakeClip; // YENÝ: Buraya fren sesini at
+    public AudioClip brakeClip;
     public AudioClip ollieClip;
     public AudioClip landClip;
+
+    [Header("Yeni Efekt Sesleri")]
+    public AudioClip dashClip;   // YENÝ: Dash sesi buraya
+    public AudioClip pickupClip; // YENÝ: Pickup sesi buraya
 
     [Header("Ayarlar")]
     public float minSpeedForSound = 0.5f;
 
-    // Durumlarý artýk dýþarýdan (Controller'dan) yönetiyoruz, 
-    // burada sadece "þu an ne çalýyor" kontrolü yapacaðýz.
+    // --- Loop Yönetimi ---
 
     public void StartSkating(float currentSpeed)
     {
@@ -27,7 +30,6 @@ public class SkateSoundManager : MonoBehaviour
             return;
         }
 
-        // Eðer zaten Skate sesi çalýyorsa elleme (kesinti olmasýn)
         if (loopSource.isPlaying && loopSource.clip == skateLoopClip) return;
 
         loopSource.clip = skateLoopClip;
@@ -37,7 +39,6 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StartRailGrind()
     {
-        // Zaten Rail çalýyorsa elleme
         if (loopSource.isPlaying && loopSource.clip == railLoopClip) return;
 
         loopSource.clip = railLoopClip;
@@ -47,7 +48,6 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StartBraking()
     {
-        // YENÝ: Zaten Fren çalýyorsa elleme
         if (loopSource.isPlaying && loopSource.clip == brakeClip) return;
 
         loopSource.clip = brakeClip;
@@ -57,17 +57,31 @@ public class SkateSoundManager : MonoBehaviour
 
     public void StopLoop()
     {
-        // Loop kaynaðýný tamamen durdurur
         if (loopSource.isPlaying) loopSource.Stop();
     }
 
+    // --- One Shot (Tek Seferlik) Sesler ---
+
     public void PlayOllie()
     {
-        sfxSource.PlayOneShot(ollieClip);
+        // Ses atanmýþ mý diye basit bir kontrol eklemek her zaman iyidir
+        if (ollieClip != null) sfxSource.PlayOneShot(ollieClip);
     }
 
     public void PlayLand()
     {
-        sfxSource.PlayOneShot(landClip);
+        if (landClip != null) sfxSource.PlayOneShot(landClip);
+    }
+
+    // YENÝ: Dash Sesi Fonksiyonu
+    public void PlayDash()
+    {
+        if (dashClip != null) sfxSource.PlayOneShot(dashClip);
+    }
+
+    // YENÝ: Pickup (Toplama) Sesi Fonksiyonu
+    public void PlayPickup()
+    {
+        if (pickupClip != null) sfxSource.PlayOneShot(pickupClip);
     }
 }

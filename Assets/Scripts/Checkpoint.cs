@@ -24,6 +24,15 @@ public class Checkpoint : MonoBehaviour
         // Katman kontrolü ve daha önce alınıp alınmadığı
         if (!isCollected && ((1 << collision.gameObject.layer) & playerLayer) != 0)
         {
+            // Oyuncu scriptine ulaşıp sesi çaldıralım
+            if (collision.TryGetComponent<ControllerScript>(out ControllerScript player))
+            {
+                if (player.soundManager != null)
+                {
+                    player.soundManager.PlayPickup(); // Checkpoint için de pickup sesi çalar
+                }
+            }
+
             CollectCheckpoint();
         }
     }
@@ -31,7 +40,7 @@ public class Checkpoint : MonoBehaviour
     private void CollectCheckpoint()
     {
         isCollected = true;
-        
+
         // Burada eğer bir GameManager kullanıyorsan spawn noktasını güncelleyebilirsin
         // GameManager.Instance.UpdateCheckpoint(transform.position);
 
