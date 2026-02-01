@@ -129,7 +129,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: billboard1giveusaskate
     originalName: 
-    pivot: {x: 0.48387098, y: -0.2647059}
+    pivot: {x: 0.4897959, y: -0.22222221}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     customData: 
@@ -137,8 +137,8 @@ ScriptedImporter:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 93
-      height: 68
+      width: 98
+      height: 72
     spriteID: 362c6d4363f18ae4098bc50a3a07efb5
     spriteBone: []
     spriteOutline: []
@@ -167,10 +167,10 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 5
-        y: 18
-        width: 93
-        height: 68
+        x: 2
+        y: 16
+        width: 98
+        height: 72
       spriteId: 362c6d4363f18ae4098bc50a3a07efb5
     linkedCells: []
     tileCells: []
