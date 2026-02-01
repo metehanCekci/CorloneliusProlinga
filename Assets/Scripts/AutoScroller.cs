@@ -2,26 +2,39 @@ using UnityEngine;
 
 public class AutoScroller : MonoBehaviour
 {
-    [Header("Hareket Ayarları")]
-    public Vector3 direction = Vector3.left; // Objelerin kayacağı yön (Sola)
-    public float speed = 5f; // Kayma hızı
+    [Header("Hareket")]
+    public float speed = 5f;
+    // 1 = Ok Yönü (Sağ/Yukarı), -1 = Tersi (Sol/Aşağı)
+    public float direction = 1f; 
 
-    [Header("Sonsuz Döngü (Railler İçin)")]
-    public bool loop = false; // Railler için TRUE, yazılar için FALSE yap
-    public float limitX = -30f; // Ekrandan çıkma noktası (Sınır)
-    public float resetX = 30f;  // Başa dönme noktası (Başlangıç)
+    [Header("Döngü Ayarı (Local Space)")]
+    public bool loop = true;
+    // Inspector'da objeyi hareket ettirip X değerine bakarak bunları gir:
+    public float limitX = 20f;  // Bu noktaya gelince başa dönsün
+    public float startX = -20f; // Buraya ışınlansın
 
     void Update()
     {
-        // Objeyi belirlenen yöne doğru kaydır
-        transform.Translate(direction * speed * Time.deltaTime);
+        // Translate varsayılan olarak "Space.Self" çalışır.
+        // Yani objen yamuksa, yamuk şekilde ilerler.
+        transform.Translate(Vector3.right * direction * speed * Time.deltaTime);
 
-        // Eğer döngü açıksa ve sınır geçildiyse objeyi başa ışınla
-        if (loop && transform.position.x <= limitX)
+        if (loop)
         {
-            Vector3 newPos = transform.position;
-            newPos.x = resetX;
-            transform.position = newPos;
+            // Eğer ok yönünde gidiyorsan (Pozitif X) ve limiti geçtiysen
+            if (direction > 0 && transform.localPosition.x >= limitX)
+            {
+                Vector3 newPos = transform.localPosition;
+                newPos.x = startX;
+                transform.localPosition = newPos;
+            }
+            // Eğer ters yöne gidiyorsan (Negatif X) ve limiti geçtiysen
+            else if (direction < 0 && transform.localPosition.x <= limitX)
+            {
+                Vector3 newPos = transform.localPosition;
+                newPos.x = startX;
+                transform.localPosition = newPos;
+            }
         }
     }
 }
