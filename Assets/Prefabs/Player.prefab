@@ -222,6 +222,7 @@ MonoBehaviour:
   railCooldown: 0
   activeRail: {fileID: 0}
   momentumTime: 0
+  railCoyoteTime: 0.15
   dashSpeed: 5
   dashDuration: 0.15
   groundDashCooldown: 1
@@ -255,13 +256,13 @@ MonoBehaviour:
   jumpForce: 2.5
   maxJumpHeight: 0.15
   groundCheckDist: 0.3
-  ceilingCheckDist: 0.4
+  ceilingCheckDist: 0.05
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
   ceilingLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   sideOffset: 0.15
   rotationSpeed: 15
   railLayer:
@@ -284,7 +285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DeathScript
   initialRespawnPoint: {fileID: 0}
   fadeDuration: 1
-  waitAtBlack: 0.5
+  waitAtBlack: 1
 --- !u!114 &6855052141912962691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298,7 +299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSlopeRotator
   rotationSpeed: 20
-  rayLength: 0.4
+  rayLength: 0.25
   rayOffsetY: 0.03
   groundLayer:
     serializedVersion: 2
@@ -664,7 +665,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: ba8f6cd61acff683cbfbc33e64554ce5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

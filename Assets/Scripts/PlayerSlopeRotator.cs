@@ -59,13 +59,14 @@ public class PlayerSlopeRotator : MonoBehaviour
 
         if (isGrounded)
         {
-            AlignToSlope();
+            
         }
         else
         {
             // Havada yavaşça düzel
             RotateSmoothly(Quaternion.identity);
         }
+        AlignToSlope();
     }
 
     void AlignToSlope()
